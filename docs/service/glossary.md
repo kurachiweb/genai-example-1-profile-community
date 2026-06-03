@@ -20,7 +20,7 @@
 
 | 用語（英語・別名） | 意味 | 参照 |
 | --- | --- | --- |
-| GenAI Profile Community | 本サービスの名称。アイコン・名前（ミドルネーム対応）・職業・自己紹介・SNS リンクを固有 URL の公開ページにまとめて共有できるプロフィール共有サービス。 | [01-overview.md](./overview/01-overview.md) |
+| GenAI Profile Community | 本サービスの名称。アイコン・名前・職業・自己紹介・SNS リンクを固有 URL の公開ページにまとめて共有できるプロフィール共有サービス。 | [01-overview.md](./overview/01-overview.md) |
 | プロフィールカード | 名前・肩書き・リンクを 1 枚にまとめた自己紹介ページ、というサービスの体験の比喩。名刺やリンク集の代わりになる。 | [01-overview.md](./overview/01-overview.md) |
 | 手軽な共有ページ | サービスの核となる価値を一言で表したコンセプトステートメント。多機能 SNS でもポートフォリオ CMS でもなく、「自己紹介とリンクを速く・きれいに・安全にまとめて渡す」一点に価値を集中させる。 | [02-concept.md](./overview/02-concept.md) |
 | 3 つの速さ | コンセプトの核。「作るのが速い」「渡すのが速い」「見るのが速い」の 3 点。すべての設計判断はこれを損なわないかで評価する。 | [02-concept.md](./overview/02-concept.md) |
@@ -33,7 +33,7 @@
 | 管理者 | サービスを運営する側。管理者コンソールからモデレーションや運用を行う。 | [07-admin-console.md](./features/07-admin-console.md) |
 | 利用者アプリ（client） | 利用者・閲覧者が使う Web アプリ。管理者コンソールとはアプリ・セッションを分離する。 | [00-common-rules.md](./features/00-common-rules.md) |
 | 管理者コンソール（admin） | 運営チームが使う管理用 Web アプリ。利用者アプリとは別アプリ・別セッション。 | [07-admin-console.md](./features/07-admin-console.md) |
-| ペルソナ | 想定ユーザー像を具体化した架空の人物像（里中 みなと、David Cruz-Tanaka 等）。設計判断の拠り所にする。 | [03-target-users.md](./overview/03-target-users.md) |
+| ペルソナ | 想定ユーザー像を具体化した架空の人物像（里中 みなと、小田原 風香 等）。設計判断の拠り所にする。 | [03-target-users.md](./overview/03-target-users.md) |
 | アンチペルソナ | 「手軽さ」の核を守るため、あえて主対象としない層（本格ポートフォリオ運用・SNS 的交流・EC を求める層）。 | [03-target-users.md](./overview/03-target-users.md) |
 
 ---
@@ -69,9 +69,8 @@
 | Profile（プロフィール） | User に 1:1 で紐づくプロフィール本体。アイコン・氏名・職業・自己紹介・SNS リンク・公開設定を持つ。 | [02-profile.md](./features/02-profile.md) |
 | アイコン画像 | プロフィールの顔となる画像。PNG/JPEG/WebP・最大 5 MB。正方形にトリミングして正規化し、アップロード時に NSFW 自動検出の対象となる。 | [02-profile.md](./features/02-profile.md) |
 | 既定アイコン | アイコン未設定時・削除時に表示される自動生成のプレースホルダ。「デフォルトで完成する」原則を支える。 | [02-profile.md](./features/02-profile.md) |
-| 氏名（ファースト/ミドル/ラスト） | プロフィールの名前。firstName・lastName は必須、middleName は任意（各最大 50 文字）。 | [02-profile.md](./features/02-profile.md) |
-| ミドルネーム（middleName） | 名前の中間部分。海外名・複合姓に対応するための任意項目。「名前に敬意を払う」原則の中心。 | [02-profile.md](./features/02-profile.md) |
-| 表示名 | firstName・middleName・lastName と表示順から決定論的に組み立てた、画面・一覧・OGP・検索で一貫して使う名前。 | [02-profile.md](./features/02-profile.md) |
+| 氏名（ファースト/ラスト） | プロフィールの名前。firstName・lastName ともに必須（各最大 50 文字）。複合姓・海外名も崩さず扱う（「名前に敬意を払う」原則）。 | [02-profile.md](./features/02-profile.md) |
+| 表示名 | firstName・lastName と表示順から決定論的に組み立てた、画面・一覧・OGP・検索で一貫して使う名前。 | [02-profile.md](./features/02-profile.md) |
 | 表示順（nameDisplayOrder） | 名前を並べる順序。`givenNameFirst`（名→姓、既定）／`familyNameFirst`（姓→名）の 2 値。 | [02-profile.md](./features/02-profile.md) |
 | 職業（occupation・肩書き） | 何をしている人かを一目で伝える短い肩書き（任意・最大 50 文字・単一行）。 | [02-profile.md](./features/02-profile.md) |
 | 自己紹介文（bio） | 肩書きを補足する自由記述（任意・最大 500 文字・プレーンテキスト）。HTML は不可で、表示時にエスケープする。 | [02-profile.md](./features/02-profile.md) |

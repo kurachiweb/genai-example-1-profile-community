@@ -161,7 +161,7 @@ flowchart TD
 ### BR-COMMON-015 言語・タイムゾーン
 
 - UI・通知の既定言語は **日本語**。日時は既定で **JST（Asia/Tokyo）** で表示し、保存は UTC とする。
-- 名前は多言語・ミドルネームを尊重して扱う（表示順の規定は [02-profile.md](./02-profile.md) `BR-PROF-004`）。
+- 名前は多言語表記・複合姓を尊重して扱う（表示順の規定は [02-profile.md](./02-profile.md) `BR-PROF-004`）。
 
 ## 関連ドキュメント
 

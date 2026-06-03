@@ -13,7 +13,6 @@ Profile は User に 1:1 で紐づき、アカウント作成時に空の状態�
 | --- | --- | --- | --- |
 | iconImage | 画像 | 任意 | `BR-PROF-001`（未設定時は既定アイコン） |
 | firstName | 文字列 | 必須 | `BR-PROF-002` |
-| middleName | 文字列 | 任意 | `BR-PROF-002` |
 | lastName | 文字列 | 必須 | `BR-PROF-002` |
 | nameDisplayOrder | 列挙 | 必須（既定あり） | `BR-PROF-004` |
 | occupation | 文字列 | 任意 | `BR-PROF-005` |
@@ -41,26 +40,25 @@ Profile は User に 1:1 で紐づき、アカウント作成時に空の状態�
   - 根拠: 位置情報など意図しない個人情報の流出防止。
 - 変更時は旧画像を差し替える。削除も可能（既定アイコンに戻る）。
 
-### BR-PROF-002 氏名（ファースト/ミドル/ラスト）
+### BR-PROF-002 氏名（ファースト/ラスト）
 
 | フィールド | 必須 | 最大長（書記素） | 備考 |
 | --- | --- | --- | --- |
 | firstName | 必須 | 50 | 1 文字以上 |
-| middleName | 任意 | 50 | ミドルネーム・複数ミドルを許容 |
-| lastName | 必須 | 50 | 1 文字以上 |
+| lastName | 必須 | 50 | 1 文字以上（複合姓・ハイフン姓を許容） |
 
-- 文字種は Unicode の文字・空白・ハイフン（`-`）・アポストロフィ（`'`）・中黒（`・`）・ピリオド（`.`）を許容する。`BR-COMMON-009` の正規化・不可視文字除去を適用する。
-  - 根拠: 「David Cruz-Tanaka」のような複合姓や、日本語名・海外名を崩さず扱う（コンセプト「名前に敬意を払う」）。
+- 文字種は Unicode の文字・空白・ハイフン（`-`）・ダブルハイフン（`⹀`）・アポストロフィ（`'`）・中黒（`・`）・ピリオド（`.`）・イコール（`=`）を許容する。`BR-COMMON-009` の正規化・不可視文字除去を適用する。
+  - ミドルネームを姓とともに入力する場合を想定。
 - 各フィールドに改行・制御文字は不可。
 
 ### BR-PROF-003 表示名の組み立て
 
-- 表示名は `firstName` / `middleName` / `lastName` と `nameDisplayOrder` から決定論的に組み立てる。ミドルネームが空の場合は前後の余分な空白を生じさせない。
+- 表示名は `firstName` / `lastName` と `nameDisplayOrder` から決定論的に組み立てる。連結時に二重空白や前後の余分な空白を生じさせない。
 - 表示名は検索・一覧・OGP・公開ページで一貫して用いる（[04-profile-discovery.md](./04-profile-discovery.md)）。
 
 ### BR-PROF-004 名前の表示順
 
-- `nameDisplayOrder` は次の 2 値: `givenNameFirst`（名→姓、例: みなと 里中 / David Cruz-Tanaka）、`familyNameFirst`（姓→名、例: 里中 みなと）。
+- `nameDisplayOrder` は次の 2 値: `givenNameFirst`（名→姓、例: みなと 里中）、`familyNameFirst`（姓→名、例: 里中 みなと）。
 - 既定値は `givenNameFirst`。
   - 根拠: 多くの SNS・国際的文脈の既定に合わせつつ、日本語話者向けに姓→名へ切り替え可能とし、名前を尊重する。
 
@@ -152,19 +150,19 @@ Profile は User に 1:1 で紐づき、アカウント作成時に空の状態�
 
 ### 氏名
 
-#### AC-PROF-006 ミドルネーム込みの登録（正常系）
+#### AC-PROF-006 複合姓の登録と一貫表示（正常系）
 
 - **関連ストーリー**: US-0202
 - **Given**: プロフィール編集画面にいる
-- **When**: First=「David」, Middle=「Cruz」, Last=「Tanaka」を保存する
-- **Then**: 表示名が崩れず「David Cruz Tanaka」（`givenNameFirst`）として一貫表示される
+- **When**: First=「Maria」, Last=「Garcia-Lopez」を保存する
+- **Then**: 表示名が崩れず「Maria Garcia-Lopez」（`givenNameFirst`）として一貫表示される
 
-#### AC-PROF-007 ミドルネーム空欄でも余分な空白なし（境界値）
+#### AC-PROF-007 余分な空白を生じさせない（境界値）
 
 - **関連ストーリー**: US-0202
 - **Given**: プロフィール編集画面にいる
-- **When**: First=「みなと」, Middle=空, Last=「里中」を保存する
-- **Then**: 表示名に二重空白が生じず、`familyNameFirst` 設定時は「里中 みなと」と表示される
+- **When**: First=「みなと」, Last=「里中」を保存する
+- **Then**: 表示名に二重空白や前後の余白が生じず、`familyNameFirst` 設定時は「里中 みなと」と表示される
 
 #### AC-PROF-008 必須氏名の欠落（異常系）
 

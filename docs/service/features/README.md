@@ -91,7 +91,7 @@
 | US-0104 | アカウント情報の編集 | [01](./01-user-account.md) | Should |
 | US-0105 | アカウント削除（退会） | [01](./01-user-account.md) | Should |
 | US-0201 | アイコン画像のアップロード・変更 | [02](./02-profile.md) | Must |
-| US-0202 | ファースト/ミドル/ラストネーム登録 | [02](./02-profile.md) | Must |
+| US-0202 | ファースト/ラストネーム登録 | [02](./02-profile.md) | Must |
 | US-0203 | 職業・職種の登録 | [02](./02-profile.md) | Must |
 | US-0204 | 自己紹介文の入力 | [02](./02-profile.md) | Should |
 | US-0205 | SNS アカウントリンクの登録 | [02](./02-profile.md) | Must |
