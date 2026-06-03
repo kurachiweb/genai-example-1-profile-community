@@ -156,6 +156,10 @@ Sentry (エラートラッキング)
 
 Cloudflare Images
 
+#### 画像モデレーション
+
+Amazon Rekognition (ローカル環境やCIプロセスでは、テスト結果を毎回同じにするため決定論的スタブの偽判定器を使用)
+
 #### CI/CD
 
 GitHubリポジトリでのmainブランチへのpushをトリガーにして、GitHub Actionsにより以下のパイプラインを実行。

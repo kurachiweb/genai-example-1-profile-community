@@ -97,7 +97,6 @@ flowchart TB
 | KV | セッション・ワンタイムトークン・レート制限カウンタ・短 TTL の検索/一覧キャッシュ | `BR-COMMON-001`/`010`、`BR-DISC-006` |
 | Durable Objects | キー単位の精密なレート制限カウンタ（必要に応じて。任意） | `BR-API-008` |
 | WAF Rate Limiting Rules | 本番エッジでのレート制限実装（しきい値は Terraform 管理） | `BR-COMMON-010`、`BR-ADMIN-008` |
-| Workers AI（候補） | アイコンの NSFW 自動判定（実装手段は未確定・オープン事項） | `BR-SAFE-001` |
 
 > **状態保存先の方針**: セッション・ワンタイムトークン（メール確認・パスワードリセット・メール変更）・アプリ層レート制限（@nestjs/throttler）のカウンタ・検索/一覧の短 TTL キャッシュは **Cloudflare KV** に保存する。厳密なキー単位レート制限が必要な場合は **Durable Objects** を補助的に用いる。永続的なドメインデータ（User/Profile/監査ログ等）は **D1** に置く。詳細な配置は [db/01-data-model.md](../db/01-data-model.md) を参照。
 
@@ -106,6 +105,7 @@ flowchart TB
 | サービス | 用途 | ローカル代替 |
 | --- | --- | --- |
 | Amazon SES（`@aws-sdk/client-ses`） | トランザクション/お知らせメールの送信 | Mailpit |
+| Amazon Rekognition（`aws4fetch` で署名呼び出し） | アイコンの NSFW 自動判定（カテゴリ別スコア×しきい値、`BR-SAFE-001`。[ADR](../../adr/20260603-nsfw-moderation-rekognition.md)） | 決定論的スタブ |
 | MJML（`faire/mjml-react`） | メールテンプレートの作成（ビルド時に HTML 化） | 同左 |
 | Sentry | フロントエンド・バックエンドのエラートラッキング | 無効化（dev/local では任意） |
 
@@ -150,9 +150,9 @@ flowchart LR
 - データベース設計: [docs/GUIDES/db/](../db/)
 - 横断ビジネスルール（認証・レート制限・公開ゲート）: [00-common-rules.md](../../service/features/00-common-rules.md)
 - 技術選定・デプロイ方針の正本: [CLAUDE.md](../../../CLAUDE.md)
+- NSFW 判定の実装方式（AWS Rekognition 採用の決定）: [ADR 20260603-nsfw-moderation-rekognition](../../adr/20260603-nsfw-moderation-rekognition.md)
 
 ## 8. オープン事項（要確定）
 
-- **NSFW 判定の実装手段**: Cloudflare Workers AI 等の候補から実装時に確定する（`BR-SAFE-001` のオープン事項）。
 - **Next.js の Workers 配信アダプタ**: Cloudflare 公式アダプタの具体構成は実装時に確定する。
 - **Durable Objects の採用範囲**: KV での近似カウントで十分か、DO による厳密カウントが必要かは負荷特性を見て決定する。

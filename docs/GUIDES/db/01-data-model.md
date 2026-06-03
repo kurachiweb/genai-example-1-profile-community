@@ -349,9 +349,11 @@ erDiagram
 | `id` | TEXT(ULID) | PK | |
 | `profile_id` | TEXT | NN, FK→profiles | |
 | `result` | TEXT(enum) | NN, CHECK | `passed`/`rejected` |
-| `score` | REAL | nullable | 判定スコア |
-| `category` | TEXT | nullable | 判定カテゴリ（個人特定情報は最小化） |
+| `score` | REAL | nullable | 判定スコア（AWS Rekognition の最大 `Confidence`） |
+| `category` | TEXT | nullable | 判定カテゴリ（Rekognition トップレベルラベルのマッピング値。個人特定情報は最小化） |
 | `created_at` | datetime | NN | |
+
+> 判定エンジンは **AWS Rekognition Content Moderation** に確定（[ADR 20260603-nsfw-moderation-rekognition](../../adr/20260603-nsfw-moderation-rekognition.md)）。`category`/`score` はラベル→カテゴリ・最大 `Confidence`→スコアのマッピング結果を保持し、判定不能（fail-closed）時も `rejected` として記録する。
 
 ### 5.7 `reports`（`BR-SAFE-003`〜`005`）
 

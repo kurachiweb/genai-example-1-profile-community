@@ -100,6 +100,7 @@ flowchart TB
 - **エラーアラート**: Sentry のしきい値（新規 issue・急増）で通知する。
 - **可用性 / 性能**: Core Web Vitals 目標（LCP < 2.5s 等、[performance.md](../../../.claude/rules/ecc-web/performance.md)）を継続監視する。
 - **濫用検知**: レート制限超過・通報急増・NSFW 拒否の急増を監視し、運営が早期に対応できるようにする。
+- **NSFW 判定エンジンの可用性**: AWS Rekognition のエラー/タイムアウト率を監視・アラートする。判定は **fail-closed**（[01-network-architecture.md](./01-network-architecture.md) §2.2、[ADR](../../adr/20260603-nsfw-moderation-rekognition.md)）のため、エンジン障害はアイコンアップロード不可に直結する。急増時は早期に検知・対応する。
 
 ## 8. 関連ドキュメント
 

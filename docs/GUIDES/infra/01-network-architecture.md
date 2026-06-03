@@ -129,7 +129,7 @@ sequenceDiagram
     participant U as 利用者
     participant C as client
     participant API as api
-    participant NSFW as NSFW判定(Workers AI 候補)
+    participant NSFW as NSFW判定(AWS Rekognition)
     participant R2 as R2(原本)
     participant IMG as Cloudflare Images
     participant DB as D1
@@ -151,6 +151,8 @@ sequenceDiagram
     end
 ```
 
+- NSFW 判定は **AWS Rekognition Content Moderation**（`DetectModerationLabels`）を `aws4fetch` の署名呼び出しで実行する。判定はポート（`NsfwModerationPort`）として抽象化し、ローカルは決定論的スタブに差し替える（実装方式の根拠は [ADR](../../adr/20260603-nsfw-moderation-rekognition.md)）。
+- **失敗時方針は fail-closed**: Rekognition がエラー/タイムアウトした場合は保存せず `422` で拒否し、`nsfw_checks` に記録する（bounded timeout ＋ 限定リトライ）。判定エンジン障害は監視・アラートの対象（[03-logging-monitoring.md](./03-logging-monitoring.md) §7）。
 - 判定をすり抜けた画像は通報・管理者モデレーションで事後対応する（`BR-SAFE-002`）。
 - 画像配信は Cloudflare Images（`<img>` は明示的な `width`/`height`、一覧は遅延読み込み、[performance.md](../../../.claude/rules/ecc-web/performance.md)）。
 

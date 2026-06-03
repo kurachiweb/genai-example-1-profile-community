@@ -202,8 +202,3 @@ stateDiagram-v2
 - 公開停止の整合: [03-profile-sharing.md](./03-profile-sharing.md) / [04-profile-discovery.md](./04-profile-discovery.md) / [05-public-api.md](./05-public-api.md)
 - 管理者操作・権限: [07-admin-console.md](./07-admin-console.md)
 - 問い合わせフォーム: [08-content-and-comms.md](./08-content-and-comms.md)
-
-## 7. オープン事項（将来課題）
-
-- **NSFW 判定の実装手段**: Cloudflare Workers AI 等のいずれを用いるかは実装時に決定（本書はビジネスルールのみ規定）。
-- **段階的処分**: 警告→一時凍結→恒久凍結のような多段処分は将来課題。v1 は凍結/解除の単純モデル。
