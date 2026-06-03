@@ -1,0 +1,111 @@
+# オンボーディングガイド — GenAI Profile Community
+
+本プロジェクトに参加した開発者が、サービス像・仕様・インフラ・データベースを最短で把握し、ローカル環境を立ち上げるための入り口（索引）。
+
+> **このサービスは何か**: アイコン・ミドルネームを含む名前・職業を登録し、固有 URL の公開ページとして共有できるプロフィール共有サービス。画面操作と公開 API の両方からプロフィールを CRUD できる（[README.md](../../README.md) / [サービス概要](../service/overview/01-overview.md)）。
+> **現状フェーズ**: 仕様・ドキュメント策定フェーズであり、`apps/` 配下の実装は未着手。各ガイドは実装に先行する設計仕様として読むこと。
+
+## 1. まず読む順番（推奨）
+
+```
+① サービス像        ② 仕様の正本        ③ 技術ガイド            ④ エージェント設定
+overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  onboardings/agent-setting.md
+（何を・誰に・なぜ）   （どう振る舞うか）         （どう作る・載せる）        （Claude 拡張の使い方）
+```
+
+1. **サービス像を掴む**: [docs/service/overview/](../service/overview/) を 01→04 の順に読む。
+2. **仕様の正本を確認する**: [docs/service/features/](../service/features/)（ビジネスルール・受け入れ条件の SSoT）。まず [00-common-rules.md](../service/features/00-common-rules.md) を読み、公開ゲート・状態モデル・レート制限を理解する。用語は [glossary.md](../service/glossary.md)。
+3. **技術ガイドを読む**: [インフラ](../GUIDES/infra/)・[データベース](../GUIDES/db/)。
+4. **開発環境とエージェント設定**: 本ページ §3 と [agent-setting.md](./agent-setting.md)。
+
+## 2. ドキュメント索引
+
+### サービス仕様（`docs/service/`）
+
+| ドキュメント | 内容 |
+| --- | --- |
+| [overview/](../service/overview/) | サービス概要・コンセプト・ターゲット/ペルソナ・ユーザーストーリー |
+| [features/](../service/features/) | **ビジネスルール・受け入れ条件の正本（SSoT）**。エンティティ単位で分割 |
+| [glossary.md](../service/glossary.md) | サービス内ドメイン用語集 |
+| [screens/](../service/) | 画面仕様・ワイヤーフレーム（今後整備） |
+
+### インフラガイド（`docs/GUIDES/infra/`）
+
+| ドキュメント | 内容 |
+| --- | --- |
+| [infra/00-overview.md](../GUIDES/infra/00-overview.md) | インフラ全体像・アプリ構成・Cloudflare リソース・環境（local/dev/prod） |
+| [infra/01-network-architecture.md](../GUIDES/infra/01-network-architecture.md) | ネットワーク構成図・リクエストフロー・セッション分離・レート制限二層 |
+| [infra/02-deployment.md](../GUIDES/infra/02-deployment.md) | CI/CD パイプライン・環境別デプロイ・Terraform・ロールバック |
+| [infra/03-logging-monitoring.md](../GUIDES/infra/03-logging-monitoring.md) | LogTape 構造化ログ・Sentry・監査ログ・保持方針 |
+
+### データベースガイド（`docs/GUIDES/db/`）
+
+| ドキュメント | 内容 |
+| --- | --- |
+| [db/00-overview.md](../GUIDES/db/00-overview.md) | DB 設計原則・命名規約・ID/時刻方針・D1 と KV の役割分担 |
+| [db/01-data-model.md](../GUIDES/db/01-data-model.md) | ERD・全テーブル定義・インデックス・KV/DO/R2 配置 |
+| [db/02-migrations.md](../GUIDES/db/02-migrations.md) | MikroORM Migrator 中心の手順・wrangler での D1 適用・ロールバック |
+
+### その他のガイド（`docs/GUIDES/`）
+
+| ディレクトリ | 内容 |
+| --- | --- |
+| `api/` | API ドキュメント・設計原則（今後整備） |
+| `coding/` | コーディングルール・アーキテクチャ設計（今後整備） |
+| `testing/` | テスト方針・カバレッジ設定（今後整備） |
+| `design-system/` | デザインシステム・Storybook（今後整備） |
+| `operations/` | 運用・障害対応・ロールバック手順（今後整備） |
+| `security/` | セキュリティ・認証認可設計・監視方針（今後整備） |
+
+### エージェント・開発支援（`docs/onboardings/`）
+
+| ドキュメント | 内容 |
+| --- | --- |
+| [agent-setting.md](./agent-setting.md) | `.claude/` 配下のスキル・ルール・エージェント定義の解説 |
+
+## 3. ローカル開発環境クイックスタート
+
+> 詳細・前提は [infra/00-overview.md](../GUIDES/infra/00-overview.md) §5 と [infra/02-deployment.md](../GUIDES/infra/02-deployment.md) §4.1 を参照。`apps/` 未実装のため、以下は整備後に有効になる手順。
+
+```bash
+# 1) 依存インストール（pnpm ワークスペース）
+pnpm install
+
+# 2) コンテナ起動（Docker / docker-compose）
+docker compose up -d
+
+# 3) ローカル SQLite にマイグレーション適用
+pnpm --filter @app/db migration:up
+```
+
+### ローカルポート一覧
+
+| アプリ | 役割 | ポート |
+| --- | --- | --- |
+| `apps/db` | DB（SQLite） | 55030 |
+| `apps/api` | 内部 API（NestJS / GraphQL） | 55031 |
+| `apps/client` | 利用者・閲覧者 Web（Next.js） | 55032 |
+| `apps/admin` | 管理者コンソール（Next.js） | 55033 |
+| `apps/public-api` | 公開 API（NestJS / REST） | 55034 |
+
+- ローカルでは D1 の代わりに SQLite、Amazon SES の代わりに Mailpit を使う。
+- パッケージマネージャは pnpm、コンテナは Docker（`node@trixie`）。
+
+## 4. 開発ルールの要点
+
+参加前に [CLAUDE.md](../../CLAUDE.md) と [.claude/rules/](../../.claude/rules/) を確認すること。特に重要な点:
+
+- **文章は日本語**で記述する（ドキュメント・コミットメッセージ・コードコメント）。
+- 複数行のコード変更は **AI-DLC フレームワーク**に従う（`.aidlc-rule-details/core-workflow.md`）。
+- **テスト駆動開発（TDD）** を徹底し、カバレッジ 80% 以上を維持する。
+- Git ワークフローは **Trunk-Based Development**。コミットは Conventional Commits。
+- **`apps/` を編集したら、`docs/` の関連ドキュメントと README も必ず更新**する。
+- **prod デプロイは人間のみ**。AI エージェントによる prod デプロイは禁止。
+- 仕様が矛盾した場合は **`docs/service/features/`（SSoT）を優先**する。
+
+## 5. 関連ドキュメント
+
+- サービス全体の説明（作業者向け）: [README.md](../../README.md)
+- 技術選定・ディレクトリ構成・デプロイ方針: [CLAUDE.md](../../CLAUDE.md)
+- ビジネスルールの正本: [docs/service/features/](../service/features/)
+- インフラ / データベース: [docs/GUIDES/infra/](../GUIDES/infra/) / [docs/GUIDES/db/](../GUIDES/db/)
