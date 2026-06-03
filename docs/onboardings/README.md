@@ -63,6 +63,14 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | --- | --- |
 | [agent-setting.md](./agent-setting.md) | `.claude/` 配下のスキル・ルール・エージェント定義の解説 |
 
+### アーキテクチャ決定記録（`docs/adr/`）
+
+アーキテクチャ上の決定の文脈・代替案・根拠を構造化して記録する（`ecc-architecture-decision-records` スキルで生成・更新）。
+
+| ドキュメント | 内容 |
+| --- | --- |
+| [adr/20260603-profile-search-fts5.md](../adr/20260603-profile-search-fts5.md) | プロフィール検索（`BR-DISC-004`）で FTS5 を採用せず正規化列＋LIKE を用いる決定 |
+
 ## 3. ローカル開発環境クイックスタート
 
 > 詳細・前提は [infra/00-overview.md](../GUIDES/infra/00-overview.md) §5 と [infra/02-deployment.md](../GUIDES/infra/02-deployment.md) §4.1 を参照。`apps/` 未実装のため、以下は整備後に有効になる手順。

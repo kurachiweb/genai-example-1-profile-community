@@ -46,7 +46,7 @@ export class Counter extends DurableObject {
 
 ## Core APIs
 
-- **SQL API** (`ctx.storage.sql`): Full SQLite with extensions (FTS5, JSON, math)
+- **SQL API** (`ctx.storage.sql`): Full SQLite with extensions (JSON, math)
 - **Sync KV** (`ctx.storage.kv`): Synchronous key-value (SQLite only)
 - **Async KV** (`ctx.storage`): Asynchronous key-value (both backends)
 - **Transactions** (`transactionSync()`, `transaction()`)

@@ -62,6 +62,7 @@ erDiagram
         string last_name "必須・<=50"
         string name_display_order "givenNameFirst/familyNameFirst"
         string occupation "nullable・<=50"
+        string search_name "検索用導出(NFC・ケースフォールド)"
         string bio "nullable・<=500・plaintext"
         datetime created_at
         datetime updated_at
@@ -286,6 +287,7 @@ erDiagram
 | `last_name` | TEXT | NN | 必須・最大 50 書記素 |
 | `name_display_order` | TEXT(enum) | NN, 既定 `givenNameFirst` | `givenNameFirst`/`familyNameFirst`（`BR-PROF-004`） |
 | `occupation` | TEXT | nullable | 最大 50 書記素・単一行（`BR-PROF-005`） |
+| `search_name` | TEXT | nullable | 検索用の導出値。`first/middle/last` ＋表示順を連結し NFC 正規化・ケースフォールド（`BR-DISC-004`/`BR-COMMON-009`、アプリ層で保守。→ [ADR 20260603](../../adr/20260603-profile-search-fts5.md)） |
 | `bio` | TEXT | nullable | 最大 500 書記素・プレーンテキスト（`BR-PROF-006`） |
 | `created_at` | datetime | NN | |
 | `updated_at` | datetime | NN | |
@@ -527,6 +529,7 @@ erDiagram
 | `uq_profiles_handle` | `profiles(handle)` UNIQUE | ハンドル一意・`/@{handle}` 解決 |
 | `idx_profiles_visibility_updated` | `profiles(visibility, updated_at)` | 一覧（実効公開・新着順）＋カーソルページング |
 | `idx_profiles_occupation` | `profiles(occupation)` | 職業での検索（`BR-DISC-004`） |
+| `idx_profiles_search_name` | `profiles(search_name)` | 氏名検索の前方一致（`BR-DISC-004`、ADR 0001） |
 | `idx_sns_links_profile_sort` | `sns_links(profile_id, sort_order)` | リンクの順序付き取得 |
 | `uq_api_keys_key_hash` | `api_keys(key_hash)` UNIQUE | キー認証の引き当て |
 | `idx_api_keys_user_status` | `api_keys(user_id, status)` | 有効キー数の判定（上限 5） |
@@ -540,7 +543,7 @@ erDiagram
 | `uq_help_articles_slug` | `help_articles(slug)` UNIQUE | ヘルプ記事 URL |
 | `uq_policies_type_version` | `policies(type, version)` UNIQUE | 規約版の一意性 |
 
-> **氏名検索（`BR-DISC-004`）**: 表示名は `first/middle/last` + 表示順から導出するため、検索用に正規化済みの結合名カラム（例: `search_name`）を持たせ、`idx_profiles_search_name` を張る設計を推奨する（部分一致は SQLite の `LIKE`/FTS5 を検討。FTS5 採用可否はオープン事項）。
+> **氏名・職業検索（`BR-DISC-004`）**: **FTS5 は採用しない**（決定経緯は [ADR 20260603](../../adr/20260603-profile-search-fts5.md)）。表示名は `first/middle/last` + 表示順から導出するため、検索用に NFC 正規化・ケースフォールド済みの結合名カラム `search_name` を持たせ、`idx_profiles_search_name` を張る。部分一致は `LIKE`、既定ソートの関連度は簡易ヒューリスティック（完全一致 ＞ 前方一致 ＞ 部分一致、氏名一致 ＞ 職業一致）で実装する。職業は NFC 正規化済み（`BR-COMMON-009`）の値にクエリ時ケースフォールドして比較する。中間一致は B-tree インデックス非適用（全表スキャン依存）だが現規模では許容し、結果は短 TTL キャッシュ（`BR-DISC-006`）で補う。
 
 ## 7. KV / Durable Objects / R2 の配置
 
