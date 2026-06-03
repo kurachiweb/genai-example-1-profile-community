@@ -71,7 +71,6 @@
 | 既定アイコン | アイコン未設定時・削除時に表示される自動生成のプレースホルダ。「デフォルトで完成する」原則を支える。 | [02-profile.md](./features/02-profile.md) |
 | 氏名（ファースト/ミドル/ラスト） | プロフィールの名前。firstName・lastName は必須、middleName は任意（各最大 50 文字）。 | [02-profile.md](./features/02-profile.md) |
 | ミドルネーム（middleName） | 名前の中間部分。海外名・複合姓に対応するための任意項目。「名前に敬意を払う」原則の中心。 | [02-profile.md](./features/02-profile.md) |
-| 単一名（mononym） | 姓名を分けない単一の名前。v1 は first/last 必須のため未対応で、将来課題として扱う。 | [02-profile.md](./features/02-profile.md) |
 | 表示名 | firstName・middleName・lastName と表示順から決定論的に組み立てた、画面・一覧・OGP・検索で一貫して使う名前。 | [02-profile.md](./features/02-profile.md) |
 | 表示順（nameDisplayOrder） | 名前を並べる順序。`givenNameFirst`（名→姓、既定）／`familyNameFirst`（姓→名）の 2 値。 | [02-profile.md](./features/02-profile.md) |
 | 職業（occupation・肩書き） | 何をしている人かを一目で伝える短い肩書き（任意・最大 50 文字・単一行）。 | [02-profile.md](./features/02-profile.md) |

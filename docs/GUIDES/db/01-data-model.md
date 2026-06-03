@@ -292,7 +292,7 @@ erDiagram
 | `created_at` | datetime | NN | |
 | `updated_at` | datetime | NN | |
 
-> `first_name`/`last_name` の必須は**アプリ層で強制**（空生成直後の Profile は未入力でも存在しうるため、DB ではアプリのバリデーションを正とする。`BR-PROF-002` の単一名はオープン事項）。
+> `first_name`/`last_name` の必須は**アプリ層で強制**（空生成直後の Profile は未入力でも存在しうるため、DB ではアプリのバリデーションを正とする）。
 
 ### 5.3 `sns_links`（`BR-PROF-007`）
 
