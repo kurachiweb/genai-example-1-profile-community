@@ -70,6 +70,8 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | ドキュメント | 内容 |
 | --- | --- |
 | [adr/20260603-profile-search-fts5.md](../adr/20260603-profile-search-fts5.md) | プロフィール検索（`BR-DISC-004`）で FTS5 を採用せず正規化列＋LIKE を用いる決定 |
+| [adr/20260603-nsfw-moderation-rekognition.md](../adr/20260603-nsfw-moderation-rekognition.md) | NSFW 判定（`BR-SAFE-001`）に AWS Rekognition Content Moderation を採用する決定 |
+| [adr/20260604-nextjs-workers-opennext.md](../adr/20260604-nextjs-workers-opennext.md) | Next.js（client/admin）の Workers 配信アダプタに `@opennextjs/cloudflare`（OpenNext）を採用する決定 |
 
 ## 3. ローカル開発環境クイックスタート
 

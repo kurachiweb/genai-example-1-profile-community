@@ -81,7 +81,7 @@ flowchart TB
 
 - **internal API（api）と公開 API（public-api）は別アプリ・別 Worker** に分離する。前者は GraphQL（Apollo）で `client`/`admin` に提供し、後者は REST（OpenAPI/Swagger UI）で外部開発者に提供する（[05-public-api.md](../../service/features/05-public-api.md)）。
 - **client と admin は別アプリ・別ドメイン・別セッション**に分離する（`BR-COMMON-002`、[00-common-rules.md](../../service/features/00-common-rules.md)）。
-- Next.js（client/admin）は Cloudflare Workers ランタイム上で動作させる（Cloudflare 公式アダプタを用いる）。
+- Next.js（client/admin）は Cloudflare Workers ランタイム上で動作させる。配信アダプタは Cloudflare 公式推奨の **`@opennextjs/cloudflare`（OpenNext）** を用いる（Node ランタイム前提・`nodejs_compat` 有効化、ISR/Data Cache は Workers KV と統合。[ADR](../../adr/20260604-nextjs-workers-opennext.md)）。
 
 ## 3. 利用するクラウドリソース
 
@@ -151,8 +151,8 @@ flowchart LR
 - 横断ビジネスルール（認証・レート制限・公開ゲート）: [00-common-rules.md](../../service/features/00-common-rules.md)
 - 技術選定・デプロイ方針の正本: [CLAUDE.md](../../../CLAUDE.md)
 - NSFW 判定の実装方式（AWS Rekognition 採用の決定）: [ADR 20260603-nsfw-moderation-rekognition](../../adr/20260603-nsfw-moderation-rekognition.md)
+- Next.js の Workers 配信アダプタ（`@opennextjs/cloudflare` 採用の決定）: [ADR 20260604-nextjs-workers-opennext](../../adr/20260604-nextjs-workers-opennext.md)
 
 ## 8. オープン事項（要確定）
 
-- **Next.js の Workers 配信アダプタ**: Cloudflare 公式アダプタの具体構成は実装時に確定する。
 - **Durable Objects の採用範囲**: KV での近似カウントで十分か、DO による厳密カウントが必要かは負荷特性を見て決定する。
