@@ -224,7 +224,7 @@ flowchart LR
 
 - `client`/`admin` は内部 API（`api`）を **GraphQL（Apollo Server）** で呼び出す。
 - GraphQL の N+1 問題は **DataLoader** でバッチ化する（特に Profile→SnsLink、一覧→各 Profile のアイコン解決）。
-- 公開 API（`public-api`）は REST で提供し、内部 GraphQL とは独立した境界とする（`BR-API` のオープン事項：公開 GraphQL は将来検討）。
+- 公開 API（`public-api`）は REST で提供し、内部 GraphQL とは独立した境界とする。
 
 ## 6. 関連ドキュメント
 
