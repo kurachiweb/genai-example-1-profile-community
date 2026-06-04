@@ -163,7 +163,7 @@ sequenceDiagram
     participant D as 開発者クライアント
     participant E as Cloudflare エッジ(WAF Rate Limiting)
     participant P as public-api (NestJS)
-    participant TH as throttler(KV/DO カウンタ)
+    participant TH as throttler(DO カウンタ)
     participant DB as D1
 
     D->>E: GET /api/public/v1/profiles (Bearer key)
@@ -189,7 +189,7 @@ sequenceDiagram
 
 | 対象 | 既定しきい値 | エッジ（WAF） | アプリ層（throttler） | カウンタ保存先 |
 | --- | --- | --- | --- | --- |
-| 公開 API（キー単位） | 60 req / 分 | ◯（全キー共通値・Terraform 管理） | ◯（キー単位） | KV（必要に応じ DO） |
+| 公開 API（キー単位） | 60 req / 分 | ◯（全キー共通値・Terraform 管理） | ◯（キー単位） | DO（キー単位・厳密） |
 | 認証系（ログイン/登録/リセット） | 10 回 / 5 分 / IP＋識別子 | △ | ◯ | KV |
 | 通報・問い合わせ送信 | 5 件 / 10 分 / IP | △ | ◯ | KV |
 | 一般閲覧・検索（未認証） | 60 req / 分 / IP | ◯ | △ | KV |
@@ -204,7 +204,7 @@ flowchart LR
 ```
 
 - **エッジ値（WAF）は Terraform で管理**し、**アプリ層の共通しきい値は管理画面から変更**できる（`BR-ADMIN-008`）。両者は整合させて運用する。
-- アプリ層カウンタは KV（近似・低コスト）を既定とし、キー単位で厳密性が要る場合に Durable Objects を用いる。
+- アプリ層カウンタは原則 KV（近似・低コスト）を用いる。**公開 API のキー単位カウンタのみ Durable Objects で厳密にカウントする**（採用確定。[ADR](../../adr/20260604-public-api-rate-limit-durable-objects.md)）。認証系・通報系・一般閲覧のカウンタは KV のままとする。
 
 ## 4. セッション・トークンの保存（KV）
 
@@ -215,7 +215,7 @@ flowchart LR
 | メール確認トークン | KV | 24 時間・ワンタイム | ハッシュ保存、使用後削除（`BR-ACCT-003`） |
 | パスワードリセットトークン | KV | 1 時間・ワンタイム | 完了で全セッション無効化（`BR-ACCT-006`） |
 | メール変更トークン | KV | 設定値・ワンタイム | 確認完了で切替確定（`BR-ACCT-007`） |
-| レート制限カウンタ | KV / DO | しきい値の時間窓 | §3 参照 |
+| レート制限カウンタ | 公開API はキー単位で DO、その他は KV | しきい値の時間窓 | §3 参照 |
 
 - **全セッション無効化**（パスワード変更/リセット時、`BR-ACCT-005`/`006`）は、D1 の `users.session_epoch`（トークン世代）をインクリメントし、KV 上の旧セッションを検証時に失効させる方式とする（詳細は [db/01-data-model.md](../db/01-data-model.md)）。
 - KV・トークンにはパスワード・API キー秘匿値・Cookie 値を**平文で保存しない**（`BR-COMMON-014`）。

@@ -37,7 +37,7 @@ flowchart TB
         KV["KV<br/>(セッション/トークン/<br/>レート制限/短TTLキャッシュ)"]
         R2["R2<br/>(画像原本・ファイル)"]
         IMG["Cloudflare Images<br/>(アイコン配信・変換)"]
-        DO["Durable Objects<br/>(精密カウンタ・任意)"]
+        DO["Durable Objects<br/>(公開APIキー単位レート制限)"]
     end
 
     subgraph external["外部サービス"]
@@ -95,10 +95,10 @@ flowchart TB
 | R2 | アイコン画像の**原本**・その他ファイルの永続ストレージ | `BR-PROF-001` |
 | Cloudflare Images | アイコンの正規化（512px 正方形）・配信・変換 | `BR-PROF-001` |
 | KV | セッション・ワンタイムトークン・レート制限カウンタ・短 TTL の検索/一覧キャッシュ | `BR-COMMON-001`/`010`、`BR-DISC-006` |
-| Durable Objects | キー単位の精密なレート制限カウンタ（必要に応じて。任意） | `BR-API-008` |
+| Durable Objects | 公開APIのキー単位レート制限カウンタ（厳密カウント・採用確定） | `BR-API-008`（[ADR](../../adr/20260604-public-api-rate-limit-durable-objects.md)） |
 | WAF Rate Limiting Rules | 本番エッジでのレート制限実装（しきい値は Terraform 管理） | `BR-COMMON-010`、`BR-ADMIN-008` |
 
-> **状態保存先の方針**: セッション・ワンタイムトークン（メール確認・パスワードリセット・メール変更）・アプリ層レート制限（@nestjs/throttler）のカウンタ・検索/一覧の短 TTL キャッシュは **Cloudflare KV** に保存する。厳密なキー単位レート制限が必要な場合は **Durable Objects** を補助的に用いる。永続的なドメインデータ（User/Profile/監査ログ等）は **D1** に置く。詳細な配置は [db/01-data-model.md](../db/01-data-model.md) を参照。
+> **状態保存先の方針**: セッション・ワンタイムトークン（メール確認・パスワードリセット・メール変更）・検索/一覧の短 TTL キャッシュ・公開API 以外のアプリ層レート制限（@nestjs/throttler）のカウンタは **Cloudflare KV** に保存する。**公開API のキー単位レート制限カウンタは Durable Objects で厳密にカウントする**（採用確定。[ADR](../../adr/20260604-public-api-rate-limit-durable-objects.md)）。永続的なドメインデータ（User/Profile/監査ログ等）は **D1** に置く。詳細な配置は [db/01-data-model.md](../db/01-data-model.md) を参照。
 
 ### 3.2 外部サービス
 
@@ -152,7 +152,8 @@ flowchart LR
 - 技術選定・デプロイ方針の正本: [CLAUDE.md](../../../CLAUDE.md)
 - NSFW 判定の実装方式（AWS Rekognition 採用の決定）: [ADR 20260603-nsfw-moderation-rekognition](../../adr/20260603-nsfw-moderation-rekognition.md)
 - Next.js の Workers 配信アダプタ（`@opennextjs/cloudflare` 採用の決定）: [ADR 20260604-nextjs-workers-opennext](../../adr/20260604-nextjs-workers-opennext.md)
+- 公開API のキー単位レート制限カウンタ（Durable Objects 採用の決定）: [ADR 20260604-public-api-rate-limit-durable-objects](../../adr/20260604-public-api-rate-limit-durable-objects.md)
 
 ## 8. オープン事項（要確定）
 
-- **Durable Objects の採用範囲**: KV での近似カウントで十分か、DO による厳密カウントが必要かは負荷特性を見て決定する。
+- 現時点で要確定のオープン事項はない（Durable Objects の採用範囲は [ADR 20260604-public-api-rate-limit-durable-objects](../../adr/20260604-public-api-rate-limit-durable-objects.md) で確定）。

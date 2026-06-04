@@ -234,6 +234,7 @@
 - プロフィールのビジネスルール: [02-profile.md](./02-profile.md) / [03-profile-sharing.md](./03-profile-sharing.md)
 - 一覧・ページング: [04-profile-discovery.md](./04-profile-discovery.md)
 - 管理者によるキー監視・しきい値変更: [07-admin-console.md](./07-admin-console.md)
+- レート制限カウンタの保存先（キー単位は Durable Objects で厳密化）: [ADR 20260604-public-api-rate-limit-durable-objects](../../adr/20260604-public-api-rate-limit-durable-objects.md)
 - API 設計原則: `docs/GUIDES/api/`（今後整備）
 
 ## 8. オープン事項（将来課題）

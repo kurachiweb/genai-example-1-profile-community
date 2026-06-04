@@ -14,7 +14,7 @@
 | エンジン | SQLite（ローカル・ポート 55030）/ Cloudflare D1（dev・prod）。D1 は SQLite 互換 |
 | ORM | MikroORM（エンティティ定義・マイグレーション・クエリ） |
 | 永続データの正本 | D1（User/Profile/監査ログ等の永続ドメインデータ） |
-| 揮発・高頻度データ | Cloudflare KV / Durable Objects（セッション・トークン・レート制限・短 TTL キャッシュ） |
+| 揮発・高頻度データ | Cloudflare KV（セッション・トークン・短 TTL キャッシュ・公開API 以外のレート制限）／ Durable Objects（公開API のキー単位レート制限のみ） |
 | 画像 | バイナリは R2（原本）/ Cloudflare Images（配信）。D1 には**参照 ID のみ**を保持 |
 
 ```mermaid

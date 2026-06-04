@@ -556,13 +556,15 @@ D1 に置かない揮発・バイナリデータの配置。詳細経路は [inf
 | メール確認トークン | KV | `tok:verify:<hash>` | 24h・ワンタイム | `BR-ACCT-003` |
 | パスワードリセットトークン | KV | `tok:reset:<hash>` | 1h・ワンタイム | `BR-ACCT-006` |
 | メール変更トークン | KV | `tok:email:<hash>`（新メール内包） | 設定値・ワンタイム | `BR-ACCT-007` |
-| レート制限カウンタ | KV / DO | `rl:<scope>:<id>:<window>` | 時間窓 | `BR-COMMON-010`/`BR-API-008` |
+| レート制限カウンタ（公開API・キー単位） | DO | `rl:apikey:<keyId>:<window>` | 時間窓 | `BR-API-008`（[ADR](../../adr/20260604-public-api-rate-limit-durable-objects.md)） |
+| レート制限カウンタ（その他: 認証系・通報系・一般閲覧） | KV | `rl:<scope>:<id>:<window>` | 時間窓 | `BR-COMMON-010` |
 | 検索/一覧 短 TTL キャッシュ | KV | `cache:profiles:<query-hash>` | 数十秒〜数分 | `BR-DISC-006` |
 | アイコン原本 | R2 | `icons/<userId>/<imageId>` | — | `BR-PROF-001` |
 | アイコン配信/変換 | Cloudflare Images | 画像 ID（`profiles.icon_image_id`） | — | `BR-PROF-001` |
 
 - **全セッション無効化**は `users.session_epoch` を +1 し、KV のセッション検証時に epoch 不一致を失効扱いにする（`BR-ACCT-005`/`006`）。
 - セッション・トークンは**ハッシュで保存**し、平文 Cookie/トークンは保存しない（`BR-COMMON-014`）。
+- **レート制限カウンタの保存先**: 公開API のキー単位カウンタのみ Durable Objects で厳密にカウントし、その他（認証系・通報系・一般閲覧）は KV の近似カウントとする。理由・代替案は [ADR 20260604-public-api-rate-limit-durable-objects](../../adr/20260604-public-api-rate-limit-durable-objects.md) を参照。
 
 ## 8. 状態遷移（DB 反映の要点）
 
