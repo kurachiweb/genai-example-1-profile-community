@@ -98,7 +98,7 @@ flowchart TB
 | Durable Objects | 公開APIのキー単位レート制限カウンタ（厳密カウント・採用確定） | `BR-API-008`（[ADR](../../adr/20260604-public-api-rate-limit-durable-objects.md)） |
 | WAF Rate Limiting Rules | 本番エッジでのレート制限実装（しきい値は Terraform 管理） | `BR-COMMON-010`、`BR-ADMIN-008` |
 
-> **状態保存先の方針**: セッション・ワンタイムトークン（メール確認・パスワードリセット・メール変更）・検索/一覧の短 TTL キャッシュ・公開API 以外のアプリ層レート制限（@nestjs/throttler）のカウンタは **Cloudflare KV** に保存する。**公開API のキー単位レート制限カウンタは Durable Objects で厳密にカウントする**（採用確定。[ADR](../../adr/20260604-public-api-rate-limit-durable-objects.md)）。永続的なドメインデータ（User/Profile/監査ログ等）は **D1** に置く。詳細な配置は [db/01-data-model.md](../db/01-data-model.md) を参照。
+> **状態保存先の方針**: セッション・ワンタイムトークン（メール確認・パスワードリセット・メール変更）・検索/一覧の短 TTL キャッシュ・認証系/通報系のアプリ層レート制限（@nestjs/throttler）のカウンタは **Cloudflare KV** に保存する。**公開API のキー単位レート制限カウンタは Durable Objects で厳密にカウントする**（採用確定。[ADR](../../adr/20260604-public-api-rate-limit-durable-objects.md)）。**一般閲覧・検索（未認証）はエッジ WAF のみで制限する**（KV カウンタを持たない）。永続的なドメインデータ（User/Profile/監査ログ等）は **D1** に置く。詳細な配置は [db/01-data-model.md](../db/01-data-model.md) を参照。
 
 ### 3.2 外部サービス
 
@@ -153,7 +153,3 @@ flowchart LR
 - NSFW 判定の実装方式（AWS Rekognition 採用の決定）: [ADR 20260603-nsfw-moderation-rekognition](../../adr/20260603-nsfw-moderation-rekognition.md)
 - Next.js の Workers 配信アダプタ（`@opennextjs/cloudflare` 採用の決定）: [ADR 20260604-nextjs-workers-opennext](../../adr/20260604-nextjs-workers-opennext.md)
 - 公開API のキー単位レート制限カウンタ（Durable Objects 採用の決定）: [ADR 20260604-public-api-rate-limit-durable-objects](../../adr/20260604-public-api-rate-limit-durable-objects.md)
-
-## 8. オープン事項（要確定）
-
-- 現時点で要確定のオープン事項はない（Durable Objects の採用範囲は [ADR 20260604-public-api-rate-limit-durable-objects](../../adr/20260604-public-api-rate-limit-durable-objects.md) で確定）。

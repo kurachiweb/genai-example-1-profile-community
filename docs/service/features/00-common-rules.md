@@ -116,7 +116,7 @@ flowchart TD
 | 公開 API（キー単位） | 60 リクエスト / 分 | アプリ層（@nestjs/throttler）＋ 本番はエッジ（Cloudflare WAF） |
 | 認証系（ログイン/登録/リセット） | 10 回 / 5 分 / IP＋識別子 | アプリ層 |
 | 通報・問い合わせ送信 | 5 件 / 10 分 / IP（＋ログイン時はユーザー） | アプリ層 |
-| 一般閲覧・検索（未認証） | 60 リクエスト / 分 / IP | エッジ／アプリ層 |
+| 一般閲覧・検索（未認証） | 60 リクエスト / 分 / IP | エッジ（Cloudflare WAF）のみ |
 
 - 公開 API のしきい値は管理者が変更可能（全キー共通の値、[07-admin-console.md](./07-admin-console.md) `BR-ADMIN-008`）。本番のエッジ閾値は Terraform で管理する（[CLAUDE.md](../../../CLAUDE.md) デプロイ方針）。
 - しきい値超過時の応答は各機能の規定に従う（公開 API は `429`＋`Retry-After`、[05-public-api.md](./05-public-api.md)）。

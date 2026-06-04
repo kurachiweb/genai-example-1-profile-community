@@ -83,7 +83,7 @@ flowchart TB
 ## 5. エッジ・WAF ログ
 
 - WAF（Rate Limiting Rules）のブロック・チャレンジは Cloudflare のセキュリティイベントで確認する。
-- 公開 API / 一般閲覧のレート制限超過の傾向は、エッジログとアプリログ（`event: rate_limited`）の双方で把握する（[01-network-architecture.md](./01-network-architecture.md) §3）。
+- 公開 API・認証系・通報系のレート制限超過の傾向はエッジログとアプリログ（`event: rate_limited`）の双方で、一般閲覧（未認証）のレート制限超過は**エッジ WAF のログ**で把握する（[01-network-architecture.md](./01-network-architecture.md) §3）。
 
 ## 6. 保持方針
 
