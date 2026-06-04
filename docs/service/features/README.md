@@ -16,7 +16,7 @@
 | [01-user-account.md](./01-user-account.md) | User（アカウント） | 登録・メール確認・ログイン・パスワード・アカウント編集・退会 | EP-01 |
 | [02-profile.md](./02-profile.md) | Profile（プロフィール本体） | アイコン（NSFW 検出）・氏名・職業・自己紹介・SNS リンク | EP-02 |
 | [03-profile-sharing.md](./03-profile-sharing.md) | Profile（公開・共有） | ハンドル名・固有 URL・公開/非公開・公開ページ・OGP・QR | EP-03 |
-| [04-profile-discovery.md](./04-profile-discovery.md) | Profile（閲覧・検索） | ログイン不要の閲覧・一覧・名前/職業による絞り込み検索 | EP-04 |
+| [04-profile-discovery.md](./04-profile-discovery.md) | Profile（閲覧・検索） | ログイン不要の閲覧・一覧・名前/職業/自己紹介による絞り込み検索 | EP-04 |
 | [05-public-api.md](./05-public-api.md) | ApiKey / 公開 API | API キー管理・CRUD エンドポイント・レート制限・エラー仕様 | EP-05 |
 | [06-trust-and-safety.md](./06-trust-and-safety.md) | Report / Suspension | NSFW 取り扱い・通報・凍結・解除リクエストのライフサイクル | EP-06 |
 | [07-admin-console.md](./07-admin-console.md) | AdminAccount | 管理者アカウント/権限（RBAC）・ユーザー管理・統計・監査ログ・API キー運用 | EP-07 |
@@ -103,7 +103,7 @@
 | US-0401 | ログイン不要の閲覧 | [04](./04-profile-discovery.md) | Must |
 | US-0402 | 各 SNS リンクへの遷移 | [04](./04-profile-discovery.md) | Must |
 | US-0403 | 公開プロフィールの一覧 | [04](./04-profile-discovery.md) | Should |
-| US-0404 | 名前・職業での絞り込み検索 | [04](./04-profile-discovery.md) | Should |
+| US-0404 | 名前・職業・自己紹介での絞り込み検索 | [04](./04-profile-discovery.md) | Should |
 | US-0501 | API キーの発行・管理 | [05](./05-public-api.md) | Should |
 | US-0502 | 公開 API でプロフィール取得（Read） | [05](./05-public-api.md) | Should |
 | US-0503 | 公開 API でプロフィール CUD | [05](./05-public-api.md) | Should |

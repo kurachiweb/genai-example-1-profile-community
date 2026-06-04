@@ -110,7 +110,7 @@
 | 用語（英語・別名） | 意味 | 参照 |
 | --- | --- | --- |
 | 一覧 | 実効公開のプロフィールを並べて表示する画面（1 ページ 20 件・新着順）。アイコン・表示名・職業を表示する。 | [04-profile-discovery.md](./features/04-profile-discovery.md) |
-| 検索 | 表示名（氏名）と職業を対象にした絞り込み（部分一致・大文字小文字非依存）。自己紹介・SNS リンクは v1 の対象外。 | [04-profile-discovery.md](./features/04-profile-discovery.md) |
+| 検索 | 表示名（氏名）・職業・自己紹介を対象にした絞り込み（部分一致・大文字小文字非依存）。SNS リンクは対象外。 | [04-profile-discovery.md](./features/04-profile-discovery.md) |
 | カーソルページング | 「次の開始位置（カーソル）」を渡して続きを取得するページ送り方式。大量データでも重複・欠落が起きにくい。一覧・検索・公開 API で共通。 | [04-profile-discovery.md](./features/04-profile-discovery.md) |
 | 鮮度・整合 | 公開→非公開、凍結、退会、ハンドル変更を一覧・検索結果へ速やかに反映すること（短い TTL）。非公開化したプロフィールが残り続けるのを防ぐ。 | [04-profile-discovery.md](./features/04-profile-discovery.md) |
 

@@ -80,6 +80,8 @@ Profile は User に 1:1 で紐づき、アカウント作成時に空の状態�
 | 形式 | プレーンテキスト（HTML 不可）・改行可 | XSS 防止（`BR-PROF-008`）。 |
 | URL の扱い | 表示時に自動リンク化（サニタイズ後） | 利便性と安全性の両立。 |
 
+- 自己紹介は表示名・職業とともに検索対象に含む（`BR-DISC-004`、[04-profile-discovery.md](./04-profile-discovery.md)）。比較は `BR-COMMON-009` の NFC 正規化値に基づく。
+
 ### BR-PROF-007 SNS / Web リンク（SnsLink）
 
 | 項目 | 値 | 根拠 |
