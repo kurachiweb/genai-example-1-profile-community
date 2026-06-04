@@ -13,7 +13,7 @@ D1（SQLite 互換）の物理データモデルを ERD とテーブル定義で
 | `profiles` | プロフィール本体（アイコン・氏名・職業・自己紹介・公開設定） | [02](../../service/features/02-profile.md) / [03](../../service/features/03-profile-sharing.md) |
 | `sns_links` | Profile に紐づく SNS/Web リンク（0〜10 件） | [02](../../service/features/02-profile.md) |
 | `api_keys` | 公開 API の認証キー（ユーザーあたり有効 5 個まで） | [05](../../service/features/05-public-api.md) |
-| `reserved_handles` | 変更・退会で手放したハンドルの予約保持（30 日） | [03](../../service/features/03-profile-sharing.md) |
+| `reserved_handles` | 変更・退会で手放したハンドルの予約保持（30 日）と旧ハンドルの 301 転送解決 | [03](../../service/features/03-profile-sharing.md) |
 | `handle_changes` | ハンドル変更履歴（30 日 3 回の頻度制限判定用） | [03](../../service/features/03-profile-sharing.md) |
 | `nsfw_checks` | アイコンの NSFW 自動判定結果 | [06](../../service/features/06-trust-and-safety.md) |
 | `reports` | プロフィール通報 | [06](../../service/features/06-trust-and-safety.md) |
@@ -326,9 +326,11 @@ erDiagram
 | カラム | 型 | 制約 | 説明 |
 | --- | --- | --- | --- |
 | `handle` | TEXT | PK | 予約中のハンドル |
-| `released_from_user_id` | TEXT | nullable, FK→users | 解放元（退会時は匿名化に伴い null 可） |
+| `released_from_user_id` | TEXT | nullable, FK→users | 解放元（退会時は匿名化に伴い null 可）。301 転送先の解決元。 |
 | `reserved_until` | datetime | NN | 解放予定（変更/退会から 30 日） |
 | `created_at` | datetime | NN | |
+
+> **旧ハンドルの 301 転送**（`BR-SHARE-004`）: `/@{old}` の転送先は専用カラムを持たず、`released_from_user_id` から**現在の** `profiles.handle` を都度解決する（`A → B → C` の連鎖変更でも常に現ハンドルへ転送）。`released_from_user_id` が null（退会で匿名化）、または解決先が**実効公開でない**場合は転送せず `404`。`reserved_until` を過ぎたレコードは解放バッチで削除され、以後は `404`。
 
 `handle_changes`（直近 30 日で 3 回までの頻度判定に使用）
 

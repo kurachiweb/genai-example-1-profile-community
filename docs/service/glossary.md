@@ -90,6 +90,7 @@
 | 固有 URL | 公開ページの恒久的なアドレス `https://<service-domain>/@{handle}`。これ 1 つを渡せば自己紹介が完結する。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
 | 予約語 | ルーティング衝突や公式詐称を防ぐため、ハンドルに使えない語（`admin`／`api`／`login`／`help` 等）。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
 | 予約保持 | ハンドル変更・退会で手放した旧ハンドルを、なりすまし防止のため一定期間（30 日）他者に取得させず確保すること。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
+| 旧ハンドルリダイレクト（301 転送） | ハンドル変更後 30 日間、旧ハンドルの固有 URL から新ハンドルへ恒久（301）転送する仕組み。30 日経過後は旧ハンドルで `404`。退会で手放した旧ハンドルや転送先が実効公開でない場合は転送しない。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
 | 公開設定（visibility） | プロフィールを公開するかの設定。`public`（公開、既定）／`private`（非公開）の 2 値。利用者がいつでも切り替えられる。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
 | 公開既定値 | 新規 Profile の visibility の初期値。コンセプトに沿い `public`（公開）とする。 | [00-common-rules.md](./features/00-common-rules.md) |
 | 公開ゲート | 「公開設定が public でも、実際に第三者へ公開してよいか」を判定する関門。所有者がメール確認済み（ACTIVE）かどうかで通過可否が決まる。 | [00-common-rules.md](./features/00-common-rules.md) |
