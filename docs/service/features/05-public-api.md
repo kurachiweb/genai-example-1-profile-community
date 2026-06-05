@@ -270,4 +270,4 @@
 - 管理者によるキー監視・しきい値変更: [07-admin-console.md](./07-admin-console.md)
 - レート制限カウンタの保存先（キー単位は Durable Objects で厳密化）: [ADR 20260604-public-api-rate-limit-durable-objects](../../adr/20260604-public-api-rate-limit-durable-objects.md)
 - キーのスコープ（`read`/`full`）採用の経緯: [ADR 20260605-public-api-key-scopes](../../adr/20260605-public-api-key-scopes.md)
-- API 設計原則: `docs/GUIDES/api/`（今後整備）
+- API 設計原則・実装規約: [docs/GUIDES/api/](../../GUIDES/api/)（[REST 設計規約](../../GUIDES/api/02-public-rest-api.md)・[開発者向け利用ガイド](../../GUIDES/api/03-public-api-developer-guide.md)）

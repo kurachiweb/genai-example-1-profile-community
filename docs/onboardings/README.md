@@ -15,7 +15,7 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 
 1. **サービス像を掴む**: [docs/service/overview/](../service/overview/) を 01→04 の順に読む。
 2. **仕様の正本を確認する**: [docs/service/features/](../service/features/)（ビジネスルール・受け入れ条件の SSoT）。まず [00-common-rules.md](../service/features/00-common-rules.md) を読み、公開ゲート・状態モデル・レート制限を理解する。用語は [glossary.md](../service/glossary.md)。
-3. **技術ガイドを読む**: [インフラ](../GUIDES/infra/)・[データベース](../GUIDES/db/)。
+3. **技術ガイドを読む**: [インフラ](../GUIDES/infra/)・[データベース](../GUIDES/db/)・[API](../GUIDES/api/)。
 4. **開発環境とエージェント設定**: 本ページ §3 と [agent-setting.md](./agent-setting.md)。
 
 ## 2. ドキュメント索引
@@ -46,11 +46,19 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | [db/01-data-model.md](../GUIDES/db/01-data-model.md) | ERD・全テーブル定義・インデックス・KV/DO/R2 配置 |
 | [db/02-migrations.md](../GUIDES/db/02-migrations.md) | MikroORM Migrator 中心の手順・wrangler での D1 適用・ロールバック |
 
+### API ガイド（`docs/GUIDES/api/`）
+
+| ドキュメント | 内容 |
+| --- | --- |
+| [api/00-overview.md](../GUIDES/api/00-overview.md) | API 全体方針・2 面（内部 GraphQL / 公開 REST）の分離・横断する設計原則・バージョニング |
+| [api/01-graphql-internal.md](../GUIDES/api/01-graphql-internal.md) | 内部 GraphQL API（`apps/api`）の設計規約・エラー表現・DataLoader・型生成 |
+| [api/02-public-rest-api.md](../GUIDES/api/02-public-rest-api.md) | 公開 REST API（`apps/public-api`）の設計規約・エンベロープ/エラー写像/認可/レート制限/OpenAPI |
+| [api/03-public-api-developer-guide.md](../GUIDES/api/03-public-api-developer-guide.md) | 公開 API 開発者向け利用ガイド（キー発行→疎通・エラー対処・代表レシピ） |
+
 ### その他のガイド（`docs/GUIDES/`）
 
 | ディレクトリ | 内容 |
 | --- | --- |
-| `api/` | API ドキュメント・設計原則（今後整備） |
 | `coding/` | コーディングルール・アーキテクチャ設計（今後整備） |
 | `testing/` | テスト方針・カバレッジ設定（今後整備） |
 | `design-system/` | デザインシステム・Storybook（今後整備） |

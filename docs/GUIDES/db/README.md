@@ -23,6 +23,7 @@ SQLite（ローカル）/ Cloudflare D1（dev・prod）と MikroORM を用いた
 ## 関連ドキュメント
 
 - インフラ（D1/KV/R2/Images の配置・経路）: [docs/GUIDES/infra/](../infra/)
+- API 設計・規約（内部 GraphQL・公開 REST が `api_keys` 等を利用する側）: [docs/GUIDES/api/](../api/)
 - ビジネスルールの正本（各 `BR-*`/`AC-*`）: [docs/service/features/](../../service/features/)
 - 用語の定義: [docs/service/glossary.md](../../service/glossary.md)
 - オンボーディング索引: [docs/onboardings/README.md](../../onboardings/README.md)
