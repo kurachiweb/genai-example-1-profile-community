@@ -29,7 +29,7 @@
 | User | サービスの会員アカウント。1 ユーザー = 1 プロフィール（1:1）。 | 01 |
 | Profile | ユーザーに 1:1 で紐づくプロフィール。アカウント作成時に空の状態で生成される。 | 02 / 03 / 04 |
 | SnsLink | Profile に紐づく SNS/Web リンク（0〜N 件）。 | 02 |
-| ApiKey | ユーザーが発行する公開 API の認証キー（0〜N 件）。 | 05 |
+| ApiKey | ユーザーが発行する公開 API の認証キー（0〜N 件）。スコープ（`read`/`full`）を持つ。 | 05 |
 | Report | 閲覧者・利用者によるプロフィール通報。 | 06 |
 | Suspension | 管理者によるユーザー凍結と、その解除リクエスト。 | 06 |
 | AdminAccount | 運営者（管理者）のアカウント。ロールベースの権限を持つ。 | 07 |
@@ -104,7 +104,7 @@
 | US-0402 | 各 SNS リンクへの遷移 | [04](./04-profile-discovery.md) | Must |
 | US-0403 | 公開プロフィールの一覧 | [04](./04-profile-discovery.md) | Should |
 | US-0404 | 名前・職業・自己紹介での絞り込み検索 | [04](./04-profile-discovery.md) | Should |
-| US-0501 | API キーの発行・管理 | [05](./05-public-api.md) | Should |
+| US-0501 | API キーの発行・管理（`read`/`full` スコープ） | [05](./05-public-api.md) | Should |
 | US-0502 | 公開 API でプロフィール取得（Read） | [05](./05-public-api.md) | Should |
 | US-0503 | 公開 API でプロフィール CUD | [05](./05-public-api.md) | Should |
 | US-0504 | レート制限の把握 | [05](./05-public-api.md) | Should |

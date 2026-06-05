@@ -339,7 +339,8 @@ erDiagram
 | `user_id` | TEXT | NN, FK→users | 発行は `ACTIVE` のみ（`BR-API-002`） |
 | `key_hash` | TEXT | NN, UNIQUE | キー値のハッシュ。秘匿値は保存しない（`BR-API-001`） |
 | `label` | TEXT | nullable | 最大 50 |
-| `status` | TEXT(enum) | NN, CHECK | `active`/`revoked`。有効上限 5（アプリ層判定） |
+| `scope` | TEXT(enum) | NN, CHECK | `read`/`full`。発行時に選択し変更不可（`BR-API-001b`/`BR-API-002`） |
+| `status` | TEXT(enum) | NN, CHECK | `active`/`revoked`。有効上限 5（スコープ合算・アプリ層判定） |
 | `last_used_at` | datetime | nullable | 最終利用日時（`BR-API-003`） |
 | `created_at` | datetime | NN | |
 | `revoked_at` | datetime | nullable | 失効時刻 |

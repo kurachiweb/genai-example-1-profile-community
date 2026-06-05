@@ -124,8 +124,9 @@ API キーで認証してプロフィールを操作する仕組みに関する�
 | 用語（英語・別名） | 意味 | 参照 |
 | --- | --- | --- |
 | 公開 API | API キーを持つ開発者が、自身のプロフィールを CRUD し、他ユーザーの公開プロフィールを取得できる RESTful API。画面と対等な「一級の入り口」。 | [05-public-api.md](./features/05-public-api.md) |
-| API キー（ApiKey） | 公開 API の認証情報。ユーザーに紐づき、その本人の権限で動作する。発行時に一度だけ全体表示し、サーバーにはハッシュで保存する（再表示不可）。 | [05-public-api.md](./features/05-public-api.md) |
-| 本人フル CRUD | API キー所有者が自分のプロフィールに対して作成・取得・更新・削除を行えること。`DELETE` はプロフィール内容を消去し非公開化する（アカウントは消さない）。 | [05-public-api.md](./features/05-public-api.md) |
+| API キー（ApiKey） | 公開 API の認証情報。ユーザーに紐づき、付与されたスコープ（`read`/`full`）の範囲内でその本人の権限で動作する。発行時に一度だけ全体表示し、サーバーにはハッシュで保存する（再表示不可）。 | [05-public-api.md](./features/05-public-api.md) |
+| キースコープ（read / full） | API キーに発行時付与される権限範囲。`read` は Read 系のみ（クライアント埋め込み向け）、`full` は本人プロフィールの書き込みも可能（サーバーサイド向け）。発行後は変更不可（昇格は失効＋再発行）。 | [05-public-api.md](./features/05-public-api.md) |
+| 本人フル CRUD | `full` スコープの API キー所有者が自分のプロフィールに対して作成・取得・更新・削除を行えること。`DELETE` はプロフィール内容を消去し非公開化する（アカウントは消さない）。 | [05-public-api.md](./features/05-public-api.md) |
 | 他者公開分 Read | 他ユーザーのプロフィールは、実効公開のものに限り取得（Read）できること。非公開・未確認・凍結・退会は `404` で秘匿する。 | [05-public-api.md](./features/05-public-api.md) |
 | レスポンスエンベロープ | 公開 API の応答を統一する封筒形式。`success`／`data`／`error`／`meta` を持つ。成否を一貫した形で返す。 | [00-common-rules.md](./features/00-common-rules.md) |
 | レート制限（Rate Limit） | 一定時間あたりのリクエスト数の上限。濫用やスクレイピングを抑止する。公開 API は既定 60 リクエスト/分（キー単位）で、超過時は `429` を返す。 | [00-common-rules.md](./features/00-common-rules.md) |
