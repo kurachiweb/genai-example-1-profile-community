@@ -13,6 +13,7 @@ D1（SQLite 互換）の物理データモデルを ERD とテーブル定義で
 | `profiles` | プロフィール本体（アイコン・氏名・職業・自己紹介・公開設定） | [02](../../service/features/02-profile.md) / [03](../../service/features/03-profile-sharing.md) |
 | `sns_links` | Profile に紐づく SNS/Web リンク（0〜10 件） | [02](../../service/features/02-profile.md) |
 | `api_keys` | 公開 API の認証キー（ユーザーあたり有効 5 個まで） | [05](../../service/features/05-public-api.md) |
+| `user_webauthn_credentials` | 利用者の WebAuthn（パスキー）資格情報（0〜N 件・推奨/任意） | [01](../../service/features/01-user-account.md) / [00](../../service/features/00-common-rules.md) |
 | `reserved_handles` | 変更・退会で手放したハンドルの予約保持（30 日）と旧ハンドルの 301 転送解決 | [03](../../service/features/03-profile-sharing.md) |
 | `handle_changes` | ハンドル変更履歴（30 日 3 回の頻度制限判定用） | [03](../../service/features/03-profile-sharing.md) |
 | `nsfw_checks` | アイコンの NSFW 自動判定結果 | [06](../../service/features/06-trust-and-safety.md) |
@@ -20,6 +21,7 @@ D1（SQLite 互換）の物理データモデルを ERD とテーブル定義で
 | `suspensions` | 管理者によるユーザー凍結記録 | [06](../../service/features/06-trust-and-safety.md) |
 | `unfreeze_requests` | 凍結ユーザーの解除リクエスト | [06](../../service/features/06-trust-and-safety.md) |
 | `admin_accounts` | 管理者アカウント（利用者とは別ストア・RBAC） | [07](../../service/features/07-admin-console.md) |
+| `admin_webauthn_credentials` | 管理者の WebAuthn（パスキー）資格情報（利用者とは別ストアで分離） | [07](../../service/features/07-admin-console.md) / [00](../../service/features/00-common-rules.md) |
 | `audit_logs` | 監査ログ（追記専用・改ざん不可） | [00](../../service/features/00-common-rules.md) / [07](../../service/features/07-admin-console.md) |
 | `announcements` | サイト内お知らせ | [08](../../service/features/08-content-and-comms.md) |
 | `email_notifications` | 管理者が配信するメール通知 | [08](../../service/features/08-content-and-comms.md) |
@@ -35,6 +37,7 @@ erDiagram
     users ||--|| profiles : "1:1"
     profiles ||--o{ sns_links : "0..10"
     users ||--o{ api_keys : "0..5(有効)"
+    users ||--o{ user_webauthn_credentials : "0..N(パスキー)"
     users ||--o{ handle_changes : "履歴"
     profiles ||--o{ nsfw_checks : "アイコン判定"
     reserved_handles }o--o| users : "解放元(任意)"
@@ -84,6 +87,18 @@ erDiagram
         datetime last_used_at "nullable"
         datetime created_at
         datetime revoked_at "nullable"
+    }
+    user_webauthn_credentials {
+        string id PK "ULID"
+        string user_id FK
+        string credential_id "一意・base64url(raw ID)"
+        string public_key "COSE 公開鍵"
+        int sign_count "署名カウンタ"
+        string transports "nullable・JSON配列"
+        string aaguid "nullable・認証器種別"
+        string nickname "nullable・<=50 表示名"
+        datetime last_used_at "nullable"
+        datetime created_at
     }
     reserved_handles {
         string handle PK "予約中ハンドル"
@@ -159,6 +174,7 @@ erDiagram
 ```mermaid
 erDiagram
     admin_accounts ||--o{ audit_logs : "操作者(admin)"
+    admin_accounts ||--o{ admin_webauthn_credentials : "0..N(パスキー)"
     admin_accounts ||--o{ announcements : "作成者"
     admin_accounts ||--o{ email_notifications : "作成者"
     admin_accounts ||--o{ help_articles : "編集者"
@@ -172,10 +188,21 @@ erDiagram
         string email "一意"
         string password_hash "Argon2id"
         string role "super_admin/moderator/support/viewer"
-        boolean mfa_enabled "既定 false(推奨)"
         string status "active/disabled"
         datetime created_at
         datetime updated_at
+    }
+    admin_webauthn_credentials {
+        string id PK "ULID"
+        string admin_account_id FK
+        string credential_id "一意・base64url(raw ID)"
+        string public_key "COSE 公開鍵"
+        int sign_count "署名カウンタ"
+        string transports "nullable・JSON配列"
+        string aaguid "nullable・認証器種別"
+        string nickname "nullable・<=50 表示名"
+        datetime last_used_at "nullable"
+        datetime created_at
     }
     audit_logs {
         string id PK "ULID"
@@ -409,12 +436,12 @@ erDiagram
 | `email` | TEXT | NN, UNIQUE | |
 | `password_hash` | TEXT | NN | Argon2id |
 | `role` | TEXT(enum) | NN, CHECK | `super_admin`/`moderator`/`support`/`viewer`（`BR-ADMIN-002`） |
-| `mfa_enabled` | boolean | NN, 既定 0 | MFA は推奨（`BR-COMMON-002`） |
 | `status` | TEXT(enum) | NN, CHECK | `active`/`disabled` |
 | `created_at` | datetime | NN | |
 | `updated_at` | datetime | NN | |
 
 > 最後の `super_admin` の削除/降格はアプリ層でブロックする（`AC-ADMIN-003` ロックアウト防止）。
+> WebAuthn（パスキー）は推奨だが任意（`BR-COMMON-016`）。「パスキー登録済みか」は専用フラグを持たず、`admin_webauthn_credentials` の有効件数 > 0 で**導出**する（§5.14）。
 
 ### 5.10 `audit_logs`（`BR-COMMON-013`/`BR-ADMIN-010`）
 
@@ -520,6 +547,42 @@ erDiagram
 | `policy_id` | TEXT | NN, FK→policies | 同意した版 |
 | `consented_at` | datetime | NN | |
 
+### 5.14 `user_webauthn_credentials` / `admin_webauthn_credentials`（`BR-COMMON-016` / `BR-ACCT-010`）
+
+WebAuthn（パスキー）資格情報。**利用者と管理者はストアを分離**する原則（`BR-COMMON-002`/`BR-ADMIN-001`）に従い、ポリモーフィックな単一表ではなく**別テーブル**で保持し、それぞれ正しい外部キー整合性を担保する。秘密鍵は認証器内にのみ存在し、サーバーは**公開鍵のみ**を保存する。
+
+`user_webauthn_credentials`
+
+| カラム | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| `id` | TEXT(ULID) | PK | |
+| `user_id` | TEXT | NN, FK→users | 所有利用者 |
+| `credential_id` | TEXT | NN, UNIQUE | 認証器が発行する資格情報 ID（raw ID の base64url）。認証時の引き当てキー |
+| `public_key` | TEXT | NN | COSE 形式の公開鍵（base64url 等でエンコード保存） |
+| `sign_count` | INTEGER | NN, 既定 0 | 署名カウンタ。逆行・非増加はクローン疑いとして検出（`BR-COMMON-016`） |
+| `transports` | TEXT(JSON) | nullable | `usb`/`nfc`/`ble`/`internal`/`hybrid` 等の配列 |
+| `aaguid` | TEXT | nullable | 認証器モデル識別子（個人特定情報は含まない） |
+| `nickname` | TEXT | nullable | 利用者が付ける表示名（最大 50・一覧/削除の識別用） |
+| `last_used_at` | datetime | nullable | 最終利用日時 |
+| `created_at` | datetime | NN | 登録日時 |
+
+`admin_webauthn_credentials`（カラム構成は上記に準じ、所有者参照のみ差し替え）
+
+| カラム | 型 | 制約 | 説明 |
+| --- | --- | --- | --- |
+| `id` | TEXT(ULID) | PK | |
+| `admin_account_id` | TEXT | NN, FK→admin_accounts | 所有管理者（利用者とは別ストア） |
+| `credential_id` | TEXT | NN, UNIQUE | raw ID の base64url。認証時の引き当てキー |
+| `public_key` | TEXT | NN | COSE 形式の公開鍵 |
+| `sign_count` | INTEGER | NN, 既定 0 | 署名カウンタ |
+| `transports` | TEXT(JSON) | nullable | 認証器の通信手段配列 |
+| `aaguid` | TEXT | nullable | 認証器モデル識別子 |
+| `nickname` | TEXT | nullable | 管理者が付ける表示名（最大 50） |
+| `last_used_at` | datetime | nullable | 最終利用日時 |
+| `created_at` | datetime | NN | 登録日時 |
+
+> ユーザー/管理者の削除（退会・無効化）時は、それぞれの資格情報を**カスケード削除**する。登録・削除はセキュリティ重要操作として `audit_logs` に記録する（`BR-COMMON-013`）。`credential_id` はストアをまたいで衝突しうるため、一意性は**各テーブル内**で担保する。
+
 ## 6. インデックス設計
 
 ホットパス（公開ページ・一覧/検索・公開 API・モデレーションキュー・監査ログ閲覧）を支える主要インデックス。
@@ -535,6 +598,10 @@ erDiagram
 | `idx_sns_links_profile_sort` | `sns_links(profile_id, sort_order)` | リンクの順序付き取得 |
 | `uq_api_keys_key_hash` | `api_keys(key_hash)` UNIQUE | キー認証の引き当て |
 | `idx_api_keys_user_status` | `api_keys(user_id, status)` | 有効キー数の判定（上限 5） |
+| `uq_user_webauthn_credential_id` | `user_webauthn_credentials(credential_id)` UNIQUE | パスキー認証の引き当て |
+| `idx_user_webauthn_user` | `user_webauthn_credentials(user_id)` | 利用者の登録パスキー一覧 |
+| `uq_admin_webauthn_credential_id` | `admin_webauthn_credentials(credential_id)` UNIQUE | 管理者パスキー認証の引き当て |
+| `idx_admin_webauthn_admin` | `admin_webauthn_credentials(admin_account_id)` | 管理者の登録パスキー一覧 |
 | `idx_handle_changes_user_changed` | `handle_changes(user_id, changed_at)` | 30 日窓の変更回数カウント |
 | `idx_reserved_handles_until` | `reserved_handles(reserved_until)` | 予約解放バッチ |
 | `idx_reports_target_status` | `reports(target_user_id, status)` | 通報キュー・集約 |
@@ -558,6 +625,8 @@ D1 に置かない揮発・バイナリデータの配置。詳細経路は [inf
 | メール確認トークン | KV | `tok:verify:<hash>` | 24h・ワンタイム | `BR-ACCT-003` |
 | パスワードリセットトークン | KV | `tok:reset:<hash>` | 1h・ワンタイム | `BR-ACCT-006` |
 | メール変更トークン | KV | `tok:email:<hash>`（新メール内包） | 設定値・ワンタイム | `BR-ACCT-007` |
+| WebAuthn 登録チャレンジ（利用者/管理者） | KV | `tok:webauthn:reg:<scope>:<id>` | 数分・ワンタイム | `BR-COMMON-016`/`BR-ACCT-010` |
+| WebAuthn 認証チャレンジ（利用者/管理者） | KV | `tok:webauthn:auth:<scope>:<id>` | 数分・ワンタイム | `BR-COMMON-016`/`BR-ACCT-010` |
 | レート制限カウンタ（公開API・キー単位） | DO | `rl:apikey:<keyId>:<window>` | 時間窓 | `BR-API-008`（[ADR](../../adr/20260604-public-api-rate-limit-durable-objects.md)） |
 | レート制限カウンタ（認証系・通報系） | KV | `rl:<scope>:<id>:<window>` | 時間窓 | `BR-COMMON-010` |
 | 検索/一覧 短 TTL キャッシュ | KV | `cache:profiles:<query-hash>` | 数十秒〜数分 | `BR-DISC-006` |
@@ -583,8 +652,8 @@ stateDiagram-v2
     WITHDRAWN --> [*]
 ```
 
-- 凍結時: `suspensions` 追加、`api_keys` を `revoked`、公開系は実効公開判定で自動的に除外。
-- 退会時: `users.status='WITHDRAWN'`、本人特定可能データの匿名化、`reserved_handles` へ 30 日予約、`api_keys` 失効。すべて `audit_logs` に記録。
+- 凍結時: `suspensions` 追加、`api_keys` を `revoked`、公開系は実効公開判定で自動的に除外。パスキー（`user_webauthn_credentials`）は維持（凍結中もログインは可能、`BR-COMMON-005`）。
+- 退会時: `users.status='WITHDRAWN'`、本人特定可能データの匿名化、`reserved_handles` へ 30 日予約、`api_keys` 失効、`user_webauthn_credentials` を削除。すべて `audit_logs` に記録。
 
 ## 9. 関連ドキュメント
 
