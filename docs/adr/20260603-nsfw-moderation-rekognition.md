@@ -24,7 +24,7 @@
 - 実行環境は **Cloudflare Workers**（`api` / `public-api`）。判定は同期で行うためレイテンシと実行時間制限に配慮する。
 - 規模は個人開発アプリ。**低コスト・低運用負荷**を重視。
 - 既存の外部ベンダは **AWS（Amazon SES）** のみで、AWS 認証情報の管理機構（Wrangler Secrets / GitHub Actions Secrets）は既に存在する。
-- ORM は MikroORM、バックエンドは NestJS（オニオンアーキテクチャ）。
+- ORM は MikroORM、バックエンドは NestJS（クリーンアーキテクチャ）。
 
 ## 検討した選択肢
 
@@ -49,7 +49,7 @@
 
 - `DetectModerationLabels` を呼び出し、**最上位ラベル → `category`**、**最大 `Confidence` → `score`**、**カテゴリ別しきい値超過 → `result = rejected`** にマップする。しきい値はカテゴリ別に **config 管理**する（`BR-SAFE-001`）。
 - Worker バンドル肥大を避けるため、フル SDK ではなく **`aws4fetch`（軽量な SigV4 署名 fetch）** で Rekognition エンドポイントを呼ぶ。
-- 判定を**ポートとして抽象化**する。オニオン構成に `NsfwModerationPort.classify(image): { result, score, category }` を定義し、環境変数でアダプタ（**Rekognition** / **local 決定論的スタブ**）を差し替える。`api`・`public-api` はともに同ポート経由で判定し、拒否時は `422` を返す。
+- 判定を**Gateway として抽象化**する。クリーンアーキテクチャの Use Case 層に `NsfwModerationGateway.classify(image): { result, score, category }` を定義し、その実装（Interface Adapters）を環境変数でアダプタ（**Rekognition** / **local 決定論的スタブ**）に差し替える。`api`・`public-api` はともに同 Gateway 経由で判定し、拒否時は `422` を返す。
   - local 環境は SQLite/Mailpit と同様、決定論的スタブで本番ドメインロジックを再現する（実 API を呼ばない）。
 - **失敗時方針は fail-closed**: 判定エンジンがエラー/タイムアウトした場合は保存せず拒否（`422`）し、`nsfw_checks` に記録する。「健全さは前提条件」に整合させ、安全側に倒す。**bounded timeout ＋ 限定リトライ**を併用し、無限待ちを避ける。
 
@@ -65,11 +65,11 @@
 
 - 画像バイトが AWS へ egress し、判定レイテンシが数百 ms 程度増える（同期アップロードの応答時間に計上。現規模では許容）。
 - **fail-closed のため、Rekognition 障害時はアイコンアップロードが一時的に不可**になる。→ 判定エンジンのエラー/タイムアウトを監視・アラートし（[03-logging-monitoring.md](../GUIDES/infra/03-logging-monitoring.md) §7）、早期に検知する。すり抜けは `BR-SAFE-002` の通報・管理者モデレーションで事後対応する。
-- 緩和策として **判定をポート（`NsfwModerationPort`）として抽象化**し、将来 Workers AI / 外部 SaaS へ差し替えられる余地を残す。
+- 緩和策として **判定を Gateway（`NsfwModerationGateway`）として抽象化**し、将来 Workers AI / 外部 SaaS へ差し替えられる余地を残す。
 
 ## 将来の見直しトリガ
 
-次のいずれかが顕在化した場合、Workers AI（ゼロ egress）または外部 SaaS への差し替えをポート単位で再評価する。
+次のいずれかが顕在化した場合、Workers AI（ゼロ egress）または外部 SaaS への差し替えを Gateway 単位で再評価する。
 
 - 利用増により Rekognition のコストや egress レイテンシが問題化する。
 - 判定精度（誤検知・すり抜け）が運用上の負荷になる。
