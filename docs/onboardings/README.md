@@ -15,7 +15,7 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 
 1. **サービス像を掴む**: [docs/service/overview/](../service/overview/) を 01→04 の順に読む。
 2. **仕様の正本を確認する**: [docs/service/features/](../service/features/)（ビジネスルール・受け入れ条件の SSoT）。まず [00-common-rules.md](../service/features/00-common-rules.md) を読み、公開ゲート・状態モデル・レート制限を理解する。用語は [glossary.md](../service/glossary.md)。
-3. **技術ガイドを読む**: [インフラ](../GUIDES/infra/)・[データベース](../GUIDES/db/)・[API](../GUIDES/api/)。
+3. **技術ガイドを読む**: [インフラ](../GUIDES/infra/)・[データベース](../GUIDES/db/)・[API](../GUIDES/api/)・[コーディング](../GUIDES/coding/)・[テスト](../GUIDES/testing/)。
 4. **開発環境とエージェント設定**: 本ページ §3 と [agent-setting.md](./agent-setting.md)。
 
 ## 2. ドキュメント索引
@@ -55,12 +55,32 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | [api/02-public-rest-api.md](../GUIDES/api/02-public-rest-api.md) | 公開 REST API（`apps/public-api`）の設計規約・エンベロープ/エラー写像/認可/レート制限/OpenAPI |
 | [api/03-public-api-developer-guide.md](../GUIDES/api/03-public-api-developer-guide.md) | 公開 API 開発者向け利用ガイド（キー発行→疎通・エラー対処・代表レシピ） |
 
+### コーディングガイド（`docs/GUIDES/coding/`）
+
+| ドキュメント | 内容 |
+| --- | --- |
+| [coding/00-overview.md](../GUIDES/coding/00-overview.md) | コーディング原則。言語/TypeScript 方針・KISS/DRY/YAGNI・イミュータビリティ・ファイル構成/命名・境界検証・エラー処理 |
+| [coding/01-architecture.md](../GUIDES/coding/01-architecture.md) | アーキテクチャ設計。モノレポ・バックエンドのオニオンアーキテクチャ・フロントエンドの責務分割と状態管理・アプリ境界 |
+| [coding/02-lint-format-commit.md](../GUIDES/coding/02-lint-format-commit.md) | ESLint(Flat Config)/Prettier・Husky + lint-staged・Commitlint・Gitleaks/TruffleHog・CI 品質ゲート（Stylelint 不採用） |
+| [coding/03-docker.md](../GUIDES/coding/03-docker.md) | Docker 構成。ローカル開発専用・`node@trixie`・Dockerfile/`docker-compose.yaml`・ポート・Mailpit・秘匿 |
+| [coding/04-nestjs.md](../GUIDES/coding/04-nestjs.md) | NestJS 実装規約（`api`/`public-api`）。モジュール/DI・ガード/パイプ/インターセプタ/フィルタ・Throttler・Hono |
+| [coding/05-tailwind.md](../GUIDES/coding/05-tailwind.md) | Tailwind CSS 規約（`client`/`admin`）。デザイントークン・抽象化・レスポンシブ・モーション・shadcn/ui |
+| [coding/06-mikroorm.md](../GUIDES/coding/06-mikroorm.md) | MikroORM 実装規約。エンティティ/命名戦略・EntityManager(fork)・トランザクション・N+1/カーソル・マイグレーション |
+
+> Next.js / React 固有のコーディングルールは Skills（ECC のフロントエンド系スキル）で定義済みのため、本ディレクトリには含めない。
+
+### テストガイド（`docs/GUIDES/testing/`）
+
+| ドキュメント | 内容 |
+| --- | --- |
+| [testing/00-overview.md](../GUIDES/testing/00-overview.md) | テスト戦略。TDD サイクル・テスト種別・カバレッジ 80%・正確性優先の配分・決定性・ツール対応 |
+| [testing/01-unit-integration.md](../GUIDES/testing/01-unit-integration.md) | 単体・統合テスト。Jest・React Testing Library・jest-axe・Supertest・MikroORM/DB テスト・モック/フェイク戦略 |
+| [testing/02-e2e.md](../GUIDES/testing/02-e2e.md) | E2E。Playwright・重要フロー・Page Object・ビジュアル回帰/アクセシビリティ（補助）・成果物・CI |
+
 ### その他のガイド（`docs/GUIDES/`）
 
 | ディレクトリ | 内容 |
 | --- | --- |
-| `coding/` | コーディングルール・アーキテクチャ設計（今後整備） |
-| `testing/` | テスト方針・カバレッジ設定（今後整備） |
 | `design-system/` | デザインシステム・Storybook（今後整備） |
 | `operations/` | 運用・障害対応・ロールバック手順（今後整備） |
 | `security/` | セキュリティ・認証認可設計・監視方針（今後整備） |
