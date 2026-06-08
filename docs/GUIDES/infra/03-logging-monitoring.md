@@ -40,7 +40,7 @@ flowchart TB
 
 | フィールド | 例 | 備考 |
 | --- | --- | --- |
-| `timestamp` | ISO-8601（UTC 保存） | 表示は JST（`BR-COMMON-015`） |
+| `timestamp` | ISO-8601（UTC 保存） | 表示はローカルタイム（`BR-COMMON-015`） |
 | `level` | `info` / `warn` / `error` | — |
 | `service` | `api` / `public-api` / `client` / `admin` | アプリ識別 |
 | `requestId` | ULID | リクエスト相関 |
