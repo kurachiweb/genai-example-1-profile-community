@@ -26,8 +26,8 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | --- | --- |
 | [overview/](../service/overview/) | サービス概要・コンセプト・ターゲット/ペルソナ・ユーザーストーリー |
 | [features/](../service/features/) | **ビジネスルール・受け入れ条件の正本（SSoT）**。エンティティ単位で分割 |
+| [design/](../service/design/) | デザインガイドライン（文字・パーツ配置などサービス固有の規則、今後整備） |
 | [glossary.md](../service/glossary.md) | サービス内ドメイン用語集 |
-| [screens/](../service/) | 画面仕様・ワイヤーフレーム（今後整備） |
 
 ### インフラガイド（`docs/GUIDES/infra/`）
 
@@ -68,6 +68,7 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | [coding/06-mikroorm.md](../GUIDES/coding/06-mikroorm.md) | MikroORM 実装規約。エンティティ/命名戦略・EntityManager(fork)・トランザクション・N+1/カーソル・マイグレーション |
 
 > Next.js / React 固有のコーディングルールは Skills（ECC のフロントエンド系スキル）で定義済みのため、本ディレクトリには含めない。
+> 共有フロントエンド（コンポーネント・ユーティリティ）は `apps/frontend-lib/` に集約し、Dockerコンテナ内で`apps/client/lib`・`apps/admin/lib` からエイリアス参照する。コンポーネントカタログは Storybook でプレビューする。
 
 ### テストガイド（`docs/GUIDES/testing/`）
 
@@ -81,7 +82,6 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 
 | ディレクトリ | 内容 |
 | --- | --- |
-| `design-system/` | デザインシステム・Storybook（今後整備） |
 | `operations/` | 運用・障害対応・ロールバック手順（今後整備） |
 | `security/` | セキュリティ・認証認可設計・監視方針（今後整備） |
 

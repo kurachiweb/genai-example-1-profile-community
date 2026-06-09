@@ -4,7 +4,7 @@
 原則は [00-overview.md](./00-overview.md)、フロント構造は [01-architecture.md](./01-architecture.md) §3 を参照。
 
 > **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（Tailwind CSS・shadcn/ui）と [ecc-web/coding-style.md](../../../.claude/rules/ecc-web/coding-style.md)・[ecc-web/design-quality.md](../../../.claude/rules/ecc-web/design-quality.md)・[ecc-web/performance.md](../../../.claude/rules/ecc-web/performance.md) を、本サービスのスタイリング観点へ具体化したものである。
-> 画面仕様・ワイヤーフレームの正本は [docs/service/screens/](../../service/)（今後整備）、コンポーネントカタログは [docs/GUIDES/design-system/](../design-system/)（今後整備、Storybook）。
+> 画面仕様・ワイヤーフレームの正本は [docs/service/screens/](../../service/)（今後整備）、コンポーネントカタログは [docs/apps/frontend-lib/components/](../../../apps/frontend-lib/components/)（今後整備、Storybook）。
 > Next.js / React 固有のコーディングは Skills で定義済みのため本ガイドでは扱わない。
 > **現状フェーズ**: `apps/client`・`apps/admin` は未実装で、本ガイドは実装に先行する規約である。
 

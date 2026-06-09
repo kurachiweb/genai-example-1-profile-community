@@ -52,7 +52,7 @@ NestJS を**クリーンアーキテクチャ**で構成する（[CLAUDE.md](../
 
 - **Server / Client Components の境界**を意図的に設計する。データ取得・秘匿値は Server 側に置き、`'use client'` は対話・状態が必要なリーフに限定する。
 - **コンテナ / プレゼンテーション分割**: データ取得・副作用はコンテナが持ち、表示コンポーネントは props を受け取る純粋な描画に保つ（[ecc-web/patterns.md](../../../.claude/rules/ecc-web/patterns.md)）。
-- 共有 UI は機能/サーフェス単位でディレクトリ化する。プリミティブは **shadcn/ui** をベースに、テンプレート然としない意図的な装いへ調整する（[ecc-web/coding-style.md](../../../.claude/rules/ecc-web/coding-style.md)・[ecc-web/design-quality.md](../../../.claude/rules/ecc-web/design-quality.md)）。コンポーネントカタログは [docs/GUIDES/design-system/](../design-system/)（今後整備、Storybook）に委譲する。
+- 共有 UI は機能/サーフェス単位でディレクトリ化する。プリミティブは **shadcn/ui** をベースに、テンプレート然としない意図的な装いへ調整する（[ecc-web/coding-style.md](../../../.claude/rules/ecc-web/coding-style.md)・[ecc-web/design-quality.md](../../../.claude/rules/ecc-web/design-quality.md)）。コンポーネントカタログは [docs/apps/frontend-lib/components/](../../../apps/frontend-lib/components/)（Storybook）に委譲する。
 - セマンティック HTML を第一とし、アクセシビリティ（ラベル・フォーカス・キーボード操作）を作り込む（[testing/02-e2e.md](../testing/02-e2e.md) のアクセシビリティ節）。
 
 ### 3.2 状態管理の責務分離
