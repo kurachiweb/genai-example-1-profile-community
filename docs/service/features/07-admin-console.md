@@ -191,4 +191,4 @@
 - 通報・凍結・解除のライフサイクル: [06-trust-and-safety.md](./06-trust-and-safety.md)
 - お知らせ・通知・ヘルプ・規約版管理: [08-content-and-comms.md](./08-content-and-comms.md)
 - 公開 API・キー: [05-public-api.md](./05-public-api.md)
-- セキュリティ・認可設計の詳細: `docs/GUIDES/security/`（今後整備）
+- セキュリティ・認可設計の詳細: [docs/GUIDES/security/](../../GUIDES/security/)（認証認可は [01-authn-authz.md](../../GUIDES/security/01-authn-authz.md)）

@@ -140,7 +140,7 @@ flowchart LR
 - **シークレット管理**: API キー・SES 認証情報・DB 接続情報などのシークレットは、Wrangler Secrets / GitHub Actions Secrets で管理し、リポジトリに含めない（`BR-COMMON-014`、[ecc-common/security.md](../../../.claude/rules/ecc-common/security.md)）。
 - **機密情報の push 防止**: pre-commit で Gitleaks（`--staged`）、CI で TruffleHog を実行する。
 - **レート制限の二層構成**: 本番エッジの WAF と、アプリ層の @nestjs/throttler で多層防御する（[01-network-architecture.md](./01-network-architecture.md)）。
-- **セキュリティヘッダ / CSP**: 本番では HSTS・CSP・`X-Content-Type-Options` 等を付与する（`BR-COMMON-004`、`docs/GUIDES/security/`）。
+- **セキュリティヘッダ / CSP**: 本番では HSTS・CSP・`X-Content-Type-Options` 等を付与する（`BR-COMMON-004`、[docs/GUIDES/security/02-application-security.md](../security/02-application-security.md)）。
 
 ## 7. 関連ドキュメント
 

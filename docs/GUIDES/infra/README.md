@@ -25,6 +25,8 @@ Cloudflare を主軸としたインフラ構成・ネットワーク・デプロ
 
 - データベース設計: [docs/GUIDES/db/](../db/)
 - API 設計・規約（内部 GraphQL・公開 REST）: [docs/GUIDES/api/](../api/)
+- セキュリティ設計（認証認可・ヘッダ/CSP・監視&対応）: [docs/GUIDES/security/](../security/)
+- 運用・障害対応・ランブック・問い合わせ駆動調査: [docs/GUIDES/operations/](../operations/)
 - 横断ビジネスルール（認証・公開ゲート・レート制限）: [00-common-rules.md](../../service/features/00-common-rules.md)
 - 公開 API 仕様: [05-public-api.md](../../service/features/05-public-api.md)
 - オンボーディング索引: [docs/onboardings/README.md](../../onboardings/README.md)

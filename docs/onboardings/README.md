@@ -15,7 +15,7 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 
 1. **サービス像を掴む**: [docs/service/overview/](../service/overview/) を 01→04 の順に読む。
 2. **仕様の正本を確認する**: [docs/service/features/](../service/features/)（ビジネスルール・受け入れ条件の SSoT）。まず [00-common-rules.md](../service/features/00-common-rules.md) を読み、公開ゲート・状態モデル・レート制限を理解する。用語は [glossary.md](../service/glossary.md)。
-3. **技術ガイドを読む**: [インフラ](../GUIDES/infra/)・[データベース](../GUIDES/db/)・[API](../GUIDES/api/)・[コーディング](../GUIDES/coding/)・[テスト](../GUIDES/testing/)。
+3. **技術ガイドを読む**: [インフラ](../GUIDES/infra/)・[データベース](../GUIDES/db/)・[API](../GUIDES/api/)・[コーディング](../GUIDES/coding/)・[テスト](../GUIDES/testing/)・[セキュリティ](../GUIDES/security/)・[運用](../GUIDES/operations/)。
 4. **開発環境とエージェント設定**: 本ページ §3 と [agent-setting.md](./agent-setting.md)。
 
 ## 2. ドキュメント索引
@@ -78,12 +78,23 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | [testing/01-unit-integration.md](../GUIDES/testing/01-unit-integration.md) | 単体・統合テスト。Jest・React Testing Library・jest-axe・Supertest・MikroORM/DB テスト・モック/フェイク戦略 |
 | [testing/02-e2e.md](../GUIDES/testing/02-e2e.md) | E2E。Playwright・重要フロー・Page Object・ビジュアル回帰/アクセシビリティ（補助）・成果物・CI |
 
-### その他のガイド（`docs/GUIDES/`）
+### セキュリティガイド（`docs/GUIDES/security/`）
 
-| ディレクトリ | 内容 |
+| ドキュメント | 内容 |
 | --- | --- |
-| `operations/` | 運用・障害対応・ロールバック手順（今後整備） |
-| `security/` | セキュリティ・認証認可設計・監視方針（今後整備） |
+| [security/00-overview.md](../GUIDES/security/00-overview.md) | セキュリティ方針・脅威モデル・多層防御・SSoT 参照マップ・operations/infra との責務分担 |
+| [security/01-authn-authz.md](../GUIDES/security/01-authn-authz.md) | 認証認可設計。三系統の認証分離・Argon2id/WebAuthn・セッション・RBAC・所有権ベース・実効公開ゲート・API キー認証 |
+| [security/02-application-security.md](../GUIDES/security/02-application-security.md) | セキュリティヘッダ/CSP・XSS/サニタイズ・CSRF・入力検証/正規化・アップロード安全性・CORS・シークレット管理 |
+| [security/03-monitoring-and-response.md](../GUIDES/security/03-monitoring-and-response.md) | セキュリティ監視・濫用検知・依存脆弱性管理（Dependabot + pnpm audit）・シークレットローテーション・セキュリティインシデント対応 |
+
+### 運用ガイド（`docs/GUIDES/operations/`）
+
+| ドキュメント | 内容 |
+| --- | --- |
+| [operations/00-overview.md](../GUIDES/operations/00-overview.md) | 運用全体像・operations/security/infra の責務分担・環境前提・監視と検知・定期作業 |
+| [operations/01-incident-response.md](../GUIDES/operations/01-incident-response.md) | 障害対応。深刻度区分（SEV1〜3）・対応フロー・ロールバック判断・インシデント告知・事後レビュー |
+| [operations/02-runbooks.md](../GUIDES/operations/02-runbooks.md) | コンポーネント別ランブック（Worker/D1/Rekognition/レート制限/メール/画像/KV/濫用） |
+| [operations/03-inquiry-driven-investigation.md](../GUIDES/operations/03-inquiry-driven-investigation.md) | 問い合わせ・通報を起点とした調査手順（相関 ID・監査ログ・プライバシー配慮） |
 
 ### エージェント・開発支援（`docs/onboardings/`）
 
@@ -100,6 +111,8 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | [adr/20260603-profile-search-fts5.md](../adr/20260603-profile-search-fts5.md) | プロフィール検索（`BR-DISC-004`）で FTS5 を採用せず正規化列＋LIKE を用いる決定 |
 | [adr/20260603-nsfw-moderation-rekognition.md](../adr/20260603-nsfw-moderation-rekognition.md) | NSFW 判定（`BR-SAFE-001`）に AWS Rekognition Content Moderation を採用する決定 |
 | [adr/20260604-nextjs-workers-opennext.md](../adr/20260604-nextjs-workers-opennext.md) | Next.js（client/admin）の Workers 配信アダプタに `@opennextjs/cloudflare`（OpenNext）を採用する決定 |
+| [adr/20260604-public-api-rate-limit-durable-objects.md](../adr/20260604-public-api-rate-limit-durable-objects.md) | 公開 API のキー単位レート制限カウンタに Durable Objects を採用する決定（`BR-API-008`） |
+| [adr/20260605-public-api-key-scopes.md](../adr/20260605-public-api-key-scopes.md) | 公開 API キーのスコープ（`read`/`full`）採用の決定（`BR-API-001b`） |
 
 ## 3. ローカル開発環境クイックスタート
 

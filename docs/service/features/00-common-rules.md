@@ -29,7 +29,7 @@
 ### BR-COMMON-004 CSRF・セキュリティヘッダ
 
 - 状態変更を伴う画面操作（フォーム送信・mutation）には CSRF 対策を施す（同一サイト Cookie ＋ トークン）。
-- 本番では `Strict-Transport-Security` / `X-Content-Type-Options` / `Referrer-Policy` / `Content-Security-Policy` 等のセキュリティヘッダを付与する（詳細は `docs/GUIDES/security/`）。
+- 本番では `Strict-Transport-Security` / `X-Content-Type-Options` / `Referrer-Policy` / `Content-Security-Policy` 等のセキュリティヘッダを付与する（詳細は [docs/GUIDES/security/02-application-security.md](../../GUIDES/security/02-application-security.md)）。
 
 ### BR-COMMON-016 WebAuthn（パスキー）認証（横断・利用者／管理者共通）
 
@@ -180,5 +180,5 @@ flowchart TD
 ## 関連ドキュメント
 
 - ユーザーストーリー: [04-user-stories.md](../overview/04-user-stories.md)
-- セキュリティ設計の詳細: `docs/GUIDES/security/`（今後整備）
+- セキュリティ設計の詳細: [docs/GUIDES/security/](../../GUIDES/security/)
 - 各エンティティ仕様: [README.md](./README.md) の一覧を参照

@@ -109,3 +109,5 @@ flowchart TB
 - デプロイ（リリースタグ）: [02-deployment.md](./02-deployment.md)
 - 監査ログのデータ定義: [db/01-data-model.md](../db/01-data-model.md)
 - 監査対象・機密データ方針の正本: [00-common-rules.md](../../service/features/00-common-rules.md) / [07-admin-console.md](../../service/features/07-admin-console.md)
+- セキュリティ監視・インシデント対応（本書を前提とする）: [security/03-monitoring-and-response.md](../security/03-monitoring-and-response.md)
+- 障害対応・ランブック・問い合わせ駆動調査: [docs/GUIDES/operations/](../operations/)

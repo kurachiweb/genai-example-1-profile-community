@@ -157,6 +157,8 @@ Amazon SES (@aws-sdk/client-sesを使用、ローカル環境ではMailpit)
 #### モニタリング
 
 Sentry (エラートラッキング)
+Cloudflare Analytics / Health Checks (可用性・死活監視 ... Cloudflareネイティブを中心とし、外部死活監視は最小限)
+外部ステータスページ (インシデント告知 ... アプリ停止時も到達可能な稼働状況ページ)
 
 ### 画像配信
 
@@ -170,6 +172,7 @@ Amazon Rekognition (ローカル環境やCIプロセスでは、テスト結果�
 
 GitHubリポジトリでのmainブランチへのpushをトリガーにして、GitHub Actionsにより以下のパイプラインを実行。
 TruffleHog (機密情報のpush防止)
+pnpm audit (依存パッケージの既知脆弱性を補助スキャン)
 Workers Builds
 
 ### 開発環境・ツール
@@ -195,6 +198,7 @@ Commitlint (コミットメッセージ規約)
 #### セキュリティ
 
 Gitleaks (pre-commit、コマンドオプション `--staged` を使用)
+GitHub Dependabot (依存パッケージの脆弱性アラート及びバージョン更新PRの自動作成)
 
 #### テスト
 

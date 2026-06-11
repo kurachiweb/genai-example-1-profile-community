@@ -73,7 +73,7 @@
 - シークレットをソースへハードコードしない。環境変数 / Wrangler Secrets / GitHub Actions Secrets を用い、起動時に必須シークレットの存在を検証する（[ecc-common/security.md](../../../.claude/rules/ecc-common/security.md)）。
 - SQL はパラメータ化（MikroORM 経由）。文字列連結でクエリを組まない（[db ガイド](../db/)）。
 - XSS 対策として `dangerouslySetInnerHTML` を原則使わない。やむを得ない場合のみローカルのサニタイザを通す（[ecc-web/security.md](../../../.claude/rules/ecc-web/security.md)）。
-- 詳細は [docs/GUIDES/security/](../security/)（今後整備）に委譲する。
+- 詳細は [docs/GUIDES/security/](../security/)（特に [02-application-security.md](../security/02-application-security.md)）に委譲する。
 
 ## 8. 完了前チェックリスト
 

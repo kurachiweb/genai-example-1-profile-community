@@ -142,4 +142,5 @@ flowchart LR
 - ネットワーク構成・レート制限二層: [01-network-architecture.md](./01-network-architecture.md)
 - ログ・監視（デプロイ後の確認）: [03-logging-monitoring.md](./03-logging-monitoring.md)
 - マイグレーション詳細: [db/02-migrations.md](../db/02-migrations.md)
+- 障害対応・ロールバック判断・ランブック: [docs/GUIDES/operations/](../operations/)
 - デプロイ方針・技術選定の正本: [CLAUDE.md](../../../CLAUDE.md)

@@ -56,12 +56,12 @@
 
 ## 6. API 固有セキュリティ（最小限）
 
-公開 API に固有の点のみを定める。横断的なセキュリティヘッダ・CSP は `docs/GUIDES/security/`（今後整備）へ委譲する。
+公開 API に固有の点のみを定める。横断的なセキュリティヘッダ・CSP は [docs/GUIDES/security/02-application-security.md](../security/02-application-security.md) へ委譲する。
 
 - **Cookie 不使用 → CSRF 面の縮小**: 公開 API は Cookie セッションを用いず API キーのみで認証するため、ブラウザの自動 Cookie 送信に起因する CSRF の面が縮小される（[infra/01-network-architecture.md](../infra/01-network-architecture.md) §1）。状態変更を伴う画面操作側の CSRF 対策は `BR-COMMON-004` を正本とする（公開 API とは別系統）。
-- **CORS**: クライアント（ブラウザ）埋め込みの利用形態（`read` キー、`BR-API-010b`）を想定し、CORS は API キー前提で必要最小限のメソッド・ヘッダ（`Authorization` 等）に限って許可する方針とする。許可オリジンの具体方針は実装着手時に定め、横断方針は `security/` と整合させる。
+- **CORS**: クライアント（ブラウザ）埋め込みの利用形態（`read` キー、`BR-API-010b`）を想定し、CORS は API キー前提で必要最小限のメソッド・ヘッダ（`Authorization` 等）に限って許可する方針とする。許可オリジンの具体方針は実装着手時に定め、横断方針は [security/02-application-security.md](../security/02-application-security.md) §7 と整合させる。
 - **キーの秘匿**: API キー秘匿値・`Authorization` ヘッダ値はログ・エラーに出力しない（`BR-COMMON-014`）。`full` キーはサーバーサイド限定の利用を前提とし、ドキュメント・発行画面で明示する（`BR-API-010b`）。
-- **HTTPS 前提**: 本番のトランスポートセキュリティ・HSTS 等のヘッダは横断方針（`security/`・本番エッジ）に従う。
+- **HTTPS 前提**: 本番のトランスポートセキュリティ・HSTS 等のヘッダは横断方針（[security/02-application-security.md](../security/02-application-security.md) §1・本番エッジ）に従う。
 
 ## 7. ページング実装
 
