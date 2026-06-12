@@ -62,13 +62,14 @@ flowchart LR
 | 検知手段 | 主な用途 | 備考 |
 | --- | --- | --- |
 | Sentry（エラートラッキング） | 例外・リグレッション・急増 | 環境/リリースタグで追跡 |
-| Cloudflare Analytics / Workers メトリクス | 可用性・性能・トラフィック傾向（**Cloudflare ネイティブ中心**） | 死活/外形は Cloudflare 機能を主とし、外部死活監視は最小限 |
+| Cloudflare Analytics / Workers メトリクス | 可用性・性能・トラフィック傾向 | |
 | WAF セキュリティイベント | レート制限・攻撃パターン | セキュリティ監視と共有（[security/03](../security/03-monitoring-and-response.md)） |
 | 構造化ログ（LogTape）＋相関 ID | 障害調査・問い合わせ駆動調査 | `requestId` で 1 リクエストを追跡 |
 | 監査ログ（AuditLog） | 操作追跡・不正調査 | 追記専用・改ざん不可 |
+| 外部ステータスページ／外形監視（FlareWarden） | 外部からの死活監視・利用者向け稼働告知 | 詳細は [01-incident-response.md](./01-incident-response.md) §5 |
 | 利用者からの問い合わせ・通報 | 自動検知できない不具合の入口 | [03-inquiry-driven-investigation.md](./03-inquiry-driven-investigation.md) |
 
-- **死活/外形監視**は Cloudflare ネイティブ（Analytics・Health Checks）を中心とし、低コスト方針に沿って外部の死活監視サービスは最小限に留める。
+- **死活/外形監視**は Cloudflare ネイティブ（Analytics・Health Checks）を中心とする。外部サービスによるステータス監視も併用する。
 - **NSFW 判定エンジン（Rekognition）の可用性**は重点監視対象。判定は fail-closed のためエンジン障害がアイコンアップロード不可へ直結する（[infra/03-logging-monitoring.md](../infra/03-logging-monitoring.md) §7、[02-runbooks.md](./02-runbooks.md)）。
 
 ## 5. 定期運用作業

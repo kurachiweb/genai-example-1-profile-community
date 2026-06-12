@@ -157,8 +157,8 @@ Amazon SES (@aws-sdk/client-sesを使用、ローカル環境ではMailpit)
 #### モニタリング
 
 Sentry (エラートラッキング)
-Cloudflare Analytics / Health Checks (可用性・死活監視 ... Cloudflareネイティブを中心とし、外部死活監視は最小限)
-外部ステータスページ (インシデント告知 ... アプリ停止時も到達可能な稼働状況ページ)
+Cloudflare Analytics / Health Checks (可用性・死活監視)
+FlareWarden (外部ステータスページ・死活監視)
 
 ### 画像配信
 
