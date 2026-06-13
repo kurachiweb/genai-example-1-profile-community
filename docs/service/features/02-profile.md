@@ -248,7 +248,3 @@ Profile は User に 1:1 で紐づき、アカウント作成時に空の状態�
 - 公開・共有・ハンドル: [03-profile-sharing.md](./03-profile-sharing.md)
 - 閲覧・検索: [04-profile-discovery.md](./04-profile-discovery.md)
 - NSFW・通報・凍結: [06-trust-and-safety.md](./06-trust-and-safety.md)
-
-## 5. オープン事項（要追記・将来課題）
-
-- **アイコンの代替テキスト**: アクセシビリティ向けに `alt` を表示名から自動生成する想定。詳細はデザインシステム/アクセシビリティガイドで確定する。

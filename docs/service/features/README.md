@@ -131,7 +131,8 @@
 ## 関連ドキュメント
 
 - サービス概要・コンセプト・ターゲット・ストーリー: [docs/service/overview/](../overview/)
-- 用語の定義: `docs/service/glossary.md`（今後整備）
+- 用語の定義: [docs/service/glossary.md](../glossary.md)
+- デザインガイドライン（ビジュアル方向・配置・a11y）: [docs/service/design/](../design/)
 - 画面仕様・ワイヤーフレーム: `docs/service/screens/`（今後整備）
 - 規約・プライバシーポリシー本文: `docs/service/policies/`（今後整備、版管理ルールは [08](./08-content-and-comms.md)）
 - 機能一覧（作業者向けの俯瞰）: [README.md](../../../README.md)

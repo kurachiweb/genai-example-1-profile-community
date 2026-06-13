@@ -25,6 +25,7 @@
 
 - 機能仕様・受け入れ条件の正本（SSoT）: `docs/service/features/`
 - 用語の定義: `docs/service/glossary.md`
+- デザインガイドライン（ビジュアル方向・配置・a11y）: [docs/service/design/](../design/)
 - 画面仕様・ワイヤーフレーム: `docs/service/screens/`
 - 規約・プライバシーポリシー: `docs/service/policies/`
 - 機能一覧（作業者向けの俯瞰）: [README.md](../../../README.md)

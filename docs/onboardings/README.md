@@ -26,7 +26,7 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | --- | --- |
 | [overview/](../service/overview/) | サービス概要・コンセプト・ターゲット/ペルソナ・ユーザーストーリー |
 | [features/](../service/features/) | **ビジネスルール・受け入れ条件の正本（SSoT）**。エンティティ単位で分割 |
-| [design/](../service/design/) | デザインガイドライン（文字・パーツ配置などサービス固有の規則、今後整備） |
+| [design/](../service/design/) | **デザインガイドラインの正本**。ビジュアル方向（Bento・ライト/ダーク・コーラル差し色）・文字とパーツ配置・アクセシビリティ（WCAG 2.2 AA） |
 | [glossary.md](../service/glossary.md) | サービス内ドメイン用語集 |
 
 ### インフラガイド（`docs/GUIDES/infra/`）

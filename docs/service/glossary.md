@@ -214,5 +214,6 @@ API キーで認証してプロフィールを操作する仕組みに関する�
 
 - サービス概要・コンセプト・ターゲット・ストーリー: [docs/service/overview/](./overview/)
 - 機能仕様・受け入れ条件（正本 SSoT）: [docs/service/features/](./features/)
+- デザインガイドライン（ビジュアル方向・配置・a11y）: [docs/service/design/](./design/)
 - 機能一覧（作業者向けの俯瞰）: [README.md](../../README.md)
 - 用語の追加・修正は、対象を定義する features/ の更新と合わせて行い、両者を整合させること。
