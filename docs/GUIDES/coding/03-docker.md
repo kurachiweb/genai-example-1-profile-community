@@ -1,11 +1,11 @@
 # Docker コーディング・構成ルール — GenAI Profile Community
 
-ローカル開発で用いる Docker / docker-compose の構成・記述規約を定義する。
+ローカル開発で用いる Docker / compose の構成・記述規約を定義する。
 全体方針は [00-overview.md](./00-overview.md)、アーキテクチャは [01-architecture.md](./01-architecture.md) を参照。
 
-> **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（コンテナ＝Docker `node@trixie`・`Dockerfile`・`docker-compose.yaml`・ポート定義）と [infra/00-overview.md](../infra/00-overview.md) §5・[infra/02-deployment.md](../infra/02-deployment.md) §4.1 を、コンテナ記述の観点へ具体化したものである。
+> **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（コンテナ＝Docker `node@trixie-slim`・`Dockerfile`・`compose.yaml`・ポート定義）と [infra/00-overview.md](../infra/00-overview.md) §5・[infra/02-deployment.md](../infra/02-deployment.md) §4.1 を、コンテナ記述の観点へ具体化したものである。
 > ポート番号・アプリ構成の正本は [CLAUDE.md](../../../CLAUDE.md)・[infra/00-overview.md](../infra/00-overview.md) §2。
-> **現状フェーズ**: `Dockerfile`・`docker-compose.yaml`・`apps/` 配下は未実装で、本ガイドは実装に先行する設定方針である。
+> **現状フェーズ**: `Dockerfile`・`compose.yaml`・`apps/` 配下は未実装で、本ガイドは実装に先行する設定方針である。
 
 ## 1. Docker の位置づけ（重要）
 
@@ -13,11 +13,11 @@
 - したがって Dockerfile は「本番イメージの最適化」ではなく「再現性のあるローカル開発環境」を目的に記述する。本番相当の検証は `wrangler`／Workers ローカルエミュレーションで補う（[infra/02-deployment.md](../infra/02-deployment.md)）。
 - コンテナの 2 つの役割（[CLAUDE.md](../../../CLAUDE.md) ディレクトリ構成）:
   - **ルート `Dockerfile`**: npm パッケージ等をグローバルインストールする共通コンテナ（pnpm/wrangler 等のツールチェーン）。
-  - **各アプリのコンテナ**: `docker-compose.yaml` で定義し、ポートを割り当てる（下表）。
+  - **各アプリのコンテナ**: `compose.yaml` で定義し、ポートを割り当てる（下表）。
 
 ```mermaid
 flowchart TB
-    subgraph compose["docker-compose（ローカル開発）"]
+    subgraph compose["docker compose（ローカル開発）"]
         DB["db (SQLite)<br/>:55030"]
         API["api (NestJS/GraphQL)<br/>:55031"]
         CLIENT["client (Next.js)<br/>:55032"]
@@ -36,7 +36,7 @@ flowchart TB
 
 ## 2. ベースイメージ
 
-- ベースは **`node@trixie`**（Debian trixie ベースの Node、[CLAUDE.md](../../../CLAUDE.md)）。**タグを固定**し、再現性のためメジャー/マイナーを明示する（`node:<version>-trixie` 等）。`latest` を使わない。
+- ベースは **`node@trixie-slim`**（Debian trixie ベースの Node、[CLAUDE.md](../../../CLAUDE.md)）。**タグを固定**し、再現性のためメジャー/マイナーを明示する（`node:<version>-trixie-slim` 等）。`latest` を使わない。
 - 同一のベース・同一のロックファイルで全アプリをそろえ、環境差を最小化する。
 - パッケージマネージャは **pnpm**。`corepack enable` で pnpm を有効化し、バージョンを固定する（[CLAUDE.md](../../../CLAUDE.md)）。
 
@@ -49,7 +49,7 @@ flowchart TB
 - 可能な範囲で**非 root ユーザー**で実行する（`node` ユーザー）。
 - **シークレットをイメージに焼き込まない**。ビルド引数・環境変数経由で秘匿値を渡さない（§5）。
 
-## 4. docker-compose の記述規約
+## 4. compose の記述規約
 
 - **1 アプリ = 1 サービス**として定義し、ポートは [CLAUDE.md](../../../CLAUDE.md) の割り当て（55030〜55034）に厳密に一致させる。
 - 依存関係は `depends_on` と**ヘルスチェック**で表現し、起動順序の取り違えを防ぐ（例: `api` は `db` の healthy を待つ）。

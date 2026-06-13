@@ -115,14 +115,14 @@ flowchart TB
 
 | 環境 | 用途 | DB | ストレージ | デプロイ契機 | AI 操作 |
 | --- | --- | --- | --- | --- | --- |
-| local | 開発者ローカル | SQLite（55030） | ローカル FS / Mailpit | `docker-compose` 手動起動 | 可 |
+| local | 開発者ローカル | SQLite（55030） | ローカル FS / Mailpit | `docker compose` 手動起動 | 可 |
 | dev | 結合・検証 | Cloudflare D1（dev） | R2/Images/KV（dev） | **main への push で自動** | 可 |
 | prod | 本番 | Cloudflare D1（prod） | R2/Images/KV（prod） | **`git tag` で発火** | **禁止** |
 
 ```mermaid
 flowchart LR
-    LOCAL["local<br/>docker-compose<br/>SQLite + Mailpit"] -->|main へ push| DEV["dev<br/>Workers + D1(dev)"]
-    DEV -->|git tag<br/>(人間のみ)| PROD["prod<br/>Workers + D1(prod)"]
+    LOCAL["local<br/>docker compose<br/>SQLite + Mailpit"] -->|main へ push| DEV["dev<br/>Workers + D1(dev)"]
+    DEV -->|"git tag<br/>(人間のみ)"| PROD["prod<br/>Workers + D1(prod)"]
     PROD -.AI による prod デプロイは禁止.-> X(("🚫"))
 ```
 
@@ -130,7 +130,7 @@ flowchart LR
 
 ## 5. ローカル開発環境
 
-- コンテナは Docker（`node@trixie` ベース）。`docker-compose.yaml` でルートと各アプリのコンテナ・ポートを定義する。
+- コンテナは Docker（`node@trixie-slim` ベース）。`compose.yaml` でルートと各アプリのコンテナ・ポートを定義する。
 - パッケージマネージャは pnpm（`pnpm-workspace.yaml` でワークスペース管理）。
 - ローカルでは D1 の代わりに SQLite、SES の代わりに Mailpit、Cloudflare Images の代わりにローカル配信を用い、本番と同等のドメインロジックを再現する。
 - 環境構築の手順は [docs/onboardings/README.md](../../onboardings/README.md) を参照。

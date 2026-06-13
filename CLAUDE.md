@@ -66,7 +66,7 @@ AIエージェントによるprod環境へのデプロイは禁止する。
 │       ├── design/             # デザインガイドライン ... 文字やパーツ配置に関するサービス固有の規則
 │       └── glossary.md         # サービス内用語集
 ├── Dockerfile                  # npmパッケージ等をグローバルインストールするためのコンテナ
-├── docker-compose.yaml         # ルートと各アプリケーションのコンテナを定義しポート番号を指定
+├── compose.yaml                # ルートと各アプリケーションのコンテナを定義しポート番号を指定
 ├── package.json                # プロジェクトルート ... commitlint、husky、lint-stagedによるgit管理の厳格化
 ├── pnpm-workspace.yaml         # pnpmのallowBuilds設定
 ├── CHANGELOG.md                # リリースログ
