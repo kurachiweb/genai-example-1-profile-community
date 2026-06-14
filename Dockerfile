@@ -28,6 +28,11 @@ RUN apt-get update \
 # pnpm / wrangler をグローバルインストールする（バージョン固定）。
 RUN npm install -g pnpm@${PNPM_VERSION} wrangler@${WRANGLER_VERSION}
 
+# node_modules は名前付きボリューム(root_node_modules)で隔離する。空ボリュームは
+# マウント先ディレクトリの所有権を引き継ぐため、非 root 切替の前に node 所有で用意し、
+# node ユーザーの pnpm install が書き込めるようにする(EACCES 回避)。
+RUN mkdir -p /workspace/node_modules && chown node:node /workspace/node_modules
+
 # 可能な範囲で非 root（node ユーザー）で実行する（docs/GUIDES/coding/03-docker.md §3）。
 USER node
 WORKDIR /workspace

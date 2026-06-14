@@ -1,0 +1,6 @@
+# pnpm ワークスペースのパッケージ定義。
+# package.json を持つ apps/ 配下のみが対象になる(未実装ディレクトリは無視される)。
+# 依存パッケージの postinstall ビルド許可(onlyBuiltDependencies)も将来ここで集約する
+# (CLAUDE.md: pnpm-workspace.yaml は allowBuilds 設定の正本)。
+packages:
+  - apps/*

@@ -116,7 +116,7 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 
 ## 3. ローカル開発環境クイックスタート
 
-> 詳細・前提は [infra/00-overview.md](../GUIDES/infra/00-overview.md) §5 と [infra/02-deployment.md](../GUIDES/infra/02-deployment.md) §4.1 を参照。ルート `compose.yaml` と各 `Dockerfile`（ツールチェーン + db/api/client/admin/public-api + Mailpit）は整備済みだが、`apps/` 配下のアプリ実装は未着手のため、以下はアプリ整備後に有効になる手順。
+> 詳細・前提は [infra/00-overview.md](../GUIDES/infra/00-overview.md) §5 と [infra/02-deployment.md](../GUIDES/infra/02-deployment.md) §4.1 を参照。ルート `compose.yaml`・各 `Dockerfile`（ツールチェーン + db/api/client/admin/public-api + Mailpit）・ルートのワークスペース定義（`package.json` / `pnpm-workspace.yaml`）は整備済み。`apps/db` は最小 dev サーバーが動作し `docker compose up -d db` は healthy になるが、`apps/api`・`apps/client`・`apps/admin`・`apps/public-api` の実装は未着手のため、それらを含む以下の手順全体はアプリ整備後に有効になる。
 
 ```bash
 # 1) 依存インストール（pnpm ワークスペース）

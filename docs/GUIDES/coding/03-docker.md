@@ -5,7 +5,7 @@
 
 > **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（コンテナ＝Docker `node@trixie-slim`・`Dockerfile`・`compose.yaml`・ポート定義）と [infra/00-overview.md](../infra/00-overview.md) §5・[infra/02-deployment.md](../infra/02-deployment.md) §4.1 を、コンテナ記述の観点へ具体化したものである。
 > ポート番号・アプリ構成の正本は [CLAUDE.md](../../../CLAUDE.md)・[infra/00-overview.md](../infra/00-overview.md) §2。
-> **現状フェーズ**: ルート `Dockerfile`・`compose.yaml`・各アプリの `apps/<app>/Dockerfile`（db/api/client/admin/public-api）はローカル開発用に整備済み。`apps/` 配下のアプリ実装（`package.json` / `pnpm-lock.yaml` 等）は未実装のため、`docker compose up` での実起動はアプリ整備後に有効になる。
+> **現状フェーズ**: ルート `Dockerfile`・`compose.yaml`・各アプリの `apps/<app>/Dockerfile`（db/api/client/admin/public-api）はローカル開発用に整備済み。ルートのワークスペース定義（`package.json` / `pnpm-workspace.yaml` / `pnpm-lock.yaml`）と `apps/db` の最小 dev サーバー（healthcheck 用にポート 55030 を開く常駐プロセス。MikroORM・スキーマは未実装）も整備済みで、`docker compose up -d db` は healthy になる。`apps/api`・`apps/client`・`apps/admin`・`apps/public-api` の実装は未着手のため、これらの実起動はアプリ整備後に有効になる。
 
 ## 1. Docker の位置づけ（重要）
 
@@ -61,7 +61,7 @@ flowchart TB
 
 ## 5. 起動・操作コマンド
 
-ルート（`compose.yaml` のある階層）で実行する。`apps/` 配下のアプリ実装が整う前は `up` での実起動はできないが、`build`・`config`・`toolchain` 経由の操作は利用できる。簡易クイックスタートは [infra/02-deployment.md](../infra/02-deployment.md) §4.1・[onboardings/README.md](../../onboardings/README.md) §3 にもある。
+ルート（`compose.yaml` のある階層）で実行する。`apps/db` は最小 dev サーバーが整備済みで `docker compose up -d db` は healthy になる。`apps/api`・`apps/client`・`apps/admin`・`apps/public-api` の実装が整う前はこれらの実起動はできないが、`build`・`config`・`toolchain` 経由の操作は利用できる。簡易クイックスタートは [infra/02-deployment.md](../infra/02-deployment.md) §4.1・[onboardings/README.md](../../onboardings/README.md) §3 にもある。
 
 ### 5.1 起動・停止
 
