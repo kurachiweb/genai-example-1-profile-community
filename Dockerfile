@@ -1,0 +1,36 @@
+# syntax=docker/dockerfile:1
+# ルートツールチェーンコンテナ（ローカル開発専用）。
+# 役割: npm パッケージ等をグローバルインストールした共通ツールコンテナ。
+#   pnpm / Terraform / wrangler を備え、compose から exec して各種コマンドを実行する
+#   （CLAUDE.md ディレクトリ構成 / docs/GUIDES/coding/03-docker.md §1）。
+# 本番ランタイムは Cloudflare Workers（サーバーレス）であり、本イメージはデプロイしない。
+FROM node:26.3-trixie-slim
+
+# 再現性のためツールのバージョンを固定する（docs/GUIDES/coding/03-docker.md §2）。
+# 正確なバージョンに固定したい場合は build-arg で上書きする。
+ARG PNPM_VERSION=11.6
+ARG WRANGLER_VERSION=4
+ARG TERRAFORM_VERSION=1.15.6
+# buildx が自動付与するターゲットアーキテクチャ（amd64 / arm64）。
+ARG TARGETARCH
+
+# Terraform は npm 外の単一バイナリのため、固定バージョンの公式リリースを取得して配置する。
+# unzip はインストールにのみ必要なため、取得後に削除してレイヤを小さく保つ。
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates curl unzip \
+  && curl -fsSL -o /tmp/terraform.zip \
+     "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" \
+  && unzip -o /tmp/terraform.zip -d /usr/local/bin \
+  && rm /tmp/terraform.zip \
+  && apt-get purge -y --auto-remove unzip \
+  && rm -rf /var/lib/apt/lists/*
+
+# pnpm / wrangler をグローバルインストールする（バージョン固定）。
+RUN npm install -g pnpm@${PNPM_VERSION} wrangler@${WRANGLER_VERSION}
+
+# 可能な範囲で非 root（node ユーザー）で実行する（docs/GUIDES/coding/03-docker.md §3）。
+USER node
+WORKDIR /workspace
+
+# 常駐ツールコンテナ。`docker compose exec toolchain <cmd>` で pnpm/terraform/wrangler を使う。
+CMD ["sleep", "infinity"]

@@ -5,15 +5,15 @@
 
 > **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（コンテナ＝Docker `node@trixie-slim`・`Dockerfile`・`compose.yaml`・ポート定義）と [infra/00-overview.md](../infra/00-overview.md) §5・[infra/02-deployment.md](../infra/02-deployment.md) §4.1 を、コンテナ記述の観点へ具体化したものである。
 > ポート番号・アプリ構成の正本は [CLAUDE.md](../../../CLAUDE.md)・[infra/00-overview.md](../infra/00-overview.md) §2。
-> **現状フェーズ**: `Dockerfile`・`compose.yaml`・`apps/` 配下は未実装で、本ガイドは実装に先行する設定方針である。
+> **現状フェーズ**: ルート `Dockerfile`・`compose.yaml`・各アプリの `apps/<app>/Dockerfile`（db/api/client/admin/public-api）はローカル開発用に整備済み。`apps/` 配下のアプリ実装（`package.json` / `pnpm-lock.yaml` 等）は未実装のため、`docker compose up` での実起動はアプリ整備後に有効になる。
 
 ## 1. Docker の位置づけ（重要）
 
 - **Docker はローカル開発専用**である。本番ランタイムは **Cloudflare Workers（サーバーレス）** であり、**コンテナをデプロイしない**（[infra/00-overview.md](../infra/00-overview.md) §1・§4）。
 - したがって Dockerfile は「本番イメージの最適化」ではなく「再現性のあるローカル開発環境」を目的に記述する。本番相当の検証は `wrangler`／Workers ローカルエミュレーションで補う（[infra/02-deployment.md](../infra/02-deployment.md)）。
 - コンテナの 2 つの役割（[CLAUDE.md](../../../CLAUDE.md) ディレクトリ構成）:
-  - **ルート `Dockerfile`**: npm パッケージ等をグローバルインストールする共通コンテナ（pnpm/wrangler 等のツールチェーン）。
-  - **各アプリのコンテナ**: `compose.yaml` で定義し、ポートを割り当てる（下表）。
+  - **ルート `Dockerfile`**: npm パッケージ等をグローバルインストールする共通コンテナ（pnpm / Terraform / wrangler のツールチェーン）。`compose.yaml` では常駐サービス `toolchain` として定義し、`docker compose exec toolchain <cmd>` で利用する。
+  - **各アプリのコンテナ**: `apps/<app>/Dockerfile` で定義し、ルート `compose.yaml` から `build.dockerfile` で参照してポートを割り当てる（下表）。
 
 ```mermaid
 flowchart TB
@@ -36,18 +36,19 @@ flowchart TB
 
 ## 2. ベースイメージ
 
-- ベースは **`node@trixie-slim`**（Debian trixie ベースの Node、[CLAUDE.md](../../../CLAUDE.md)）。**タグを固定**し、再現性のためメジャー/マイナーを明示する（`node:<version>-trixie-slim` 等）。`latest` を使わない。
+- ベースは **`node:26.3-trixie-slim`**（Debian trixie ベースの Node、[CLAUDE.md](../../../CLAUDE.md)）。**タグを固定**し、再現性のためメジャー/マイナーを明示する。`latest` を使わない。
 - 同一のベース・同一のロックファイルで全アプリをそろえ、環境差を最小化する。
-- パッケージマネージャは **pnpm**。`corepack enable` で pnpm を有効化し、バージョンを固定する（[CLAUDE.md](../../../CLAUDE.md)）。
+- パッケージマネージャは **pnpm**。各コンテナで **`npm install -g pnpm@<version>`** によりグローバルインストールし、バージョンは `Dockerfile` の `ARG PNPM_VERSION` で固定する（build-arg で上書き可）。
+- ルートのツールチェーンコンテナには pnpm に加え **Terraform**・**wrangler** をグローバルインストールする（バージョンは `ARG TERRAFORM_VERSION` / `ARG WRANGLER_VERSION` で固定）。Terraform は npm 外の単一バイナリのため、公式リリースの固定バージョンを取得して `/usr/local/bin` に配置する（`ARG TARGETARCH` で amd64/arm64 を解決）。
 
 ## 3. Dockerfile の記述規約
 
-- **レイヤキャッシュを活かす順序**にする: 先に `package.json` / `pnpm-lock.yaml` / `pnpm-workspace.yaml` をコピーして依存をインストールし、その後にソースをコピーする。ソース変更のたびに依存を再インストールしない。
-- 依存インストールは**ロックファイル固定**（`pnpm install --frozen-lockfile`）で決定的にする。
+- **ローカル開発コンテナはバインドマウント前提の単段イメージ**とする: イメージには toolchain（Node + グローバル `pnpm`）のみを用意し、ソースは `compose.yaml` のバインドマウントで供給する。依存は起動時にコンテナ内で `pnpm install` する（`command` 参照）。`node_modules` はホストと混ぜず名前付きボリュームで隔離する。
+- 依存インストールは**ロックファイル固定**（`pnpm install --frozen-lockfile`）で決定的にする（`pnpm-lock.yaml` 整備後）。
 - **`.dockerignore`** を必ず用意し、`.git` / `node_modules` / `.env*` / ビルド成果物 / テスト成果物を除外する（イメージ肥大化と秘匿情報混入の防止）。
-- **マルチステージビルド**を用い、ビルド専用の依存を最終段に持ち込まない（ローカル用途でも層を小さく保つ）。
+- 将来、成果物を**イメージに焼き込む**場合は、`package.json` / `pnpm-lock.yaml` / `pnpm-workspace.yaml` を先に `COPY` して依存を入れてからソースを `COPY` し（レイヤキャッシュを活かす）、**マルチステージビルド**でビルド専用依存を最終段に持ち込まない。
 - 可能な範囲で**非 root ユーザー**で実行する（`node` ユーザー）。
-- **シークレットをイメージに焼き込まない**。ビルド引数・環境変数経由で秘匿値を渡さない（§5）。
+- **シークレットをイメージに焼き込まない**。ビルド引数・環境変数経由で秘匿値を渡さない（§6）。
 
 ## 4. compose の記述規約
 
@@ -55,16 +56,71 @@ flowchart TB
 - 依存関係は `depends_on` と**ヘルスチェック**で表現し、起動順序の取り違えを防ぐ（例: `api` は `db` の healthy を待つ）。
 - ソースは**バインドマウント**でホットリロードを効かせる。`node_modules` はホストと混ぜず、名前付きボリューム等でコンテナ側に隔離する（OS 差・ネイティブ依存の不整合を避ける）。
 - **Mailpit** を SES 代替サービスとして compose に含める。SQLite はファイル/ボリュームで永続化する。
-- 環境変数は `.env`（リポジトリ管理外）から読み込む。`.env.example` のみコミットし、実値はコミットしない（§5）。
+- 環境変数は `.env`（リポジトリ管理外）から読み込む。`.env.example` のみコミットし、実値はコミットしない（§6）。
 - ポート・依存・ボリュームの定義は重複を避け、共通部分は YAML アンカー等で集約する（DRY、[00-overview.md](./00-overview.md) §2）。
 
-## 5. セキュリティ・秘匿
+## 5. 起動・操作コマンド
+
+ルート（`compose.yaml` のある階層）で実行する。`apps/` 配下のアプリ実装が整う前は `up` での実起動はできないが、`build`・`config`・`toolchain` 経由の操作は利用できる。簡易クイックスタートは [infra/02-deployment.md](../infra/02-deployment.md) §4.1・[onboardings/README.md](../../onboardings/README.md) §3 にもある。
+
+### 5.1 起動・停止
+
+```bash
+# 初回のみ: .env を用意（実値はコミットしない。§6）
+cp .env.example .env
+
+# イメージをビルド（Dockerfile 変更時。ツールのバージョンを上書きする例も可）
+docker compose build
+# 例: Terraform/pnpm のバージョンを build-arg で固定して再ビルド
+# docker compose build --build-arg TERRAFORM_VERSION=1.15.6 --build-arg PNPM_VERSION=11.6 toolchain
+
+# 全サービスを起動（バックグラウンド）
+# db:55030 / api:55031 / client:55032 / admin:55033 / public-api:55034 / Mailpit Web UI:55035
+docker compose up -d
+
+# 特定サービスのみ起動（依存も解決される。例: api と db のみ）
+docker compose up -d api
+
+# 停止（コンテナ削除。名前付きボリューム=DB/メールは保持）
+docker compose down
+
+# 停止＋ボリュームも削除（ローカル SQLite・Mailpit のデータを破棄）
+docker compose down -v
+```
+
+### 5.2 状態確認・ログ
+
+```bash
+# サービスの稼働状況とヘルスチェック状態
+docker compose ps
+# ログ追従（全体／特定サービス）
+docker compose logs -f
+docker compose logs -f api
+# compose 定義の検証（構文・参照・アンカー継承の確認。実起動しない）
+docker compose config
+```
+
+### 5.3 toolchain コンテナでのコマンド実行（pnpm / Terraform / wrangler）
+
+```bash
+# 依存インストール（pnpm ワークスペース）
+docker compose run --rm toolchain pnpm install
+# ローカル SQLite へマイグレーション適用
+docker compose run --rm toolchain pnpm --filter @app/db migration:up
+# Terraform / wrangler（常駐させている場合は exec も可）
+docker compose exec toolchain terraform -version
+docker compose exec toolchain wrangler --version
+```
+
+> `run --rm` は都度コンテナを使い捨てるため CI・単発操作向き。`exec` は起動済みの常駐 `toolchain` に入って実行する（`docker compose up -d toolchain` で常駐させてから使う）。
+
+## 6. セキュリティ・秘匿
 
 - `.env` / 認証情報 / 鍵をイメージ・リポジトリに含めない（`BR-COMMON-014`、[ecc-common/security.md](../../../.claude/rules/ecc-common/security.md)）。pre-commit の Gitleaks（`--staged`）・CI の TruffleHog で多重防御する（[02-lint-format-commit.md](./02-lint-format-commit.md) §7）。
 - ベースイメージ・依存をバージョン固定し、既知脆弱性の再現性を保つ。
 - ローカルのシークレットは `.env` に留め、dev/prod は **Wrangler Secrets / GitHub Actions Secrets** を正本とする（[infra/02-deployment.md](../infra/02-deployment.md) §6）。Docker 経由で本番シークレットを扱わない。
 
-## 6. 関連ドキュメント
+## 7. 関連ドキュメント
 
 - コーディング原則: [00-overview.md](./00-overview.md)
 - アーキテクチャ（アプリ境界・モノレポ）: [01-architecture.md](./01-architecture.md)

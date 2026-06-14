@@ -1,0 +1,30 @@
+# Docker ビルドコンテキストから除外する（docs/GUIDES/coding/03-docker.md §3）。
+# イメージ肥大化と秘匿情報混入を防ぐため、VCS・依存・成果物・秘匿ファイルを除外する。
+
+# バージョン管理
+.git
+.gitignore
+
+# 依存（コンテナ側の名前付きボリュームで管理する）
+node_modules
+**/node_modules
+
+# ビルド・テスト成果物
+**/.next
+**/.open-next
+**/dist
+**/build
+**/coverage
+**/.turbo
+**/*.tsbuildinfo
+
+# 秘匿情報（イメージに焼き込まない。§5）
+.env
+.env.*
+**/.env
+**/.env.*
+
+# ドキュメント・OS 生成物（実行時に不要）
+docs
+**/.DS_Store
+*.log

@@ -116,13 +116,14 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 
 ## 3. ローカル開発環境クイックスタート
 
-> 詳細・前提は [infra/00-overview.md](../GUIDES/infra/00-overview.md) §5 と [infra/02-deployment.md](../GUIDES/infra/02-deployment.md) §4.1 を参照。`apps/` 未実装のため、以下は整備後に有効になる手順。
+> 詳細・前提は [infra/00-overview.md](../GUIDES/infra/00-overview.md) §5 と [infra/02-deployment.md](../GUIDES/infra/02-deployment.md) §4.1 を参照。ルート `compose.yaml` と各 `Dockerfile`（ツールチェーン + db/api/client/admin/public-api + Mailpit）は整備済みだが、`apps/` 配下のアプリ実装は未着手のため、以下はアプリ整備後に有効になる手順。
 
 ```bash
 # 1) 依存インストール（pnpm ワークスペース）
 pnpm install
 
 # 2) コンテナ起動（Docker / docker-compose）
+# 他の Docker コマンドは docs/GUIDES/coding/03-docker.md を参照すること
 docker compose up -d
 
 # 3) ローカル SQLite にマイグレーション適用
@@ -138,8 +139,9 @@ pnpm --filter @app/db migration:up
 | `apps/client` | 利用者・閲覧者 Web（Next.js） | 55032 |
 | `apps/admin` | 管理者コンソール（Next.js） | 55033 |
 | `apps/public-api` | 公開 API（NestJS / REST） | 55034 |
+| Mailpit | メール確認 Web UI（SES 代替、http://localhost:55035） | 55035 |
 
-- ローカルでは D1 の代わりに SQLite、Amazon SES の代わりに Mailpit を使う。
+- ローカルでは D1 の代わりに SQLite、Amazon SES の代わりに Mailpit を使う。Mailpit の SMTP（1025）はコンテナ間のみで、ホストには Web UI（55035）だけを公開する。
 - パッケージマネージャは pnpm、コンテナは Docker（`node@trixie`）。
 
 ## 4. 開発ルールの要点

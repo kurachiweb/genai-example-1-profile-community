@@ -1,0 +1,132 @@
+# ローカル開発用 docker compose 定義。
+# 本番ランタイムは Cloudflare Workers のため、本 compose はローカル開発専用である。
+# ポート割り当ての正本は CLAUDE.md / docs/GUIDES/infra/00-overview.md §2（55030〜55034）。
+name: genai-example-1-profile-community
+
+# 各アプリサービスの共通設定（DRY: YAML アンカーで集約。03-docker.md §4）。
+# ソースはバインドマウントでホットリロードし、node_modules はホストと混ぜず
+# 名前付きボリュームでコンテナ側に隔離する（OS 差・ネイティブ依存の不整合を避ける）。
+x-app-defaults: &app-defaults
+  restart: unless-stopped
+  init: true
+  volumes:
+    - .:/workspace
+    - root_node_modules:/workspace/node_modules
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    NODE_ENV: development
+
+services:
+  # ---- ツールチェーン: pnpm / Terraform / wrangler を備えた常駐コンテナ ----
+  # 使い方: docker compose exec toolchain pnpm <...> / terraform <...> / wrangler <...>
+  toolchain:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: genai-example-1-profile-community/toolchain
+    restart: unless-stopped
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - root_node_modules:/workspace/node_modules
+    env_file:
+      - path: .env
+        required: false
+
+  # ---- DB: スキーマ定義・マイグレーション（SQLite / MikroORM, :55030） ----
+  db:
+    <<: *app-defaults
+    build:
+      context: .
+      dockerfile: apps/db/Dockerfile
+    ports:
+      - "55030:55030"
+    volumes:
+      - .:/workspace
+      - root_node_modules:/workspace/node_modules
+      - db_data:/workspace/apps/db/.data
+    command: sh -lc "pnpm install && pnpm --filter @app/db dev"
+    healthcheck:
+      # SQLite はサーバーレスのため、dev サーバーのポート開放を疎通確認に用いる。
+      test:
+        - CMD
+        - node
+        - -e
+        - require('net').connect(55030,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  # ---- 内部 API: NestJS + Hono + Apollo Server / GraphQL（:55031） ----
+  api:
+    <<: *app-defaults
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "55031:55031"
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    command: sh -lc "pnpm install && pnpm --filter @app/api dev"
+
+  # ---- 利用者・閲覧者向け Web: Next.js（:55032） ----
+  client:
+    <<: *app-defaults
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+    ports:
+      - "55032:55032"
+    depends_on:
+      api:
+        condition: service_started
+    command: sh -lc "pnpm install && pnpm --filter @app/client dev"
+
+  # ---- 管理者コンソール Web: Next.js（:55033） ----
+  admin:
+    <<: *app-defaults
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    ports:
+      - "55033:55033"
+    depends_on:
+      api:
+        condition: service_started
+    command: sh -lc "pnpm install && pnpm --filter @app/admin dev"
+
+  # ---- 公開 API: NestJS + Hono / REST（:55034） ----
+  public-api:
+    <<: *app-defaults
+    build:
+      context: .
+      dockerfile: apps/public-api/Dockerfile
+    ports:
+      - "55034:55034"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -lc "pnpm install && pnpm --filter @app/public-api dev"
+
+  # ---- Mailpit: Amazon SES のローカル代替（SMTP:1025 はサービス間のみ） ----
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "55035:8025"
+    volumes:
+      - mailpit_data:/data
+    environment:
+      MP_MAX_MESSAGES: "500"
+      MP_DATABASE: /data/mailpit.db
+
+volumes:
+  root_node_modules:
+  db_data:
+  mailpit_data:
