@@ -5,7 +5,7 @@
 
 > **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（コンテナ＝Docker `node@trixie-slim`・`Dockerfile`・`compose.yaml`・ポート定義）と [infra/00-overview.md](../infra/00-overview.md) §5・[infra/02-deployment.md](../infra/02-deployment.md) §4.1 を、コンテナ記述の観点へ具体化したものである。
 > ポート番号・アプリ構成の正本は [CLAUDE.md](../../../CLAUDE.md)・[infra/00-overview.md](../infra/00-overview.md) §2。
-> **現状フェーズ**: ルート `Dockerfile`・`compose.yaml`・各アプリの `apps/<app>/Dockerfile`（db/api/client/admin/public-api）はローカル開発用に整備済み。ルートのワークスペース定義（`package.json` / `pnpm-workspace.yaml` / `pnpm-lock.yaml`）と `apps/db` の最小 dev サーバー（healthcheck 用にポート 55030 を開く常駐プロセス。MikroORM・スキーマは未実装）も整備済みで、`docker compose up -d db` は healthy になる。`apps/api`・`apps/client`・`apps/admin`・`apps/public-api` の実装は未着手のため、これらの実起動はアプリ整備後に有効になる。
+> **現状フェーズ**: ルート `Dockerfile`・`compose.yaml`・各アプリの `apps/<app>/Dockerfile`（db/api/client/admin/public-api）はローカル開発用に整備済み。ルートのワークスペース定義（`package.json` / `pnpm-workspace.yaml` / `pnpm-lock.yaml`）と `apps/db` の最小 dev サーバー（healthcheck 用にポート 48030 を開く常駐プロセス。MikroORM・スキーマは未実装）も整備済みで、`docker compose up -d db` は healthy になる。`apps/api`・`apps/client`・`apps/admin`・`apps/public-api` の実装は未着手のため、これらの実起動はアプリ整備後に有効になる。
 
 ## 1. Docker の位置づけ（重要）
 
@@ -18,11 +18,11 @@
 ```mermaid
 flowchart TB
     subgraph compose["docker compose（ローカル開発）"]
-        DB["db (SQLite)<br/>:55030"]
-        API["api (NestJS/GraphQL)<br/>:55031"]
-        CLIENT["client (Next.js)<br/>:55032"]
-        ADMIN["admin (Next.js)<br/>:55033"]
-        PUBAPI["public-api (NestJS/REST)<br/>:55034"]
+        DB["db (SQLite)<br/>:48030"]
+        API["api (NestJS/GraphQL)<br/>:48031"]
+        CLIENT["client (Next.js)<br/>:48032"]
+        ADMIN["admin (Next.js)<br/>:48033"]
+        PUBAPI["public-api (NestJS/REST)<br/>:48034"]
         MAIL["Mailpit (SES 代替)"]
     end
     CLIENT --> API
@@ -52,7 +52,7 @@ flowchart TB
 
 ## 4. compose の記述規約
 
-- **1 アプリ = 1 サービス**として定義し、ポートは [CLAUDE.md](../../../CLAUDE.md) の割り当て（55030〜55034）に厳密に一致させる。
+- **1 アプリ = 1 サービス**として定義し、ポートは [CLAUDE.md](../../../CLAUDE.md) の割り当て（48030〜48034）に厳密に一致させる。
 - 依存関係は `depends_on` と**ヘルスチェック**で表現し、起動順序の取り違えを防ぐ（例: `api` は `db` の healthy を待つ）。
 - ソースは**バインドマウント**でホットリロードを効かせる。`node_modules` はホストと混ぜず、名前付きボリューム等でコンテナ側に隔離する（OS 差・ネイティブ依存の不整合を避ける）。
 - **Mailpit** を SES 代替サービスとして compose に含める。SQLite はファイル/ボリュームで永続化する。
@@ -75,7 +75,7 @@ docker compose build
 # docker compose build --build-arg TERRAFORM_VERSION=1.15.6 --build-arg PNPM_VERSION=11.6 root
 
 # 全サービスを起動（バックグラウンド）
-# db:55030 / api:55031 / client:55032 / admin:55033 / public-api:55034 / Mailpit Web UI:55035
+# db:48030 / api:48031 / client:48032 / admin:48033 / public-api:48034 / Mailpit Web UI:48035
 docker compose up -d
 
 # 特定サービスのみ起動（依存も解決される。例: api と db のみ）

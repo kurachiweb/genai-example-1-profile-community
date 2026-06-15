@@ -134,14 +134,14 @@ pnpm --filter @app/db migration:up
 
 | アプリ | 役割 | ポート |
 | --- | --- | --- |
-| `apps/db` | DB（SQLite） | 55030 |
-| `apps/api` | 内部 API（NestJS / GraphQL） | 55031 |
-| `apps/client` | 利用者・閲覧者 Web（Next.js） | 55032 |
-| `apps/admin` | 管理者コンソール（Next.js） | 55033 |
-| `apps/public-api` | 公開 API（NestJS / REST） | 55034 |
-| Mailpit | メール確認 Web UI（SES 代替、http://localhost:55035） | 55035 |
+| `apps/db` | DB（SQLite） | 48030 |
+| `apps/api` | 内部 API（NestJS / GraphQL） | 48031 |
+| `apps/client` | 利用者・閲覧者 Web（Next.js） | 48032 |
+| `apps/admin` | 管理者コンソール（Next.js） | 48033 |
+| `apps/public-api` | 公開 API（NestJS / REST） | 48034 |
+| Mailpit | メール確認 Web UI（SES 代替、http://localhost:48035） | 48035 |
 
-- ローカルでは D1 の代わりに SQLite、Amazon SES の代わりに Mailpit を使う。Mailpit の SMTP（1025）はコンテナ間のみで、ホストには Web UI（55035）だけを公開する。
+- ローカルでは D1 の代わりに SQLite、Amazon SES の代わりに Mailpit を使う。Mailpit の SMTP（1025）はコンテナ間のみで、ホストには Web UI（48035）だけを公開する。
 - パッケージマネージャは pnpm、コンテナは Docker（`node@trixie`）。
 
 ## 4. 開発ルールの要点

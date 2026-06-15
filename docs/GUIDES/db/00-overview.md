@@ -5,13 +5,13 @@
 
 > **位置づけ**: 本ガイドは [docs/service/features/](../../service/features/)（ビジネスルールの正本 SSoT）を物理データモデルへ落とし込んだものである。
 > 文字数上限・件数上限・状態・期限などの**具体値は features/ が正本**であり、矛盾した場合は features/ を優先して本ガイドを更新する。
-> **現状フェーズ**: `apps/db` はローカル healthcheck 用の最小 dev サーバー（ポート 55030 を開く常駐プロセス）のみ実装済みで、スキーマ・MikroORM の実装は未着手。本ガイドが当面のスキーマ正本となる。
+> **現状フェーズ**: `apps/db` はローカル healthcheck 用の最小 dev サーバー（ポート 48030 を開く常駐プロセス）のみ実装済みで、スキーマ・MikroORM の実装は未着手。本ガイドが当面のスキーマ正本となる。
 
 ## 1. DB の全体方針
 
 | 項目 | 内容 |
 | --- | --- |
-| エンジン | SQLite（ローカル・ポート 55030）/ Cloudflare D1（dev・prod）。D1 は SQLite 互換 |
+| エンジン | SQLite（ローカル・ポート 48030）/ Cloudflare D1（dev・prod）。D1 は SQLite 互換 |
 | ORM | MikroORM（エンティティ定義・マイグレーション・クエリ） |
 | 永続データの正本 | D1（User/Profile/監査ログ等の永続ドメインデータ） |
 | 揮発・高頻度データ | Cloudflare KV（セッション・トークン・短 TTL キャッシュ・認証系/通報系のレート制限）／ Durable Objects（公開API のキー単位レート制限のみ）。一般閲覧（未認証）はエッジ WAF のみ |

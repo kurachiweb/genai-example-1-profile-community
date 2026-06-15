@@ -73,11 +73,11 @@ flowchart TB
 | アプリ | 役割 | 技術 | ローカルポート | デプロイ先 |
 | --- | --- | --- | --- | --- |
 | `apps/infra` | インフラ構成定義（IaC） | Terraform | — | Cloudflare（API 経由） |
-| `apps/db` | DB スキーマ定義・マイグレーション | SQLite / MikroORM | 55030 | Cloudflare D1 |
-| `apps/api` | 利用者・管理者向け内部 API | NestJS（クリーン）+ Hono + Apollo Server（GraphQL） | 55031 | Cloudflare Workers |
-| `apps/client` | 利用者・閲覧者向け Web | Next.js（App Router） | 55032 | Cloudflare Workers |
-| `apps/admin` | 管理者コンソール Web | Next.js（App Router） | 55033 | Cloudflare Workers |
-| `apps/public-api` | 公開 API（開発者向け） | NestJS（クリーン）+ Hono | 55034 | Cloudflare Workers |
+| `apps/db` | DB スキーマ定義・マイグレーション | SQLite / MikroORM | 48030 | Cloudflare D1 |
+| `apps/api` | 利用者・管理者向け内部 API | NestJS（クリーン）+ Hono + Apollo Server（GraphQL） | 48031 | Cloudflare Workers |
+| `apps/client` | 利用者・閲覧者向け Web | Next.js（App Router） | 48032 | Cloudflare Workers |
+| `apps/admin` | 管理者コンソール Web | Next.js（App Router） | 48033 | Cloudflare Workers |
+| `apps/public-api` | 公開 API（開発者向け） | NestJS（クリーン）+ Hono | 48034 | Cloudflare Workers |
 
 - **internal API（api）と公開 API（public-api）は別アプリ・別 Worker** に分離する。前者は GraphQL（Apollo）で `client`/`admin` に提供し、後者は REST（OpenAPI/Swagger UI）で外部開発者に提供する（[05-public-api.md](../../service/features/05-public-api.md)）。
 - **client と admin は別アプリ・別ドメイン・別セッション**に分離する（`BR-COMMON-002`、[00-common-rules.md](../../service/features/00-common-rules.md)）。
@@ -115,7 +115,7 @@ flowchart TB
 
 | 環境 | 用途 | DB | ストレージ | デプロイ契機 | AI 操作 |
 | --- | --- | --- | --- | --- | --- |
-| local | 開発者ローカル | SQLite（55030） | ローカル FS / Mailpit | `docker compose` 手動起動 | 可 |
+| local | 開発者ローカル | SQLite（48030） | ローカル FS / Mailpit | `docker compose` 手動起動 | 可 |
 | dev | 結合・検証 | Cloudflare D1（dev） | R2/Images/KV（dev） | **main への push で自動** | 可 |
 | prod | 本番 | Cloudflare D1（prod） | R2/Images/KV（prod） | **`git tag` で発火** | **禁止** |
 

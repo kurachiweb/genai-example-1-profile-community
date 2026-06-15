@@ -38,16 +38,16 @@ AIエージェントによるprod環境へのデプロイは禁止する。
 ├── .husky/                     # Huskyトリガー定義
 ├── apps/                       # アプリケーション実装
 │   ├── infra/                  # インフラ構成定義 ... Terraformを使用、Cloudflareを主としてインフラを設計
-│   ├── db/                     # DBサーバー ... SQLiteを使用、ローカル開発でのポート番号は55030、DBスキーマ定義を含む
-│   ├── api/                    # APIサーバー ... NestJSを利用、ローカル開発でのポート番号は55031
+│   ├── db/                     # DBサーバー ... SQLiteを使用、ローカル開発でのポート番号は48030、DBスキーマ定義を含む
+│   ├── api/                    # APIサーバー ... NestJSを利用、ローカル開発でのポート番号は48031
 │   ├── frontend-lib/           # フロントエンド共通ファイル
 │   │   ├── components/         # コンポーネント定義 ... Storybookによるプレビュー付き
 │   │   └── utilities/          # ユーティリティ
-│   ├── client/                 # Webサーバー兼フロントエンド(利用者側) ... Next.jsを利用、ローカル開発でのポート番号は55032
+│   ├── client/                 # Webサーバー兼フロントエンド(利用者側) ... Next.jsを利用、ローカル開発でのポート番号は48032
 │   │   └── lib/                # フロントエンド共通ファイル(`apps/frontend-lib`ディレクトリ)のエイリアス、Dockerコンテナ内で利用可能
-│   ├── admin/                  # Webサーバー兼フロントエンド(管理者側) ... Next.jsを利用、ローカル開発でのポート番号は55033
+│   ├── admin/                  # Webサーバー兼フロントエンド(管理者側) ... Next.jsを利用、ローカル開発でのポート番号は48033
 │   │   └── lib/                # フロントエンド共通ファイル(`apps/frontend-lib`ディレクトリ)のエイリアス、Dockerコンテナ内で利用可能
-│   └── public-api/             # 公開APIサーバー ... NestJSを利用、ローカル開発でのポート番号は55034
+│   └── public-api/             # 公開APIサーバー ... NestJSを利用、ローカル開発でのポート番号は48034
 ├── docs/                       # ドキュメント ... 全てマークダウン形式
 │   ├── onboardings/            # オンボーディングガイド ... 環境構築手順やドキュメント索引
 │   ├── adr/                    # Everything Claude Codeのecc-architecture-decision-recordsスキルによる自動生成ADR

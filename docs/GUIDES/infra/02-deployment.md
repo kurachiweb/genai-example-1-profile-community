@@ -70,7 +70,7 @@ flowchart LR
 ```bash
 # 依存インストール（ルートで）
 pnpm install
-# コンテナ起動（DB:55030 / api:55031 / client:55032 / admin:55033 / public-api:55034）
+# コンテナ起動（DB:48030 / api:48031 / client:48032 / admin:48033 / public-api:48034）
 docker compose up -d
 # ローカル SQLite にマイグレーション適用
 pnpm --filter @app/db migration:up

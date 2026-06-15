@@ -4,7 +4,7 @@ import { connect } from 'node:net';
 import { get } from 'node:http';
 import { startDevServer } from '../src/dev-server.js';
 
-// 固定ポート(55030)は他プロセスと衝突しうるため、テストでは OS にエフェメラルポート(0)を割り当てさせる。
+// 固定ポート(48030)は他プロセスと衝突しうるため、テストでは OS にエフェメラルポート(0)を割り当てさせる。
 async function withServer(run) {
   const server = await startDevServer({ port: 0, host: '127.0.0.1' });
   try {

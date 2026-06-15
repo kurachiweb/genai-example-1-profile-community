@@ -7,7 +7,7 @@ import { mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const DEFAULT_PORT = 55030;
+export const DEFAULT_PORT = 48030;
 const DEFAULT_HOST = '0.0.0.0';
 
 // SQLite 実体ファイルの格納先(compose の db_data ボリュームのマウント先)。
