@@ -5,7 +5,7 @@
 
 > **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（MikroORM・SQLite/D1）と [db/00-overview.md](../db/00-overview.md)（設計原則・命名・ID/時刻）を、ORM の実装観点へ具体化したものである。
 > **テーブル定義・型・制約・インデックス・KV/DO 配置の正本は [db/01-data-model.md](../db/01-data-model.md)**、マイグレーション手順の正本は [db/02-migrations.md](../db/02-migrations.md)。本ガイドは値・スキーマを複製せず、実装規約に限定する。
-> **現状フェーズ**: `apps/db` は healthcheck 用の最小 dev サーバーのみで MikroORM は未導入のため、本ガイドは実装に先行する規約である。
+> **現状フェーズ**: `apps/api`（内部 GraphQL）が MikroORM を本規約に沿って導入済み（`users`/`profiles`/`sns_links` のエンティティ・リポジトリ、SQLite ドライバ、[CODEMAPS/api.md](../../CODEMAPS/api.md)）。`apps/db` は引き続き healthcheck 用 dev サーバーのみで、スキーマ/マイグレーションの集約は後続課題。本ガイドの該当箇所は実装に先行する規約である。
 
 ## 1. 位置づけ（クリーンアーキテクチャの層）
 

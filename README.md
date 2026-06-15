@@ -60,6 +60,12 @@
 - 利用規約やプライバシーポリシーの編集・版管理
 - 監査ログの閲覧
 
+## 開発状況
+
+- **内部 GraphQL API（`apps/api`）**: プロフィール共有のコアドメイン（プロフィールの取得・一覧/検索・編集・公開設定・ハンドル・SNS リンク）を実装済み。構造は[コードマップ](./docs/CODEMAPS/api.md)、設計規約は[API ドキュメント](./docs/GUIDES/api/)を参照。
+  - 開発: `pnpm --filter @app/api dev`（`:48031`）／ テスト: `pnpm --filter @app/api test` ／ サンプル投入: `pnpm --filter @app/api seed`
+- その他のアプリ（`apps/public-api`・`apps/client`・`apps/admin` など）と、`apps/api` の他ドメイン（アカウント認証・API キー・管理者機能ほか）は順次実装予定。変更履歴は [CHANGELOG.md](./CHANGELOG.md) を参照。
+
 ## Special Thanks
 
 ### 開発ツール

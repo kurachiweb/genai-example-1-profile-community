@@ -26,3 +26,18 @@
 **Context**: Units Generation / 範囲確定
 
 ---
+
+## Construction 完了
+**Timestamp**: 2026-06-15T00:30:00Z
+**AI Response**: TDD（RED→GREEN→REFACTOR）でドメイン層・ユースケース層・永続化層・GraphQL 層・起動を実装。Jest 単体/統合 107 件 GREEN、ドメイン/ユースケースのカバレッジ 98%。実サーバー起動で `/graphql` 疎通とエラー写像（`NOT_FOUND`/404）を確認。作業を以下のコミットに分割（Trunk-Based Development・短命ブランチ `feature/api-internal-graphql`）:
+1. chore: 雛形と AI-DLC ドキュメント
+2. feat: ドメイン層
+3. feat: ユースケース層
+4. feat: 永続化層(MikroORM)
+5. feat: GraphQL 層
+6. feat: アプリ起動
+7. fix: 永続化層の DI 整合
+8. docs: GUIDES/README/CHANGELOG/CODEMAPS 更新
+**Context**: Construction / Code Generation・Build and Test 完了 → main へマージ予定
+
+---

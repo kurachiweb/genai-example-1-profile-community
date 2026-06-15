@@ -5,7 +5,7 @@
 
 > **位置づけ**: 本ガイドは [docs/service/features/](../../service/features/)（ビジネスルールの正本 SSoT）と [CLAUDE.md](../../../CLAUDE.md)（技術選定）を、API の設計・実装観点へ落とし込んだものである。
 > エンドポイント・キースコープ・しきい値・エラーコード・文字数などの**具体値は features/ が正本**であり、本ガイドは値を持たず参照する。矛盾した場合は features/ を優先して本ガイドを更新する。
-> **現状フェーズ**: `apps/api`・`apps/public-api` は未実装で、本ガイドは実装に先行する設計仕様である。
+> **現状フェーズ**: `apps/api` はプロフィール共有コアドメイン（User/Profile/SnsLink、ユニット `api-internal-profile`）を実装済み。アカウント認証フロー・API キー等の他ドメイン、および `apps/public-api` は未実装で、本ガイドの該当箇所は実装に先行する設計仕様である。
 
 ## 1. API の全体方針（2 面の分離）
 

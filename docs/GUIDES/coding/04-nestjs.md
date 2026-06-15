@@ -5,7 +5,7 @@
 
 > **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（NestJS クリーンアーキテクチャ・Hono アダプタ・Apollo Server・class-validator/transformer・@nestjs/throttler・DataLoader）と [01-architecture.md](./01-architecture.md) §2 を、NestJS の実装観点へ具体化したものである。クリーンアーキテクチャの概念・層・依存性ルール・実装パターンは [`clean-architecture` スキル](../../../.claude/skills/clean-architecture/SKILL.md) を正本とし、本ガイドでは再掲しない。
 > エラーコード・スコープ・しきい値・文字数などの**業務具体値は features/ が正本**であり、本ガイドは値を持たず参照する。API の設計規約は [api/01-graphql-internal.md](../api/01-graphql-internal.md)・[api/02-public-rest-api.md](../api/02-public-rest-api.md) が担う。
-> **現状フェーズ**: `apps/api`・`apps/public-api` は未実装で、本ガイドは実装に先行する規約である。
+> **現状フェーズ**: `apps/api` はプロフィール共有コアドメイン（ユニット `api-internal-profile`）を本規約に沿って実装済み（[CODEMAPS/api.md](../../CODEMAPS/api.md)）。`apps/public-api` および `apps/api` の他ドメインは未実装で、本ガイドの該当箇所は実装に先行する規約である。
 
 ## 1. モジュール構成とクリーンアーキテクチャの層
 

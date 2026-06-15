@@ -4,7 +4,7 @@
 
 > **位置づけ**: 本ガイドは横断原則（[00-overview.md](./00-overview.md)）を内部 GraphQL に具体化したものである。
 > フィールドの文字数・件数・必須・状態列挙などの**具体値は features/ が正本**であり、本ガイドは値を持たず参照する（[02-profile.md](../../service/features/02-profile.md) ほか）。エンティティの物理定義は [db/01-data-model.md](../db/01-data-model.md) §5 が正本。
-> **現状フェーズ**: `apps/api` は未実装で、本ガイドは実装に先行する設計規約である。確定したスキーマ（SDL）は実装時に生成物として別管理し、本ガイドには規約のみを記す（SDL 断片は載せない）。
+> **現状フェーズ**: `apps/api` はプロフィール共有コアドメイン（User/Profile/SnsLink）を実装済み（ユニット `api-internal-profile`、[CODEMAPS/api.md](../../CODEMAPS/api.md)）。スキーマは **code-first**（`@nestjs/graphql` のデコレータ）で構築し、SDL は生成物として扱う（§7 に確定事項を記載）。本ガイドには規約のみを記す（SDL 断片は載せない）。
 
 ## 1. 位置づけと責務境界
 
@@ -80,7 +80,7 @@ GraphQL 型は features/ のエンティティに対応させる。**フィー�
 
 ## 7. 型生成と探索ツール
 
-- スキーマと TypeScript 型の整合は **GraphQL Code Generator** で自動化する。スキーマ駆動（schema-first）かコード駆動（code-first）かは実装着手時に確定し、本ガイドへ追記する。いずれでも「スキーマを単一の真実とし、型を生成物として扱う」方針は変えない。
+- **確定事項（`api-internal-profile` 着手時）**: 内部 GraphQL は **code-first**（`@nestjs/graphql` のデコレータで型定義し SDL を生成）を採用する。サーバー側の型は TypeScript の型定義がそのまま正本となり、SDL は `autoSchemaFile` でメモリ上に生成する。`client`/`admin` 側の型は生成された SDL から **GraphQL Code Generator** で導出する（画面側の型安全を担保）。いずれでも「スキーマを単一の真実とし、型を生成物として扱う」方針は変えない。
 - 生成物（型・operation 別フック等）はバージョン管理の扱いを定め、`client`/`admin` と共有して画面側の型安全を担保する。
 - GraphQL Playground / Apollo の探索 UI は **dev/local 限定で有効**化し、本番では無効化する（内部 API を外部から探索させない）。
 - 公開 API の探索は GraphQL ではなく Swagger UI が担う（[02-public-rest-api.md](./02-public-rest-api.md) §9・`BR-API-012`）。
