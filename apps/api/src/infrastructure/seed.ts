@@ -119,7 +119,6 @@ export async function runSeed(): Promise<void> {
 		}
 
 		await em.flush();
-		// eslint-disable-next-line no-console
 		console.log(`[@app/api] seed 完了(${SEED_PROFILES.length} 件のサンプルを確認/投入)`);
 	} finally {
 		await orm.close(true);
@@ -128,7 +127,6 @@ export async function runSeed(): Promise<void> {
 
 if (require.main === module) {
 	void runSeed().catch((error: unknown) => {
-		// eslint-disable-next-line no-console
 		console.error('[@app/api] seed 失敗:', error);
 		process.exitCode = 1;
 	});

@@ -24,7 +24,6 @@ async function bootstrap(): Promise<void> {
 	}
 
 	await app.listen(env.port, '0.0.0.0');
-	// eslint-disable-next-line no-console
 	console.log(`[@app/api] 内部 GraphQL API listening on http://0.0.0.0:${env.port}/graphql`);
 }
 
