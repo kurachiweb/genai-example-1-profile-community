@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # ルートツールチェーンコンテナ（ローカル開発専用）。
 # 役割: npm パッケージ等をグローバルインストールした共通ツールコンテナ。
-#   pnpm / Terraform / wrangler を備え、compose から exec して各種コマンドを実行する
+#   pnpm / Terraform / wrangler / git を備え、compose から exec して各種コマンドを実行する
 #   （CLAUDE.md ディレクトリ構成 / docs/GUIDES/coding/03-docker.md §1）。
 # 本番ランタイムは Cloudflare Workers（サーバーレス）であり、本イメージはデプロイしない。
 FROM node:26.3-trixie-slim
@@ -14,10 +14,12 @@ ARG TERRAFORM_VERSION=1.15.6
 # buildx が自動付与するターゲットアーキテクチャ（amd64 / arm64）。
 ARG TARGETARCH
 
+# git と、Terraform 取得に必要な CLI を一度の apt 実行でまとめて導入する（apt-get update のレイヤを共有）。
+# git は Debian の標準パッケージで apt 一行で済むため、専用処理を設けずここで導入する。常用ツールのため削除しない。
 # Terraform は npm 外の単一バイナリのため、固定バージョンの公式リリースを取得して配置する。
-# unzip はインストールにのみ必要なため、取得後に削除してレイヤを小さく保つ。
+# unzip は Terraform の展開にのみ必要なため、取得後に削除してレイヤを小さく保つ。
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates curl unzip \
+  && apt-get install -y --no-install-recommends ca-certificates curl git unzip \
   && curl -fsSL -o /tmp/terraform.zip \
      "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" \
   && unzip -o /tmp/terraform.zip -d /usr/local/bin \
@@ -37,5 +39,5 @@ RUN mkdir -p /workspace/node_modules && chown node:node /workspace/node_modules
 USER node
 WORKDIR /workspace
 
-# 常駐ツールコンテナ。`docker compose exec root <cmd>` で pnpm/terraform/wrangler を使う。
+# 常駐ツールコンテナ。`docker compose exec root <cmd>` で pnpm/terraform/wrangler/git を使う。
 CMD ["sleep", "infinity"]

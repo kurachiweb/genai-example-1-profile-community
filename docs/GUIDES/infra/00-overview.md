@@ -130,7 +130,7 @@ flowchart LR
 
 ## 5. ローカル開発環境
 
-- コンテナは Docker（`node:26.3-trixie-slim` ベース）。ルート `compose.yaml` でツールチェーン（pnpm/Terraform/wrangler）・各アプリのコンテナ（db/api/client/admin/public-api）・ポート・Mailpit を定義する。各アプリの `Dockerfile` は `apps/<app>/Dockerfile` に置き、`build.dockerfile` で参照する。
+- コンテナは Docker（`node:26.3-trixie-slim` ベース）。ルート `compose.yaml` でツールチェーン（pnpm/Terraform/wrangler/git）・各アプリのコンテナ（db/api/client/admin/public-api）・ポート・Mailpit を定義する。各アプリの `Dockerfile` は `apps/<app>/Dockerfile` に置き、`build.dockerfile` で参照する。
 - パッケージマネージャは pnpm（`pnpm-workspace.yaml` でワークスペース管理）。
 - ローカルでは D1 の代わりに SQLite、SES の代わりに Mailpit、Cloudflare Images の代わりにローカル配信を用い、本番と同等のドメインロジックを再現する。
 - 環境構築の手順は [docs/onboardings/README.md](../../onboardings/README.md) を参照。

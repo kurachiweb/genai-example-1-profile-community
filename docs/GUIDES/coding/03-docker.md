@@ -40,6 +40,7 @@ flowchart TB
 - 同一のベース・同一のロックファイルで全アプリをそろえ、環境差を最小化する。
 - パッケージマネージャは **pnpm**。各コンテナで **`npm install -g pnpm@<version>`** によりグローバルインストールし、バージョンは `Dockerfile` の `ARG PNPM_VERSION` で固定する（build-arg で上書き可）。
 - ルートのツールチェーンコンテナには pnpm に加え **Terraform**・**wrangler** をグローバルインストールする（バージョンは `ARG TERRAFORM_VERSION` / `ARG WRANGLER_VERSION` で固定）。Terraform は npm 外の単一バイナリのため、公式リリースの固定バージョンを取得して `/usr/local/bin` に配置する（`ARG TARGETARCH` で amd64/arm64 を解決）。
+- **git** はコンテナ内での Git 操作（husky・コミット・各種ツール連携）に用いるため、ルートのツールチェーンコンテナに導入する。
 
 ## 3. Dockerfile の記述規約
 
@@ -100,16 +101,17 @@ docker compose logs -f api
 docker compose config
 ```
 
-### 5.3 root コンテナでのコマンド実行（pnpm / Terraform / wrangler）
+### 5.3 root コンテナでのコマンド実行（pnpm / Terraform / wrangler / git）
 
 ```bash
 # 依存インストール（pnpm ワークスペース）
 docker compose run --rm root pnpm install
 # ローカル SQLite へマイグレーション適用
 docker compose run --rm root pnpm --filter @app/db migration:up
-# Terraform / wrangler（常駐させている場合は exec も可）
+# Terraform / wrangler / git（常駐させている場合は exec も可）
 docker compose exec root terraform -version
 docker compose exec root wrangler --version
+docker compose exec root git --version
 ```
 
 > `run --rm` は都度コンテナを使い捨てるため CI・単発操作向き。`exec` は起動済みの常駐 `root` に入って実行する（`docker compose up -d root` で常駐させてから使う）。
