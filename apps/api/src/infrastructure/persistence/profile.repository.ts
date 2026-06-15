@@ -12,93 +12,93 @@ import { toProfileRecord } from './mappers';
 
 @Injectable()
 export class MikroProfileRepository implements ProfileRepository {
-  constructor(private readonly em: EntityManager) {}
+	constructor(private readonly em: EntityManager) {}
 
-  async findByUserId(userId: string): Promise<ProfileRecord | null> {
-    const em = this.em.fork();
-    const entity = await em.findOne(ProfileEntity, { user: userId });
-    return entity ? toProfileRecord(entity) : null;
-  }
+	async findByUserId(userId: string): Promise<ProfileRecord | null> {
+		const em = this.em.fork();
+		const entity = await em.findOne(ProfileEntity, { user: userId });
+		return entity ? toProfileRecord(entity) : null;
+	}
 
-  async findByHandle(handle: string): Promise<ProfileRecord | null> {
-    const em = this.em.fork();
-    const entity = await em.findOne(ProfileEntity, { handle });
-    return entity ? toProfileRecord(entity) : null;
-  }
+	async findByHandle(handle: string): Promise<ProfileRecord | null> {
+		const em = this.em.fork();
+		const entity = await em.findOne(ProfileEntity, { handle });
+		return entity ? toProfileRecord(entity) : null;
+	}
 
-  async listEffectivePublic(filter: ProfileListFilter): Promise<ProfileRecord[]> {
-    const em = this.em.fork();
-    const conditions: FilterQuery<ProfileEntity>[] = [
-      // 実効公開: visibility=public かつ owner.status=ACTIVE(リレーション条件で JOIN される)。
-      { visibility: Visibility.PUBLIC },
-      { user: { status: UserStatus.ACTIVE } },
-    ];
+	async listEffectivePublic(filter: ProfileListFilter): Promise<ProfileRecord[]> {
+		const em = this.em.fork();
+		const conditions: FilterQuery<ProfileEntity>[] = [
+			// 実効公開: visibility=public かつ owner.status=ACTIVE(リレーション条件で JOIN される)。
+			{ visibility: Visibility.PUBLIC },
+			{ user: { status: UserStatus.ACTIVE } }
+		];
 
-    if (filter.search) {
-      const q = filter.search.toLowerCase();
-      conditions.push({
-        $or: [
-          { searchName: { $like: `%${q}%` } },
-          { occupation: { $like: `%${q}%` } },
-          { bio: { $like: `%${q}%` } },
-        ],
-      });
-    }
+		if (filter.search) {
+			const q = filter.search.toLowerCase();
+			conditions.push({
+				$or: [
+					{ searchName: { $like: `%${q}%` } },
+					{ occupation: { $like: `%${q}%` } },
+					{ bio: { $like: `%${q}%` } }
+				]
+			});
+		}
 
-    if (filter.cursor) {
-      // キーセット: (updated_at, id) が降順カーソルより「後ろ」の行のみ。
-      const cursorDate = new Date(filter.cursor.updatedAt);
-      conditions.push({
-        $or: [
-          { updatedAt: { $lt: cursorDate } },
-          { updatedAt: cursorDate, id: { $lt: filter.cursor.id } },
-        ],
-      });
-    }
+		if (filter.cursor) {
+			// キーセット: (updated_at, id) が降順カーソルより「後ろ」の行のみ。
+			const cursorDate = new Date(filter.cursor.updatedAt);
+			conditions.push({
+				$or: [
+					{ updatedAt: { $lt: cursorDate } },
+					{ updatedAt: cursorDate, id: { $lt: filter.cursor.id } }
+				]
+			});
+		}
 
-    const entities = await em.find(
-      ProfileEntity,
-      { $and: conditions },
-      { orderBy: { updatedAt: 'desc', id: 'desc' }, limit: filter.limit },
-    );
-    return entities.map(toProfileRecord);
-  }
+		const entities = await em.find(
+			ProfileEntity,
+			{ $and: conditions },
+			{ orderBy: { updatedAt: 'desc', id: 'desc' }, limit: filter.limit }
+		);
+		return entities.map(toProfileRecord);
+	}
 
-  async save(profile: ProfileRecord): Promise<void> {
-    const em = this.em.fork();
-    const existing = await em.findOne(ProfileEntity, { id: profile.id });
-    if (existing) {
-      em.assign(existing, {
-        handle: profile.handle,
-        visibility: profile.visibility,
-        iconImageId: profile.iconImageId,
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        nameDisplayOrder: profile.nameDisplayOrder,
-        occupation: profile.occupation,
-        searchName: profile.searchName,
-        bio: profile.bio,
-        updatedAt: profile.updatedAt,
-      });
-      await em.flush();
-      return;
-    }
+	async save(profile: ProfileRecord): Promise<void> {
+		const em = this.em.fork();
+		const existing = await em.findOne(ProfileEntity, { id: profile.id });
+		if (existing) {
+			em.assign(existing, {
+				handle: profile.handle,
+				visibility: profile.visibility,
+				iconImageId: profile.iconImageId,
+				firstName: profile.firstName,
+				lastName: profile.lastName,
+				nameDisplayOrder: profile.nameDisplayOrder,
+				occupation: profile.occupation,
+				searchName: profile.searchName,
+				bio: profile.bio,
+				updatedAt: profile.updatedAt
+			});
+			await em.flush();
+			return;
+		}
 
-    const entity = em.create(ProfileEntity, {
-      id: profile.id,
-      user: em.getReference(UserEntity, profile.userId),
-      handle: profile.handle,
-      visibility: profile.visibility,
-      iconImageId: profile.iconImageId,
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      nameDisplayOrder: profile.nameDisplayOrder,
-      occupation: profile.occupation,
-      searchName: profile.searchName,
-      bio: profile.bio,
-      createdAt: profile.createdAt,
-      updatedAt: profile.updatedAt,
-    });
-    await em.persistAndFlush(entity);
-  }
+		const entity = em.create(ProfileEntity, {
+			id: profile.id,
+			user: em.getReference(UserEntity, profile.userId),
+			handle: profile.handle,
+			visibility: profile.visibility,
+			iconImageId: profile.iconImageId,
+			firstName: profile.firstName,
+			lastName: profile.lastName,
+			nameDisplayOrder: profile.nameDisplayOrder,
+			occupation: profile.occupation,
+			searchName: profile.searchName,
+			bio: profile.bio,
+			createdAt: profile.createdAt,
+			updatedAt: profile.updatedAt
+		});
+		await em.persistAndFlush(entity);
+	}
 }

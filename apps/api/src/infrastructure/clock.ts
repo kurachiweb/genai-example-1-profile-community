@@ -4,7 +4,7 @@ import { Clock } from '../application/gateways';
 
 @Injectable()
 export class SystemClock implements Clock {
-  now(): Date {
-    return new Date();
-  }
+	now(): Date {
+		return new Date();
+	}
 }

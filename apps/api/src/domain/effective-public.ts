@@ -4,17 +4,17 @@
 import { UserStatus } from './user-status';
 
 export const Visibility = {
-  PUBLIC: 'public',
-  PRIVATE: 'private',
+	PUBLIC: 'public',
+	PRIVATE: 'private'
 } as const;
 
 export type Visibility = (typeof Visibility)[keyof typeof Visibility];
 
 export interface EffectivePublicInput {
-  readonly visibility: Visibility;
-  readonly ownerStatus: UserStatus;
+	readonly visibility: Visibility;
+	readonly ownerStatus: UserStatus;
 }
 
 export function effectivePublic({ visibility, ownerStatus }: EffectivePublicInput): boolean {
-  return visibility === Visibility.PUBLIC && ownerStatus === UserStatus.ACTIVE;
+	return visibility === Visibility.PUBLIC && ownerStatus === UserStatus.ACTIVE;
 }

@@ -7,26 +7,26 @@ import { ProfileEntity } from './profile.entity';
 // リンクの順序付き取得(db §6)。
 @Index({ name: 'idx_sns_links_profile_sort', properties: ['profile', 'sortOrder'] })
 export class SnsLinkEntity {
-  [OptionalProps]?: 'label' | 'sortOrder' | 'createdAt';
+	[OptionalProps]?: 'label' | 'sortOrder' | 'createdAt';
 
-  @PrimaryKey({ type: 'string' })
-  id!: string;
+	@PrimaryKey({ type: 'string' })
+	id!: string;
 
-  @ManyToOne(() => ProfileEntity, { deleteRule: 'cascade', updateRule: 'cascade' })
-  profile!: ProfileEntity;
+	@ManyToOne(() => ProfileEntity, { deleteRule: 'cascade', updateRule: 'cascade' })
+	profile!: ProfileEntity;
 
-  @Property({ type: 'string' })
-  platform!: SnsPlatform;
+	@Property({ type: 'string' })
+	platform!: SnsPlatform;
 
-  @Property({ type: 'string' })
-  url!: string;
+	@Property({ type: 'string' })
+	url!: string;
 
-  @Property({ type: 'string', nullable: true })
-  label: string | null = null;
+	@Property({ type: 'string', nullable: true })
+	label: string | null = null;
 
-  @Property({ type: 'integer' })
-  sortOrder = 0;
+	@Property({ type: 'integer' })
+	sortOrder = 0;
 
-  @Property({ type: 'datetime' })
-  createdAt: Date = new Date();
+	@Property({ type: 'datetime' })
+	createdAt: Date = new Date();
 }

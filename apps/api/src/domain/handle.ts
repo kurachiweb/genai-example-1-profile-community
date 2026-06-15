@@ -10,38 +10,38 @@ export const HANDLE_PATTERN = /^[a-z0-9](?:-?[a-z0-9])*$/;
 
 // 予約語(ルーティング衝突・公式詐称の防止、BR-SHARE-002)。小文字で保持し小文字比較する。
 export const RESERVED_HANDLES: ReadonlySet<string> = new Set([
-  'admin',
-  'api',
-  'login',
-  'logout',
-  'signup',
-  'signin',
-  'help',
-  'about',
-  'terms',
-  'privacy',
-  'settings',
-  'p',
-  'search',
-  'me',
-  'static',
-  'assets',
-  'public',
-  'null',
-  'undefined',
-  'root',
-  'support',
+	'admin',
+	'api',
+	'login',
+	'logout',
+	'signup',
+	'signin',
+	'help',
+	'about',
+	'terms',
+	'privacy',
+	'settings',
+	'p',
+	'search',
+	'me',
+	'static',
+	'assets',
+	'public',
+	'null',
+	'undefined',
+	'root',
+	'support'
 ]);
 
 export function isReservedHandle(handle: string): boolean {
-  return RESERVED_HANDLES.has(handle.toLowerCase());
+	return RESERVED_HANDLES.has(handle.toLowerCase());
 }
 
 export function isValidHandleFormat(handle: string): boolean {
-  if (handle.length < HANDLE_MIN_LENGTH || handle.length > HANDLE_MAX_LENGTH) {
-    return false;
-  }
-  return HANDLE_PATTERN.test(handle);
+	if (handle.length < HANDLE_MIN_LENGTH || handle.length > HANDLE_MAX_LENGTH) {
+		return false;
+	}
+	return HANDLE_PATTERN.test(handle);
 }
 
 /**
@@ -49,14 +49,15 @@ export function isValidHandleFormat(handle: string): boolean {
  * @throws ValidationError 形式違反・予約語のとき(field='handle')。
  */
 export function assertAssignableHandle(handle: string): void {
-  if (!isValidHandleFormat(handle)) {
-    throw new ValidationError('ハンドルは半角英小文字・数字・ハイフンの 3〜30 文字で指定してください。', [
-      { field: 'handle', message: '形式が正しくありません(先頭/末尾・連続のハイフンは不可)。' },
-    ]);
-  }
-  if (isReservedHandle(handle)) {
-    throw new ValidationError('このハンドルは使用できません。', [
-      { field: 'handle', message: '予約語のため使用できません。' },
-    ]);
-  }
+	if (!isValidHandleFormat(handle)) {
+		throw new ValidationError(
+			'ハンドルは半角英小文字・数字・ハイフンの 3〜30 文字で指定してください。',
+			[{ field: 'handle', message: '形式が正しくありません(先頭/末尾・連続のハイフンは不可)。' }]
+		);
+	}
+	if (isReservedHandle(handle)) {
+		throw new ValidationError('このハンドルは使用できません。', [
+			{ field: 'handle', message: '予約語のため使用できません。' }
+		]);
+	}
 }

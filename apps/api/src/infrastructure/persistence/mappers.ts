@@ -6,36 +6,36 @@ import { SnsLinkEntity } from './entities/sns-link.entity';
 import { UserEntity } from './entities/user.entity';
 
 export function toUserRecord(entity: UserEntity): UserRecord {
-  return { id: entity.id, status: entity.status };
+	return { id: entity.id, status: entity.status };
 }
 
 export function toProfileRecord(entity: ProfileEntity): ProfileRecord {
-  return {
-    id: entity.id,
-    // リレーションは未ロードでも FK 値(PK)を参照できる。
-    userId: entity.user.id,
-    handle: entity.handle,
-    visibility: entity.visibility,
-    iconImageId: entity.iconImageId,
-    firstName: entity.firstName,
-    lastName: entity.lastName,
-    nameDisplayOrder: entity.nameDisplayOrder,
-    occupation: entity.occupation,
-    searchName: entity.searchName,
-    bio: entity.bio,
-    createdAt: entity.createdAt,
-    updatedAt: entity.updatedAt,
-  };
+	return {
+		id: entity.id,
+		// リレーションは未ロードでも FK 値(PK)を参照できる。
+		userId: entity.user.id,
+		handle: entity.handle,
+		visibility: entity.visibility,
+		iconImageId: entity.iconImageId,
+		firstName: entity.firstName,
+		lastName: entity.lastName,
+		nameDisplayOrder: entity.nameDisplayOrder,
+		occupation: entity.occupation,
+		searchName: entity.searchName,
+		bio: entity.bio,
+		createdAt: entity.createdAt,
+		updatedAt: entity.updatedAt
+	};
 }
 
 export function toSnsLinkRecord(entity: SnsLinkEntity): SnsLinkRecord {
-  return {
-    id: entity.id,
-    profileId: entity.profile.id,
-    platform: entity.platform,
-    url: entity.url,
-    label: entity.label,
-    sortOrder: entity.sortOrder,
-    createdAt: entity.createdAt,
-  };
+	return {
+		id: entity.id,
+		profileId: entity.profile.id,
+		platform: entity.platform,
+		url: entity.url,
+		label: entity.label,
+		sortOrder: entity.sortOrder,
+		createdAt: entity.createdAt
+	};
 }

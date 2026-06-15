@@ -2,14 +2,14 @@
 // 表示名は firstName/lastName と nameDisplayOrder から決定論的に組み立て、二重空白・前後空白を生じさせない。
 
 export const NameDisplayOrder = {
-  GIVEN_FIRST: 'givenNameFirst',
-  FAMILY_FIRST: 'familyNameFirst',
+	GIVEN_FIRST: 'givenNameFirst',
+	FAMILY_FIRST: 'familyNameFirst'
 } as const;
 
 export type NameDisplayOrder = (typeof NameDisplayOrder)[keyof typeof NameDisplayOrder];
 
 function orderedParts(firstName: string, lastName: string, order: NameDisplayOrder): string[] {
-  return order === NameDisplayOrder.FAMILY_FIRST ? [lastName, firstName] : [firstName, lastName];
+	return order === NameDisplayOrder.FAMILY_FIRST ? [lastName, firstName] : [firstName, lastName];
 }
 
 /**
@@ -17,14 +17,14 @@ function orderedParts(firstName: string, lastName: string, order: NameDisplayOrd
  * 例: order=familyNameFirst, first='みなと', last='里中' → '里中 みなと'
  */
 export function buildDisplayName(
-  firstName: string,
-  lastName: string,
-  order: NameDisplayOrder,
+	firstName: string,
+	lastName: string,
+	order: NameDisplayOrder
 ): string {
-  return orderedParts(firstName, lastName, order)
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0)
-    .join(' ');
+	return orderedParts(firstName, lastName, order)
+		.map((part) => part.trim())
+		.filter((part) => part.length > 0)
+		.join(' ');
 }
 
 /**
@@ -32,9 +32,9 @@ export function buildDisplayName(
  * 比較は本値に対して行い、profiles.search_name として保存する(db §5.2)。
  */
 export function buildSearchName(
-  firstName: string,
-  lastName: string,
-  order: NameDisplayOrder,
+	firstName: string,
+	lastName: string,
+	order: NameDisplayOrder
 ): string {
-  return buildDisplayName(firstName, lastName, order).normalize('NFC').toLowerCase();
+	return buildDisplayName(firstName, lastName, order).normalize('NFC').toLowerCase();
 }

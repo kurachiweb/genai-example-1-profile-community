@@ -7,15 +7,15 @@ import { DomainError } from '../../domain/errors';
 
 @Catch(DomainError)
 export class DomainErrorFilter implements GqlExceptionFilter {
-  catch(exception: DomainError, host: ArgumentsHost): GraphQLError {
-    // GraphQL 実行コンテキストであることを明示(将来 HTTP 面と共用する場合の分岐点)。
-    GqlArgumentsHost.create(host);
-    return new GraphQLError(exception.message, {
-      extensions: {
-        code: exception.code,
-        httpStatus: exception.httpStatus,
-        details: exception.details ?? null,
-      },
-    });
-  }
+	catch(exception: DomainError, host: ArgumentsHost): GraphQLError {
+		// GraphQL 実行コンテキストであることを明示(将来 HTTP 面と共用する場合の分岐点)。
+		GqlArgumentsHost.create(host);
+		return new GraphQLError(exception.message, {
+			extensions: {
+				code: exception.code,
+				httpStatus: exception.httpStatus,
+				details: exception.details ?? null
+			}
+		});
+	}
 }

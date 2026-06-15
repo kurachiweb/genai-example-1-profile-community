@@ -6,7 +6,7 @@ import { IdGenerator } from '../application/gateways';
 
 @Injectable()
 export class UlidGenerator implements IdGenerator {
-  ulid(): string {
-    return ulid();
-  }
+	ulid(): string {
+		return ulid();
+	}
 }

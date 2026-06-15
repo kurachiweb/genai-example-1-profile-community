@@ -10,26 +10,26 @@ export const ENTITIES = [UserEntity, ProfileEntity, SnsLinkEntity];
 
 /** DATABASE_URL(`file:/path` 形式)または `:memory:` から SQLite のパスを解決する。 */
 export function resolveDbName(databaseUrl?: string): string {
-  if (!databaseUrl || databaseUrl === ':memory:') {
-    return ':memory:';
-  }
-  return databaseUrl.startsWith('file:') ? databaseUrl.slice('file:'.length) : databaseUrl;
+	if (!databaseUrl || databaseUrl === ':memory:') {
+		return ':memory:';
+	}
+	return databaseUrl.startsWith('file:') ? databaseUrl.slice('file:'.length) : databaseUrl;
 }
 
 export function buildMikroOrmConfig(dbName: string) {
-  return defineConfig({
-    dbName,
-    entities: ENTITIES,
-    // TypeScript デコレータのメタデータから定義を読む(ts-morph 不要、mikroorm)。
-    metadataProvider: ReflectMetadataProvider,
-    // TS camelCase ↔ DB snake_case(db/00-overview §3)。
-    namingStrategy: UnderscoreNamingStrategy,
-    // 時刻は UTC 保存・読み出し(BR-COMMON-015)。
-    forceUtcTimezone: true,
-    // 各操作で em.fork() するため、グローバル EM の利用を許容する(リクエスト混線は fork で回避)。
-    allowGlobalContext: true,
-    debug: false,
-  });
+	return defineConfig({
+		dbName,
+		entities: ENTITIES,
+		// TypeScript デコレータのメタデータから定義を読む(ts-morph 不要、mikroorm)。
+		metadataProvider: ReflectMetadataProvider,
+		// TS camelCase ↔ DB snake_case(db/00-overview §3)。
+		namingStrategy: UnderscoreNamingStrategy,
+		// 時刻は UTC 保存・読み出し(BR-COMMON-015)。
+		forceUtcTimezone: true,
+		// 各操作で em.fork() するため、グローバル EM の利用を許容する(リクエスト混線は fork で回避)。
+		allowGlobalContext: true,
+		debug: false
+	});
 }
 
 // MikroORM CLI / スタンドアロン用途のデフォルトエクスポート。

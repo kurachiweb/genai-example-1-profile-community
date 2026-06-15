@@ -7,18 +7,18 @@ import { SnsLinkRecord } from '../../application/models';
 export type SnsLinkLoader = DataLoader<string, SnsLinkRecord[]>;
 
 export function createSnsLinkLoader(service: ProfileService): SnsLinkLoader {
-  return new DataLoader<string, SnsLinkRecord[]>(async (profileIds) => {
-    const all = await service.getSnsLinksByProfileIds(profileIds);
-    const byProfile = new Map<string, SnsLinkRecord[]>();
-    for (const link of all) {
-      const bucket = byProfile.get(link.profileId);
-      if (bucket) {
-        bucket.push(link);
-      } else {
-        byProfile.set(link.profileId, [link]);
-      }
-    }
-    // load の要求順と同じ順序・件数で返す(DataLoader の契約)。
-    return profileIds.map((id) => byProfile.get(id) ?? []);
-  });
+	return new DataLoader<string, SnsLinkRecord[]>(async (profileIds) => {
+		const all = await service.getSnsLinksByProfileIds(profileIds);
+		const byProfile = new Map<string, SnsLinkRecord[]>();
+		for (const link of all) {
+			const bucket = byProfile.get(link.profileId);
+			if (bucket) {
+				bucket.push(link);
+			} else {
+				byProfile.set(link.profileId, [link]);
+			}
+		}
+		// load の要求順と同じ順序・件数で返す(DataLoader の契約)。
+		return profileIds.map((id) => byProfile.get(id) ?? []);
+	});
 }

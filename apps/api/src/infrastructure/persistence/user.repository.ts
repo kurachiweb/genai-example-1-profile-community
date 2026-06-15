@@ -8,12 +8,12 @@ import { toUserRecord } from './mappers';
 
 @Injectable()
 export class MikroUserRepository implements UserRepository {
-  constructor(private readonly em: EntityManager) {}
+	constructor(private readonly em: EntityManager) {}
 
-  async findById(id: string): Promise<UserRecord | null> {
-    // リクエストをまたいで Identity Map を共有しないよう fork する(mikroorm §3)。
-    const em = this.em.fork();
-    const entity = await em.findOne(UserEntity, { id });
-    return entity ? toUserRecord(entity) : null;
-  }
+	async findById(id: string): Promise<UserRecord | null> {
+		// リクエストをまたいで Identity Map を共有しないよう fork する(mikroorm §3)。
+		const em = this.em.fork();
+		const entity = await em.findOne(UserEntity, { id });
+		return entity ? toUserRecord(entity) : null;
+	}
 }

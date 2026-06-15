@@ -5,12 +5,12 @@ import { SnsLinkType } from './sns-link.type';
 
 @ObjectType('ProfilePayload')
 export class ProfilePayloadType {
-  @Field(() => ProfileType)
-  profile!: ProfileType;
+	@Field(() => ProfileType)
+	profile!: ProfileType;
 }
 
 @ObjectType('SnsLinksPayload')
 export class SnsLinksPayloadType {
-  @Field(() => [SnsLinkType])
-  snsLinks!: SnsLinkType[];
+	@Field(() => [SnsLinkType])
+	snsLinks!: SnsLinkType[];
 }

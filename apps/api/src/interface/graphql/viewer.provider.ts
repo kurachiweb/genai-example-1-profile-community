@@ -7,20 +7,20 @@ import { USER_REPOSITORY, UserRepository } from '../../application/gateways';
 import { Viewer } from '../../application/models';
 
 export interface RequestLike {
-  readonly headers?: Record<string, string | string[] | undefined>;
+	readonly headers?: Record<string, string | string[] | undefined>;
 }
 
 @Injectable()
 export class ViewerProvider {
-  constructor(@Inject(USER_REPOSITORY) private readonly users: UserRepository) {}
+	constructor(@Inject(USER_REPOSITORY) private readonly users: UserRepository) {}
 
-  async resolve(req: RequestLike | undefined): Promise<Viewer | null> {
-    const header = req?.headers?.['x-user-id'];
-    const userId = Array.isArray(header) ? header[0] : header;
-    if (!userId) {
-      return null;
-    }
-    const user = await this.users.findById(userId);
-    return user ? { userId: user.id, status: user.status } : null;
-  }
+	async resolve(req: RequestLike | undefined): Promise<Viewer | null> {
+		const header = req?.headers?.['x-user-id'];
+		const userId = Array.isArray(header) ? header[0] : header;
+		if (!userId) {
+			return null;
+		}
+		const user = await this.users.findById(userId);
+		return user ? { userId: user.id, status: user.status } : null;
+	}
 }

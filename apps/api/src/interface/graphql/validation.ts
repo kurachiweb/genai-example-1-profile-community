@@ -6,26 +6,26 @@ import type { ValidationError as ClassValidatorError } from 'class-validator';
 import { FieldError, ValidationError } from '../../domain/errors';
 
 function flatten(errors: ClassValidatorError[], parentPath = ''): FieldError[] {
-  const result: FieldError[] = [];
-  for (const error of errors) {
-    const path = parentPath ? `${parentPath}.${error.property}` : error.property;
-    if (error.constraints) {
-      const message = Object.values(error.constraints)[0] ?? '入力が不正です。';
-      result.push({ field: path, message });
-    }
-    if (error.children && error.children.length > 0) {
-      result.push(...flatten(error.children, path));
-    }
-  }
-  return result;
+	const result: FieldError[] = [];
+	for (const error of errors) {
+		const path = parentPath ? `${parentPath}.${error.property}` : error.property;
+		if (error.constraints) {
+			const message = Object.values(error.constraints)[0] ?? '入力が不正です。';
+			result.push({ field: path, message });
+		}
+		if (error.children && error.children.length > 0) {
+			result.push(...flatten(error.children, path));
+		}
+	}
+	return result;
 }
 
 export function buildValidationPipe(): ValidationPipe {
-  return new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-    exceptionFactory: (errors) =>
-      new ValidationError('入力内容に誤りがあります。', flatten(errors as ClassValidatorError[])),
-  });
+	return new ValidationPipe({
+		whitelist: true,
+		forbidNonWhitelisted: true,
+		transform: true,
+		exceptionFactory: (errors) =>
+			new ValidationError('入力内容に誤りがあります。', flatten(errors as ClassValidatorError[]))
+	});
 }
