@@ -37,5 +37,5 @@ RUN mkdir -p /workspace/node_modules && chown node:node /workspace/node_modules
 USER node
 WORKDIR /workspace
 
-# 常駐ツールコンテナ。`docker compose exec toolchain <cmd>` で pnpm/terraform/wrangler を使う。
+# 常駐ツールコンテナ。`docker compose exec root <cmd>` で pnpm/terraform/wrangler を使う。
 CMD ["sleep", "infinity"]

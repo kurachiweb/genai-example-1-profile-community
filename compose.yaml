@@ -20,12 +20,12 @@ x-app-defaults: &app-defaults
 
 services:
   # ---- ツールチェーン: pnpm / Terraform / wrangler を備えた常駐コンテナ ----
-  # 使い方: docker compose exec toolchain pnpm <...> / terraform <...> / wrangler <...>
-  toolchain:
+  # 使い方: docker compose exec root pnpm <...> / terraform <...> / wrangler <...>
+  root:
     build:
       context: .
       dockerfile: Dockerfile
-    image: genai-example-1-profile-community/toolchain
+    image: genai-example-1-profile-community/root
     restart: unless-stopped
     working_dir: /workspace
     volumes:

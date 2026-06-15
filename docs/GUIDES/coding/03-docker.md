@@ -12,7 +12,7 @@
 - **Docker はローカル開発専用**である。本番ランタイムは **Cloudflare Workers（サーバーレス）** であり、**コンテナをデプロイしない**（[infra/00-overview.md](../infra/00-overview.md) §1・§4）。
 - したがって Dockerfile は「本番イメージの最適化」ではなく「再現性のあるローカル開発環境」を目的に記述する。本番相当の検証は `wrangler`／Workers ローカルエミュレーションで補う（[infra/02-deployment.md](../infra/02-deployment.md)）。
 - コンテナの 2 つの役割（[CLAUDE.md](../../../CLAUDE.md) ディレクトリ構成）:
-  - **ルート `Dockerfile`**: npm パッケージ等をグローバルインストールする共通コンテナ（pnpm / Terraform / wrangler のツールチェーン）。`compose.yaml` では常駐サービス `toolchain` として定義し、`docker compose exec toolchain <cmd>` で利用する。
+  - **ルート `Dockerfile`**: npm パッケージ等をグローバルインストールする共通コンテナ（pnpm / Terraform / wrangler のツールチェーン）。`compose.yaml` では常駐サービス `root` として定義し、`docker compose exec root <cmd>` で利用する。
   - **各アプリのコンテナ**: `apps/<app>/Dockerfile` で定義し、ルート `compose.yaml` から `build.dockerfile` で参照してポートを割り当てる（下表）。
 
 ```mermaid
@@ -43,7 +43,7 @@ flowchart TB
 
 ## 3. Dockerfile の記述規約
 
-- **ローカル開発コンテナはバインドマウント前提の単段イメージ**とする: イメージには toolchain（Node + グローバル `pnpm`）のみを用意し、ソースは `compose.yaml` のバインドマウントで供給する。依存は起動時にコンテナ内で `pnpm install` する（`command` 参照）。`node_modules` はホストと混ぜず名前付きボリュームで隔離する。
+- **ローカル開発コンテナはバインドマウント前提の単段イメージ**とする: イメージには root（Node + グローバル `pnpm`）のみを用意し、ソースは `compose.yaml` のバインドマウントで供給する。依存は起動時にコンテナ内で `pnpm install` する（`command` 参照）。`node_modules` はホストと混ぜず名前付きボリュームで隔離する。
 - 依存インストールは**ロックファイル固定**（`pnpm install --frozen-lockfile`）で決定的にする（`pnpm-lock.yaml` 整備後）。
 - **`.dockerignore`** を必ず用意し、`.git` / `node_modules` / `.env*` / ビルド成果物 / テスト成果物を除外する（イメージ肥大化と秘匿情報混入の防止）。
 - 将来、成果物を**イメージに焼き込む**場合は、`package.json` / `pnpm-lock.yaml` / `pnpm-workspace.yaml` を先に `COPY` して依存を入れてからソースを `COPY` し（レイヤキャッシュを活かす）、**マルチステージビルド**でビルド専用依存を最終段に持ち込まない。
@@ -61,7 +61,7 @@ flowchart TB
 
 ## 5. 起動・操作コマンド
 
-ルート（`compose.yaml` のある階層）で実行する。`apps/db` は最小 dev サーバーが整備済みで `docker compose up -d db` は healthy になる。`apps/api`・`apps/client`・`apps/admin`・`apps/public-api` の実装が整う前はこれらの実起動はできないが、`build`・`config`・`toolchain` 経由の操作は利用できる。簡易クイックスタートは [infra/02-deployment.md](../infra/02-deployment.md) §4.1・[onboardings/README.md](../../onboardings/README.md) §3 にもある。
+ルート（`compose.yaml` のある階層）で実行する。`apps/db` は最小 dev サーバーが整備済みで `docker compose up -d db` は healthy になる。`apps/api`・`apps/client`・`apps/admin`・`apps/public-api` の実装が整う前はこれらの実起動はできないが、`build`・`config`・`root` 経由の操作は利用できる。簡易クイックスタートは [infra/02-deployment.md](../infra/02-deployment.md) §4.1・[onboardings/README.md](../../onboardings/README.md) §3 にもある。
 
 ### 5.1 起動・停止
 
@@ -72,7 +72,7 @@ cp .env.example .env
 # イメージをビルド（Dockerfile 変更時。ツールのバージョンを上書きする例も可）
 docker compose build
 # 例: Terraform/pnpm のバージョンを build-arg で固定して再ビルド
-# docker compose build --build-arg TERRAFORM_VERSION=1.15.6 --build-arg PNPM_VERSION=11.6 toolchain
+# docker compose build --build-arg TERRAFORM_VERSION=1.15.6 --build-arg PNPM_VERSION=11.6 root
 
 # 全サービスを起動（バックグラウンド）
 # db:55030 / api:55031 / client:55032 / admin:55033 / public-api:55034 / Mailpit Web UI:55035
@@ -100,19 +100,19 @@ docker compose logs -f api
 docker compose config
 ```
 
-### 5.3 toolchain コンテナでのコマンド実行（pnpm / Terraform / wrangler）
+### 5.3 root コンテナでのコマンド実行（pnpm / Terraform / wrangler）
 
 ```bash
 # 依存インストール（pnpm ワークスペース）
-docker compose run --rm toolchain pnpm install
+docker compose run --rm root pnpm install
 # ローカル SQLite へマイグレーション適用
-docker compose run --rm toolchain pnpm --filter @app/db migration:up
+docker compose run --rm root pnpm --filter @app/db migration:up
 # Terraform / wrangler（常駐させている場合は exec も可）
-docker compose exec toolchain terraform -version
-docker compose exec toolchain wrangler --version
+docker compose exec root terraform -version
+docker compose exec root wrangler --version
 ```
 
-> `run --rm` は都度コンテナを使い捨てるため CI・単発操作向き。`exec` は起動済みの常駐 `toolchain` に入って実行する（`docker compose up -d toolchain` で常駐させてから使う）。
+> `run --rm` は都度コンテナを使い捨てるため CI・単発操作向き。`exec` は起動済みの常駐 `root` に入って実行する（`docker compose up -d root` で常駐させてから使う）。
 
 ## 6. セキュリティ・秘匿
 
