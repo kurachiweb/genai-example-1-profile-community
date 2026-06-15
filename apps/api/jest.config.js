@@ -18,7 +18,14 @@ module.exports = {
   },
   // カバレッジしきい値の対象は「フレームワーク非依存の純粋層（ドメイン・ユースケース）」に限定する。
   // GraphQL/永続化アダプタは統合テスト（test/）で振る舞いを検証する（testing/00-overview.md §3・§4）。
-  collectCoverageFrom: ['src/domain/**/*.ts', 'src/application/**/*.ts', '!src/**/*.spec.ts'],
+  collectCoverageFrom: [
+    'src/domain/**/*.ts',
+    'src/application/**/*.ts',
+    '!src/**/*.spec.ts',
+    // 型・DI トークンの宣言のみ(実行ロジックなし)は計測対象外。
+    '!src/application/gateways.ts',
+    '!src/application/models.ts',
+  ],
   coverageDirectory: '<rootDir>/coverage',
   coverageThreshold: {
     global: { branches: 80, functions: 80, lines: 80, statements: 80 },
