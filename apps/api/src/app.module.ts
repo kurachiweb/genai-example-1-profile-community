@@ -30,6 +30,8 @@ const isProduction = process.env.NODE_ENV === 'production';
         // 探索 UI は dev/local 限定で有効化し、本番では無効化する(api §7)。
         playground: !isProduction,
         introspection: !isProduction,
+        // 本番ではスタックトレースを応答へ含めない(秘匿、BR-COMMON-012/014)。
+        includeStacktraceInErrorResponses: !isProduction,
         // DataLoader はリクエストスコープで生成する(api §5)。
         context: ({ req }: { req: unknown }) => ({
           req,
