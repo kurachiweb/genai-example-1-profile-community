@@ -1,6 +1,6 @@
 // ProfileRepository(Gateway)の MikroORM 実装(Interface Adapters)。
 // 実効公開で除外される行は SQL 段階で確実に落とす(取得後フィルタの漏れを作らない、mikroorm §5)。
-import { EntityManager, FilterQuery } from '@mikro-orm/sqlite';
+import { EntityManager, FilterQuery } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
 import { Visibility } from '../../domain/effective-public';
 import { UserStatus } from '../../domain/user-status';

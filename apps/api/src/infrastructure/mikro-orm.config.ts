@@ -26,6 +26,8 @@ export function buildMikroOrmConfig(dbName: string) {
     namingStrategy: UnderscoreNamingStrategy,
     // 時刻は UTC 保存・読み出し(BR-COMMON-015)。
     forceUtcTimezone: true,
+    // 各操作で em.fork() するため、グローバル EM の利用を許容する(リクエスト混線は fork で回避)。
+    allowGlobalContext: true,
     debug: false,
   });
 }

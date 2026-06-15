@@ -1,5 +1,5 @@
 // SnsLinkRepository(Gateway)の MikroORM 実装(Interface Adapters)。
-import { EntityManager } from '@mikro-orm/sqlite';
+import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
 import { SnsLinkRepository } from '../../application/gateways';
 import { SnsLinkRecord } from '../../application/models';
