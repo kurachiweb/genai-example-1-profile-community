@@ -16,6 +16,7 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
+    "types": ["jest"],
     "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
