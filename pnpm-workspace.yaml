@@ -8,4 +8,25 @@ packages:
 # apps/api: MikroORM の SQLite ドライバ(sqlite3 ネイティブ)・Apollo の protobufjs ビルド。
 allowBuilds:
   '@apollo/protobufjs': true
+  better-sqlite3: true
   sqlite3: true
+  unrs-resolver: true
+# パッケージの公開から3日以上経過したもののみをインストールする
+minimumReleaseAge: 4320
+minimumReleaseAgeExclude:
+  - '@nestjs/common@11.1.27'
+  - '@nestjs/core@11.1.27'
+  - '@nestjs/platform-express@11.1.27'
+  - '@nestjs/testing@11.1.27'
+  - '@typescript-eslint/eslint-plugin@8.61.1'
+  - '@typescript-eslint/parser@8.61.1'
+  - '@typescript-eslint/project-service@8.61.1'
+  - '@typescript-eslint/scope-manager@8.61.1'
+  - '@typescript-eslint/tsconfig-utils@8.61.1'
+  - '@typescript-eslint/type-utils@8.61.1'
+  - '@typescript-eslint/types@8.61.1'
+  - '@typescript-eslint/typescript-estree@8.61.1'
+  - '@typescript-eslint/utils@8.61.1'
+  - '@typescript-eslint/visitor-keys@8.61.1'
+  - graphql@17.0.0
+  - typescript-eslint@8.61.1
