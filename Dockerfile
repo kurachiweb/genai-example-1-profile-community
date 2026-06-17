@@ -18,10 +18,12 @@ ARG TARGETARCH
 # git は Debian の標準パッケージで apt 一行で済むため、専用処理を設けずここで導入する。常用ツールのため削除しない。
 # Terraform は npm 外の単一バイナリのため、固定バージョンの公式リリースを取得して配置する。
 # unzip は Terraform の展開にのみ必要なため、取得後に削除してレイヤを小さく保つ。
+# rtk の install.sh は既定で $HOME/.local/bin に配置するが、これは PATH に含まれていないため RTK_INSTALL_DIR で変更する。
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates curl git unzip \
+  && curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | RTK_INSTALL_DIR=/usr/local/bin sh \
   && curl -fsSL -o /tmp/terraform.zip \
-     "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" \
+    "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" \
   && unzip -o /tmp/terraform.zip -d /usr/local/bin \
   && rm /tmp/terraform.zip \
   && apt-get purge -y --auto-remove unzip \
