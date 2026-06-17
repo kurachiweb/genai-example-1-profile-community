@@ -23,7 +23,7 @@ beforeAll(async () => {
 	app.useGlobalPipes(buildValidationPipe());
 	await app.init();
 	orm = app.get(MikroORM);
-	await orm.schema.createSchema();
+	await orm.schema.create();
 });
 
 afterAll(async () => {
@@ -31,7 +31,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-	await orm.schema.refreshDatabase();
+	await orm.schema.refresh();
 });
 
 interface SeedOptions {
