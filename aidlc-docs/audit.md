@@ -41,3 +41,28 @@
 **Context**: Construction / Code Generation・Build and Test 完了 → main へマージ予定
 
 ---
+
+## 新ユニット 初期リクエスト（公開 REST API）
+**Timestamp**: 2026-06-17T00:00:00Z
+**User Input**: "docsディレクトリ内のドキュメントやDockerfile、CLAUDE.mdの内容に基づき、AI-DLCフレームワークを活用し、プロフィール共有サービス「GenAI Profile Community」のapps/public-apiディレクトリ内の実装を完成させてください。なお、作業用のGitブランチを作成し、ファイル変更を複数のコミットに分けて自動コミットしてください。作業が完了したらmainブランチにマージしてください。分からない点や判断に悩む点は都度質問してください。"
+**AI Response**: docs/（features/05-public-api・GUIDES/api/00〜03・db/01-data-model・infra/01・coding/04-nestjs）・ADR（DO レート制限・キースコープ）・既存 `apps/api` 実装一式・Dockerfile・compose を精読。`apps/public-api` は Dockerfile のみで未実装と確認。Brownfield 継続として新ユニット `public-api-rest` を起票。作業ブランチ `feature/public-api-rest` を作成。
+**Context**: Workspace Detection / Requirements Analysis（公開 API）
+
+---
+
+## 判断確認: ドメイン層の共有方針
+**Timestamp**: 2026-06-17T00:05:00Z
+**AI Response**: 公開 API は実効公開ゲート・入力検証・カーソル・エラー語彙を内部 API と共有する。共有方法（複製 / workspace 依存 / 共有パッケージ抽出）を利用者へ質問。
+**User Input**: "public-api内に複製（独立アプリ）"
+**AI Response**: 選択肢 A（複製）を採用。`apps/public-api` 内にドメイン/ユースケース層を複製する。「別アプリ・別 Worker・別境界」（[api/00-overview.md](../docs/GUIDES/api/00-overview.md) §1）と pnpm-workspace（`apps/*` のみ）の方針に整合。経緯を ADR 20260617-public-api-domain-duplication に記録。
+**Context**: Application Design / 設計判断
+
+---
+
+## 実行モードの決定
+**Timestamp**: 2026-06-17T00:10:00Z
+**User Input**: （初期リクエストに含まれる「作業用ブランチ・複数コミット・自動コミット・完了後 main へマージ」）
+**AI Response**: 前ユニットと同様、利用者が自律完了を事前承認していると解釈し、各ステージの承認ゲートで停止せず実行する方針を採用。判断に悩む点（ドメイン共有方針）のみ質問済み。
+**Context**: Workflow Planning / 自律実行モード
+
+---

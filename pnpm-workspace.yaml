@@ -8,6 +8,8 @@ packages:
 # apps/api: MikroORM の SQLite ドライバ(sqlite3 ネイティブ)・Apollo の protobufjs ビルド。
 allowBuilds:
   '@apollo/protobufjs': true
+  # apps/public-api 依存(@nestjs/swagger 経由)の透過的テレメトリ。ビルドスクリプトは実行しない。
+  '@scarf/scarf': false
   better-sqlite3: true
   sqlite3: true
   unrs-resolver: true
