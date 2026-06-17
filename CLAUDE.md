@@ -51,6 +51,7 @@ AIエージェントによるprod環境へのデプロイは禁止する。
 ├── docs/                       # ドキュメント ... 全てマークダウン形式
 │   ├── onboardings/            # オンボーディングガイド ... 環境構築手順やドキュメント索引
 │   ├── adr/                    # Everything Claude Codeのecc-architecture-decision-recordsスキルによる自動生成ADR
+│   ├── tdd/                    # Everything Claude Codeのecc-tdd-workflowスキルによるTDDエビデンスレポート
 │   ├── CODEMAPS/               # Everything Claude Codeのecc-doc-updaterエージェントによる自動生成コードマップ
 │   ├── GUIDES/                 # 開発者ドキュメント、Everything Claude Codeのecc-doc-updaterエージェントにより都度更新
 │   │   ├── infra/              # インフラ・ネットワーク構成図、デプロイ手順、ログ管理方針
