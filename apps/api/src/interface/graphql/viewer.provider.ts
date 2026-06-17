@@ -3,7 +3,9 @@
 // ヘッダ `x-user-id` を受け取り、UserRepository で状態を引いて Viewer を構成する。
 // 認可・実効公開ゲートはユースケース層で評価するため、本プロバイダは「誰として実行するか」のみを担う。
 import { Inject, Injectable } from '@nestjs/common';
-import { USER_REPOSITORY, UserRepository } from '../../application/gateways';
+// UserRepository はインターフェース(実体なし)。ESM + emitDecoratorMetadata で
+// design:paramtypes に値として出力されないよう、型としてのみ import する(inline type)。
+import { USER_REPOSITORY, type UserRepository } from '../../application/gateways';
 import { Viewer } from '../../application/models';
 
 export interface RequestLike {

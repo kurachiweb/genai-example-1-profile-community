@@ -77,7 +77,8 @@ export async function runSeed(): Promise<void> {
 	const env = loadEnv();
 	const orm = await MikroORM.init(buildMikroOrmConfig(resolveDbName(env.databaseUrl)));
 	try {
-		await orm.getSchemaGenerator().updateSchema();
+		// MikroORM 7 は orm.schema(getter)に集約。updateSchema → update。
+		await orm.schema.update();
 		const em = orm.em.fork();
 
 		for (const spec of SEED_PROFILES) {

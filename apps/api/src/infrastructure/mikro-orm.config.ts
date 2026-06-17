@@ -1,12 +1,13 @@
 // MikroORM 設定(Frameworks & Drivers)。ローカルは SQLite、本番は D1(SQLite 互換・同一スキーマ)。
 // ドライバ差は本層で吸収し、Entities/Use Cases に持ち込まない(mikroorm §8)。
-import { ReflectMetadataProvider, UnderscoreNamingStrategy } from '@mikro-orm/core';
+// MikroORM 7 は EntitySchema でメタデータを明示するため reflect メタデータプロバイダは不要(ADR 20260617)。
+import { UnderscoreNamingStrategy } from '@mikro-orm/core';
 import { defineConfig } from '@mikro-orm/sqlite';
-import { ProfileEntity } from './persistence/entities/profile.entity';
-import { SnsLinkEntity } from './persistence/entities/sns-link.entity';
-import { UserEntity } from './persistence/entities/user.entity';
+import { profileSchema } from './persistence/entities/profile.entity';
+import { snsLinkSchema } from './persistence/entities/sns-link.entity';
+import { userSchema } from './persistence/entities/user.entity';
 
-export const ENTITIES = [UserEntity, ProfileEntity, SnsLinkEntity];
+export const ENTITIES = [userSchema, profileSchema, snsLinkSchema];
 
 /** DATABASE_URL(`file:/path` 形式)または `:memory:` から SQLite のパスを解決する。 */
 export function resolveDbName(databaseUrl?: string): string {
@@ -20,8 +21,6 @@ export function buildMikroOrmConfig(dbName: string) {
 	return defineConfig({
 		dbName,
 		entities: ENTITIES,
-		// TypeScript デコレータのメタデータから定義を読む(ts-morph 不要、mikroorm)。
-		metadataProvider: ReflectMetadataProvider,
 		// TS camelCase ↔ DB snake_case(db/00-overview §3)。
 		namingStrategy: UnderscoreNamingStrategy,
 		// 時刻は UTC 保存・読み出し(BR-COMMON-015)。
