@@ -15,6 +15,7 @@
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
+    "isolatedModules": true,
     "types": ["node", "jest", "supertest"],
     "strict": true,
     "strictNullChecks": true,
