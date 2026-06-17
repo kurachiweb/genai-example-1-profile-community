@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "ES2022",
-    "lib": ["ES2022"],
-    "moduleResolution": "node",
+    "module": "nodenext",
+    "target": "es2025",
+    "lib": ["es2025"],
+    "moduleResolution": "nodenext",
     "declaration": false,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -13,10 +13,9 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "types": ["jest"],
+    "types": ["node", "jest", "supertest"],
     "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
@@ -26,10 +25,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@domain/*": ["src/domain/*"],
-      "@application/*": ["src/application/*"],
-      "@infrastructure/*": ["src/infrastructure/*"],
-      "@interface/*": ["src/interface/*"]
+      "@domain/*": ["./src/domain/*"],
+      "@application/*": ["./src/application/*"],
+      "@infrastructure/*": ["./src/infrastructure/*"],
+      "@interface/*": ["./src/interface/*"]
     }
   },
   "include": ["src/**/*", "test/**/*"],
