@@ -113,10 +113,11 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | [adr/20260604-nextjs-workers-opennext.md](../adr/20260604-nextjs-workers-opennext.md) | Next.js（client/admin）の Workers 配信アダプタに `@opennextjs/cloudflare`（OpenNext）を採用する決定 |
 | [adr/20260604-public-api-rate-limit-durable-objects.md](../adr/20260604-public-api-rate-limit-durable-objects.md) | 公開 API のキー単位レート制限カウンタに Durable Objects を採用する決定（`BR-API-008`） |
 | [adr/20260605-public-api-key-scopes.md](../adr/20260605-public-api-key-scopes.md) | 公開 API キーのスコープ（`read`/`full`）採用の決定（`BR-API-001b`） |
+| [adr/20260617-public-api-domain-duplication.md](../adr/20260617-public-api-domain-duplication.md) | 公開 API のドメイン層を `apps/public-api` 内に複製する決定（別 Worker・独立境界） |
 
 ## 3. ローカル開発環境クイックスタート
 
-> 詳細・前提は [infra/00-overview.md](../GUIDES/infra/00-overview.md) §5 と [infra/02-deployment.md](../GUIDES/infra/02-deployment.md) §4.1 を参照。ルート `compose.yaml`・各 `Dockerfile`（ツールチェーン + db/api/client/admin/public-api + Mailpit）・ルートのワークスペース定義（`package.json` / `pnpm-workspace.yaml`）は整備済み。`apps/db` は最小 dev サーバーが動作し `docker compose up -d db` は healthy になるが、`apps/api`・`apps/client`・`apps/admin`・`apps/public-api` の実装は未着手のため、それらを含む以下の手順全体はアプリ整備後に有効になる。
+> 詳細・前提は [infra/00-overview.md](../GUIDES/infra/00-overview.md) §5 と [infra/02-deployment.md](../GUIDES/infra/02-deployment.md) §4.1 を参照。ルート `compose.yaml`・各 `Dockerfile`（ツールチェーン + db/api/client/admin/public-api + Mailpit）・ルートのワークスペース定義（`package.json` / `pnpm-workspace.yaml`）は整備済み。`apps/db` は最小 dev サーバーが動作し `docker compose up -d db` は healthy になる。`apps/api`（内部 GraphQL `:48031/graphql`）・`apps/public-api`（公開 REST `:48034/api/public/v1`・Swagger UI `:48034/docs`）は実装済みで稼働する。`apps/client`・`apps/admin` の実装は未着手のため、それらを含む手順はアプリ整備後に有効になる。
 
 ```bash
 # 1) 依存インストール（pnpm ワークスペース）

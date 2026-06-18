@@ -59,6 +59,24 @@
 
 ---
 
+## 判断確認: MikroORM 7・TS6 破損への対応
+**Timestamp**: 2026-06-17T01:30:00Z
+**AI Response**: 永続化層の結線中に、直近の依存最新化（MikroORM 6→7・TypeScript 5→6）で `apps/api` が破損していることを発見。MikroORM 7 はデコレータ API（`@Entity` 等）を廃止し `EntitySchema` へ移行、`getSchemaGenerator()`→`orm.schema`・`persistAndFlush()`→`persist().flush()` に変更。TS6 は `tsconfig.build.json` に明示 `rootDir` を要求（TS5011）。`apps/api` は型・テスト・起動が不能（GraphQL 配信せず）。public-api も踏襲のため同様。対応方針（両アプリを MikroORM 7 へ移行 / public-api のみ / v6 へダウングレード）を利用者へ質問。
+**User Input**: "両アプリをMikroORM7に移行(推奨)"
+**AI Response**: 選択肢 B を採用。`apps/api`・`apps/public-api` の両方を MikroORM 7（EntitySchema・`Opt` で省略列マーク・`orm.schema`・`persist().flush()`・`ReflectMetadataProvider` 削除）と TS6（`tsconfig.build` の `rootDir`）へ移行。CLAUDE.md「最新バージョンを用いる」に整合。
+**Context**: Construction / 依存最新化への追従（apps/api を巻き込む水平展開）
+
+---
+
+## 判断確認: jest の ESM 化
+**Timestamp**: 2026-06-17T02:00:00Z
+**AI Response**: MikroORM 7・kysely は ESM 専用（`import.meta` 使用）で、CJS の jest が require できない。CJS へのトランスパイルは `import.meta` を表現できず失敗。jest を ESM 化（`node --experimental-vm-modules`・ts-jest `useESM`）してネイティブ ESM 評価する方針を提示・着手。
+**User Input**: "逆にJestをESMにしてください。"
+**AI Response**: ESM 化を継続。両アプリの jest を ESM モードへ。型検査は `tsc --noEmit` に委ね、ts-jest は `isolatedModules` でトランスパイルのみ（高速化）。`tsconfig.spec.json` で `rootDir`/`module=esnext` を指定し、DI のインターフェース型引数は inline `type` import に（`emitDecoratorMetadata` 対策）。
+**Context**: Construction / テスト基盤の ESM 化
+
+---
+
 ## 実行モードの決定
 **Timestamp**: 2026-06-17T00:10:00Z
 **User Input**: （初期リクエストに含まれる「作業用ブランチ・複数コミット・自動コミット・完了後 main へマージ」）

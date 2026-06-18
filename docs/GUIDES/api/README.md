@@ -3,7 +3,7 @@
 内部 GraphQL API（`apps/api`）と公開 REST API（`apps/public-api`）の設計原則・実装規約・開発者向け利用ガイドをまとめた開発者向けドキュメント群。
 
 > 業務仕様（エンドポイント・キースコープ・しきい値・エラーコード値・受け入れ条件）の正本（SSoT）は [docs/service/features/05-public-api.md](../../service/features/05-public-api.md) と [00-common-rules.md](../../service/features/00-common-rules.md)、技術選定の正本は [CLAUDE.md](../../../CLAUDE.md)。矛盾した場合はそれらを優先し、本ガイドを追従させる。
-> **現状フェーズ**: `apps/api`・`apps/public-api` は未実装で、本ガイドは実装に先行する設計仕様である。
+> **現状フェーズ**: `apps/api`（内部 GraphQL のプロフィール共有コア）・`apps/public-api`（公開 REST API の本人フル CRUD・他者公開分 Read・API キー認証・スコープ・レート制限・OpenAPI）を実装済み。`apps/api` の他ドメイン（アカウント認証等）は未実装で、本ガイドの該当箇所は実装に先行する設計仕様である。
 
 ## ドキュメント一覧
 

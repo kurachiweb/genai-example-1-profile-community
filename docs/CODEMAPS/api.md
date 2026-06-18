@@ -29,7 +29,7 @@ apps/api/src/
 │
 ├── infrastructure/               # Interface Adapters(Gateway 実装)+ Frameworks & Drivers
 │   ├── persistence/
-│   │   ├── entities/             # MikroORM エンティティ(users/profiles/sns_links, db §5)
+│   │   ├── entities/             # MikroORM 7 EntitySchema(users/profiles/sns_links, db §5。v7 はデコレータ廃止)
 │   │   ├── mappers.ts            # エンティティ ↔ レコード変換
 │   │   ├── user.repository.ts    # UserRepository 実装
 │   │   ├── profile.repository.ts # ProfileRepository 実装(実効公開フィルタ・キーセットカーソル)

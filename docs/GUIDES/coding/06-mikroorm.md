@@ -5,7 +5,7 @@
 
 > **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（MikroORM・SQLite/D1）と [db/00-overview.md](../db/00-overview.md)（設計原則・命名・ID/時刻）を、ORM の実装観点へ具体化したものである。
 > **テーブル定義・型・制約・インデックス・KV/DO 配置の正本は [db/01-data-model.md](../db/01-data-model.md)**、マイグレーション手順の正本は [db/02-migrations.md](../db/02-migrations.md)。本ガイドは値・スキーマを複製せず、実装規約に限定する。
-> **現状フェーズ**: `apps/api`（内部 GraphQL）が MikroORM を本規約に沿って導入済み（`users`/`profiles`/`sns_links` のエンティティ・リポジトリ、SQLite ドライバ、[CODEMAPS/api.md](../../CODEMAPS/api.md)）。`apps/db` は引き続き healthcheck 用 dev サーバーのみで、スキーマ/マイグレーションの集約は後続課題。本ガイドの該当箇所は実装に先行する規約である。
+> **現状フェーズ**: `apps/api`（内部 GraphQL：`users`/`profiles`/`sns_links`）・`apps/public-api`（公開 REST：上記＋`api_keys`）が MikroORM を本規約に沿って導入済み（SQLite ドライバ、[CODEMAPS/api.md](../../CODEMAPS/api.md) / [CODEMAPS/public-api.md](../../CODEMAPS/public-api.md)）。**ORM は MikroORM 7**。v7 はデコレータ API（`@Entity` 等）を廃止し **EntitySchema** で定義する（§2）。`apps/db` は引き続き healthcheck 用 dev サーバーのみで、スキーマ/マイグレーションの集約は後続課題。本ガイドの該当箇所は実装に先行する規約である。
 
 ## 1. 位置づけ（クリーンアーキテクチャの層）
 
@@ -27,6 +27,7 @@ flowchart LR
 
 ## 2. エンティティ定義
 
+- **MikroORM 7 は EntitySchema で定義する**（v7 はデコレータ API `@Entity`/`@Property`/`@PrimaryKey` 等と `ReflectMetadataProvider` を廃止）。プレーンなクラス（型のみ）＋ `new EntitySchema<T>({ class, tableName, properties, indexes })` を `entities` に登録し、リポジトリではクラスを実体名として渡す。既定値/自動付与の列は `Opt<T>` でマークし `em.create` 時に省略可能にする（旧 `[OptionalProps]` の後継）。経緯は [ADR 20260617](../../adr/20260617-public-api-domain-duplication.md)。
 - 物理スキーマ（カラム・型・制約・列挙）は [db/01-data-model.md](../db/01-data-model.md) §5 を正本とし、エンティティ定義をそれに**一致**させる。値（文字数・列挙・既定値）を独自に決めない。
 - **命名戦略は underscore**: TS 側 camelCase ↔ DB 物理名 snake_case を MikroORM の命名戦略で対応づける（[db/00-overview.md](../db/00-overview.md) §3）。物理名を手書きで散在させない。
 - **主キーは ULID（TEXT・26 文字）**。自動連番を使わない。ULID はアプリ層で生成して代入する（生成時刻順ソート・カーソルページング適性、[db/00-overview.md](../db/00-overview.md) §4）。
@@ -36,7 +37,7 @@ flowchart LR
 ## 3. EntityManager / Unit of Work
 
 - **EntityManager はリクエストスコープで `fork()`**（または `RequestContext`）する。リクエストをまたいで Identity Map を共有しない（古いデータ・権限混線の防止）。Workers のステートレス前提と整合する（[04-nestjs.md](./04-nestjs.md) §7）。
-- 変更は Unit of Work が追跡する。**`flush()` は Use Case（Interactor）境界**で行い、リポジトリ内で無秩序に flush しない。
+- 変更は Unit of Work が追跡する。**`flush()` は Use Case（Interactor）境界**で行い、リポジトリ内で無秩序に flush しない。MikroORM 7 では `persistAndFlush()` は廃止され **`em.persist(e); await em.flush()`** を用いる。スキーマ操作は `orm.getSchemaGenerator()` ではなく **`orm.schema`**（`update`/`create`/`refresh`）に集約された。
 - **イミュータビリティとの両立**: Entities・値オブジェクトは不変に扱う（[00-overview.md](./00-overview.md) §3）。永続化エンティティの状態変更は**リポジトリ（Gateway 実装）の内側に閉じ込め**、管理対象エンティティの参照を層をまたいで配り回さない。
 
 ## 4. トランザクション
@@ -74,6 +75,7 @@ flowchart LR
 - DB 統合テストは**テスト用 SQLite**（インメモリ/一時ファイル）に対して実行する。`PRAGMA foreign_keys = ON` を有効化し、FK・ユニーク制約・追記専用トリガーを検証する（[testing/01-unit-integration.md](../testing/01-unit-integration.md) §2.3）。
 - テストごとに **EntityManager を fork ／トランザクションでロールバック**して分離する（並列実行・状態持ち越し防止）。
 - リポジトリの Gateway は Use Case / Entities のテストでモック/フェイクへ差し替える（[testing/01-unit-integration.md](../testing/01-unit-integration.md) §3）。マイグレーションの up/down が通ることを確認する（[db/02-migrations.md](../db/02-migrations.md) §8）。
+- **MikroORM 7・kysely は ESM 専用**（`import.meta` 使用）。CJS の jest では require できないため、jest は **ESM モード**（`node --experimental-vm-modules`・ts-jest `useESM`）で実行する。型検査は `tsc --noEmit` に委ね、ts-jest は `isolatedModules` でトランスパイルのみ行う（`tsconfig.spec.json` で `module=esnext`・`rootDir` を指定）。DI のインターフェース型引数は inline `type` import にする（`emitDecoratorMetadata` が型を値出力しないように）。
 
 ## 10. 関連ドキュメント
 
