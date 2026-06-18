@@ -23,7 +23,7 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates curl git unzip \
   && curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | RTK_INSTALL_DIR=/usr/local/bin sh \
   && curl -fsSL -o /tmp/terraform.zip \
-    "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" \
+  "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" \
   && unzip -o /tmp/terraform.zip -d /usr/local/bin \
   && rm /tmp/terraform.zip \
   && apt-get purge -y --auto-remove unzip \
@@ -35,11 +35,18 @@ RUN npm install -g pnpm@${PNPM_VERSION} wrangler@${WRANGLER_VERSION}
 # node_modules は名前付きボリューム(root_node_modules)で隔離する。空ボリュームは
 # マウント先ディレクトリの所有権を引き継ぐため、非 root 切替の前に node 所有で用意し、
 # node ユーザーの pnpm install が書き込めるようにする(EACCES 回避)。
-RUN mkdir -p /workspace/node_modules && chown node:node /workspace/node_modules
+# RTK は初期化前に Claude 設定ディレクトリを作成してエラーを回避。
+RUN mkdir -p /workspace/node_modules \
+  && chown node:node /workspace/node_modules \
+  && mkdir -p /home/node/.claude \
+  && chown -R node:node /home/node/.claude
 
 # 可能な範囲で非 root（node ユーザー）で実行する（docs/GUIDES/coding/03-docker.md §3）。
 USER node
 WORKDIR /workspace
 
-# 常駐ツールコンテナ。`docker compose exec root <cmd>` で pnpm/terraform/wrangler/git を使う。
+# RTK を初期化
+RUN HOME=/home/node RTK_TELEMETRY_DISABLED=1 rtk init -g --auto-patch
+
+# 常駐ツールコンテナ。`docker compose exec root <cmd>` で pnpm/terraform/wrangler/git/rtk を使う。
 CMD ["sleep", "infinity"]
