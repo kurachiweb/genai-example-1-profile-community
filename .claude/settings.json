@@ -13,7 +13,10 @@
       "Bash(rtk ls *)",
       "Bash(rtk tree *)",
       "Bash(rtk read *)",
-      "Bash(rtk du *)"
+      "Bash(rtk du *)",
+      "Bash(rtk jest *)",
+      "Bash(rtk tsc *)",
+      "Bash(docker compose *)"
     ]
   },
   "model": "opus",
