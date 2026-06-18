@@ -91,3 +91,10 @@ export class BadRequestError extends DomainError {
 		super(ErrorCode.BAD_REQUEST, message, details);
 	}
 }
+
+/** レート制限超過。429(BR-API-008/009)。Retry-After は応答ヘッダで別途示す。 */
+export class RateLimitError extends DomainError {
+	constructor(message = 'リクエストが多すぎます。しばらくしてから再試行してください。') {
+		super(ErrorCode.RATE_LIMITED, message);
+	}
+}
