@@ -5,7 +5,7 @@
 
 > **位置づけ**: 本ガイドは [ecc-common/testing.md](../../../.claude/rules/ecc-common/testing.md)・[ecc-web/testing.md](../../../.claude/rules/ecc-web/testing.md) を本サービスへ具体化したものである。
 > テスト対象の業務値・受け入れ条件の正本は [docs/service/features/](../../service/features/)。
-> **現状フェーズ**: `apps/` 配下は未実装で、本ガイドは実装に先行する規約である。
+> **現状フェーズ**: `apps/api`（内部 GraphQL）・`apps/public-api`（公開 REST）が本規約に沿って単体・統合テストを整備済み（Jest・Supertest、各 [CODEMAPS](../../CODEMAPS/)）。MikroORM 7/kysely が ESM 専用のため jest は ESM モード（`node --experimental-vm-modules`・ts-jest `useESM`）で実行し、型検査は `tsc --noEmit` に委ねる（[coding/06-mikroorm.md](../coding/06-mikroorm.md) §9）。他アプリ（`client`/`admin`）は実装に先行する規約である。
 
 ## 1. 単体テスト（Jest）
 

@@ -99,6 +99,8 @@ export class MikroProfileRepository implements ProfileRepository {
 			createdAt: profile.createdAt,
 			updatedAt: profile.updatedAt
 		});
-		await em.persistAndFlush(entity);
+		// MikroORM 7 は persistAndFlush を廃止。persist().flush() を用いる。
+		em.persist(entity);
+		await em.flush();
 	}
 }

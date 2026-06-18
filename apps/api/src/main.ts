@@ -20,7 +20,8 @@ async function bootstrap(): Promise<void> {
 	// 本番(D1)は wrangler マイグレーションで適用し、AI/アプリは実行しない(CLAUDE.md)。
 	if (env.autoSyncSchema) {
 		const orm = app.get(MikroORM);
-		await orm.getSchemaGenerator().updateSchema();
+		// MikroORM 7 は orm.schema(getter)に集約。updateSchema → update。
+		await orm.schema.update();
 	}
 
 	await app.listen(env.port, '0.0.0.0');

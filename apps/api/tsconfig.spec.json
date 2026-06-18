@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    // jest を ESM で動かすため、ts-jest が ESM(import/export)を出力するよう module を上書きする。
+    // 既定の nodenext は type:module 無しの本パッケージでは CJS を出力してしまう。
+    "module": "esnext",
+    "moduleResolution": "bundler"
+  }
+}

@@ -4,7 +4,7 @@
 
 > **位置づけ**: 本ガイドは「使い方」を示す導入資料である。エンドポイント・スコープ・しきい値・エラーコードなどの**仕様の正本は [05-public-api.md](../../service/features/05-public-api.md)**、機械可読かつ網羅的な**対話的リファレンスは Swagger UI（OpenAPI）**。本ガイドは値を持たず参照する。
 > 設計・実装の規約は [02-public-rest-api.md](./02-public-rest-api.md) を参照。
-> **現状フェーズ**: `apps/public-api` は未実装で、本ガイドは実装に先行する利用想定である。以下のホスト名（`api.example.com`）は例示。
+> **現状フェーズ**: `apps/public-api`（ユニット `public-api-rest`）を実装済み。ローカルは `http://localhost:48034/api/public/v1`（Swagger UI: `http://localhost:48034/docs`）。以下のホスト名（`api.example.com`）は本番想定の例示。ローカル検証用キーは `pnpm --filter @app/public-api seed` が出力する。
 
 ## 1. はじめに
 

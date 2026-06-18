@@ -23,7 +23,8 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-	await orm.schema.refreshDatabase();
+	// MikroORM 7 は refreshDatabase → refresh(drop+create)。
+	await orm.schema.refresh();
 });
 
 interface SeedOptions {

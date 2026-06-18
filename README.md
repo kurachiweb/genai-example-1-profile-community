@@ -64,7 +64,10 @@
 
 - **内部 GraphQL API（`apps/api`）**: プロフィール共有のコアドメイン（プロフィールの取得・一覧/検索・編集・公開設定・ハンドル・SNS リンク）を実装済み。構造は[コードマップ](./docs/CODEMAPS/api.md)、設計規約は[API ドキュメント](./docs/GUIDES/api/)を参照。
   - 開発: `pnpm --filter @app/api dev`（`:48031`）／ テスト: `pnpm --filter @app/api test` ／ サンプル投入: `pnpm --filter @app/api seed`
-- その他のアプリ（`apps/public-api`・`apps/client`・`apps/admin` など）と、`apps/api` の他ドメイン（アカウント認証・API キー・管理者機能ほか）は順次実装予定。変更履歴は [CHANGELOG.md](./CHANGELOG.md) を参照。
+- **公開 REST API（`apps/public-api`）**: API キー認証による本人プロフィールのフル CRUD・他ユーザーの公開分の取得・カーソル一覧・スコープ（read/full）・キー単位レート制限・OpenAPI/Swagger UI を実装済み。構造は[コードマップ](./docs/CODEMAPS/public-api.md)、仕様の正本は[公開 API 仕様](./docs/service/features/05-public-api.md)、使い方は[開発者向けガイド](./docs/GUIDES/api/03-public-api-developer-guide.md)を参照。
+  - 開発: `pnpm --filter @app/public-api dev`（`:48034`、Swagger UI `http://localhost:48034/docs`）／ テスト: `pnpm --filter @app/public-api test` ／ 検証用キー投入: `pnpm --filter @app/public-api seed`
+- ORM は **MikroORM 7**（EntitySchema）。テストは MikroORM 7/kysely が ESM 専用のため jest を ESM モードで実行する（[MikroORM ガイド](./docs/GUIDES/coding/06-mikroorm.md)）。
+- その他のアプリ（`apps/client`・`apps/admin` など）と、`apps/api` の他ドメイン（アカウント認証・API キー発行 UI・管理者機能ほか）は順次実装予定。変更履歴は [CHANGELOG.md](./CHANGELOG.md) を参照。
 
 ## Special Thanks
 
