@@ -111,7 +111,9 @@ export class PublicProfileService {
 
 		const last = page.at(-1);
 		const nextCursor =
-			hasMore && last ? encodeCursor({ updatedAt: last.updatedAt.toISOString(), id: last.id }) : null;
+			hasMore && last
+				? encodeCursor({ updatedAt: last.updatedAt.toISOString(), id: last.id })
+				: null;
 		return { items, limit, nextCursor, hasMore };
 	}
 
@@ -154,7 +156,10 @@ export class PublicProfileService {
 	}
 
 	/** PATCH: 送られたフィールドのみ更新する。full スコープ必須(AC-API-008)。 */
-	async patchMyProfile(principal: ApiPrincipal, input: PatchProfileInput): Promise<ProfileWithLinks> {
+	async patchMyProfile(
+		principal: ApiPrincipal,
+		input: PatchProfileInput
+	): Promise<ProfileWithLinks> {
 		assertWriteScope(principal.scope);
 		const current = await this.requireOwnProfile(principal);
 
@@ -176,8 +181,7 @@ export class PublicProfileService {
 			firstName,
 			lastName,
 			nameDisplayOrder,
-			occupation:
-				normalized.occupation !== undefined ? normalized.occupation : current.occupation,
+			occupation: normalized.occupation !== undefined ? normalized.occupation : current.occupation,
 			bio: normalized.bio !== undefined ? normalized.bio : current.bio,
 			visibility: this.resolveVisibility(input.visibility, current.visibility),
 			searchName: this.deriveSearchName(firstName, lastName, nameDisplayOrder),

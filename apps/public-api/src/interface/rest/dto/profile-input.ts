@@ -90,7 +90,10 @@ export class PatchProfileDto {
 	@IsIn(['public', 'private'])
 	visibility?: string;
 
-	@ApiPropertyOptional({ type: () => [SnsLinkInputDto], description: 'SNS リンク(0〜10 件・全置換)' })
+	@ApiPropertyOptional({
+		type: () => [SnsLinkInputDto],
+		description: 'SNS リンク(0〜10 件・全置換)'
+	})
 	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })

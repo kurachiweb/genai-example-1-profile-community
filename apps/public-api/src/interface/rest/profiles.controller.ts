@@ -19,7 +19,9 @@ export class ProfilesController {
 	constructor(private readonly service: PublicProfileService) {}
 
 	@Get()
-	@ApiOperation({ summary: '公開プロフィール一覧(read・カーソルページング、AC-API-006/BR-API-007)。' })
+	@ApiOperation({
+		summary: '公開プロフィール一覧(read・カーソルページング、AC-API-006/BR-API-007)。'
+	})
 	@ApiOkResponse({ type: ProfileView, isArray: true })
 	async listProfiles(@Query() query: ListProfilesQueryDto): Promise<Paginated<ProfileView[]>> {
 		const result = await this.service.listPublicProfiles({

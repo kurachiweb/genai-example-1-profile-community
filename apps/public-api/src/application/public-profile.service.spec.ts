@@ -193,21 +193,27 @@ describe('PublicProfileService.getPublicProfileByHandle(実効公開ゲート・
 		const h = makeHarness();
 		seedUser(h, 'u1', UserStatus.UNVERIFIED);
 		seedProfile(h, { id: 'p1', userId: 'u1', handle: 'hidden' });
-		await expect(h.service.getPublicProfileByHandle('hidden')).rejects.toBeInstanceOf(NotFoundError);
+		await expect(h.service.getPublicProfileByHandle('hidden')).rejects.toBeInstanceOf(
+			NotFoundError
+		);
 	});
 
 	test('非公開は NotFound で秘匿', async () => {
 		const h = makeHarness();
 		seedUser(h, 'u1', UserStatus.ACTIVE);
 		seedProfile(h, { id: 'p1', userId: 'u1', handle: 'hidden', visibility: Visibility.PRIVATE });
-		await expect(h.service.getPublicProfileByHandle('hidden')).rejects.toBeInstanceOf(NotFoundError);
+		await expect(h.service.getPublicProfileByHandle('hidden')).rejects.toBeInstanceOf(
+			NotFoundError
+		);
 	});
 
 	test('凍結ユーザーは NotFound で秘匿', async () => {
 		const h = makeHarness();
 		seedUser(h, 'u1', UserStatus.FROZEN);
 		seedProfile(h, { id: 'p1', userId: 'u1', handle: 'frozen' });
-		await expect(h.service.getPublicProfileByHandle('frozen')).rejects.toBeInstanceOf(NotFoundError);
+		await expect(h.service.getPublicProfileByHandle('frozen')).rejects.toBeInstanceOf(
+			NotFoundError
+		);
 	});
 });
 

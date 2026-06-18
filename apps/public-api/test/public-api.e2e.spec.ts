@@ -29,7 +29,9 @@ interface SeedOptions {
 	occupation?: string | null;
 }
 
-async function buildApp(rateLimitPerWindow = 1000): Promise<{ app: INestApplication; orm: MikroORM }> {
+async function buildApp(
+	rateLimitPerWindow = 1000
+): Promise<{ app: INestApplication; orm: MikroORM }> {
 	process.env.DATABASE_URL = ':memory:';
 	process.env.NODE_ENV = 'test';
 	process.env.RATE_LIMIT_PER_WINDOW = String(rateLimitPerWindow);
@@ -39,12 +41,18 @@ async function buildApp(rateLimitPerWindow = 1000): Promise<{ app: INestApplicat
 	app.setGlobalPrefix('api/public/v1');
 	app.useGlobalPipes(buildValidationPipe());
 	await app.init();
-	const orm = app.get(MikroORM);
+	// 明示注釈で MikroORM 型へ widen(app.get の戻りは entities が readonly 変種のため)。
+	const orm: MikroORM = app.get(MikroORM);
 	await orm.schema.create();
 	return { app, orm };
 }
 
-async function seed(orm: MikroORM, id: string, handle: string, options: SeedOptions = {}): Promise<void> {
+async function seed(
+	orm: MikroORM,
+	id: string,
+	handle: string,
+	options: SeedOptions = {}
+): Promise<void> {
 	const em = orm.em.fork();
 	const status = options.status ?? UserStatus.ACTIVE;
 	const user = em.create(UserEntity, {
@@ -109,18 +117,14 @@ describe('公開 REST API', () => {
 				rawKey: FULL_KEY,
 				keyStatus: ApiKeyStatus.REVOKED
 			});
-			const res = await request(app.getHttpServer())
-				.get(`${BASE}/me/profile`)
-				.set(auth(FULL_KEY));
+			const res = await request(app.getHttpServer()).get(`${BASE}/me/profile`).set(auth(FULL_KEY));
 			expect(res.status).toBe(401);
 			expect(res.body.error.code).toBe('UNAUTHORIZED');
 		});
 
 		test('凍結ユーザーのキーは 401(BR-COMMON-005)', async () => {
 			await seed(orm, 'a', 'minato', { status: UserStatus.FROZEN, rawKey: FULL_KEY });
-			const res = await request(app.getHttpServer())
-				.get(`${BASE}/me/profile`)
-				.set(auth(FULL_KEY));
+			const res = await request(app.getHttpServer()).get(`${BASE}/me/profile`).set(auth(FULL_KEY));
 			expect(res.status).toBe(401);
 		});
 	});
@@ -132,9 +136,7 @@ describe('公開 REST API', () => {
 				scope: ApiKeyScope.READ,
 				rawKey: READ_KEY
 			});
-			const res = await request(app.getHttpServer())
-				.get(`${BASE}/me/profile`)
-				.set(auth(READ_KEY));
+			const res = await request(app.getHttpServer()).get(`${BASE}/me/profile`).set(auth(READ_KEY));
 			expect(res.status).toBe(200);
 			expect(res.body).toMatchObject({ success: true, error: null });
 			expect(res.body.data).toMatchObject({ handle: 'minato', visibility: 'private' });
@@ -244,9 +246,7 @@ describe('公開 REST API', () => {
 
 	describe('操作制限(AC-API-012)', () => {
 		test('アカウント退会など未定義エンドポイントは 404', async () => {
-			const res = await request(app.getHttpServer())
-				.delete(`${BASE}/me`)
-				.set(auth(FULL_KEY));
+			const res = await request(app.getHttpServer()).delete(`${BASE}/me`).set(auth(FULL_KEY));
 			expect(res.status).toBe(404);
 			expect(res.body.success).toBe(false);
 		});
@@ -255,9 +255,7 @@ describe('公開 REST API', () => {
 	describe('レート制限ヘッダ(AC-API-013)', () => {
 		test('応答に RateLimit-Limit/Remaining/Reset が付く', async () => {
 			await seed(orm, 'a', 'minato', { rawKey: FULL_KEY });
-			const res = await request(app.getHttpServer())
-				.get(`${BASE}/me/profile`)
-				.set(auth(FULL_KEY));
+			const res = await request(app.getHttpServer()).get(`${BASE}/me/profile`).set(auth(FULL_KEY));
 			expect(res.headers).toHaveProperty('ratelimit-limit');
 			expect(res.headers).toHaveProperty('ratelimit-remaining');
 			expect(res.headers).toHaveProperty('ratelimit-reset');
@@ -282,8 +280,12 @@ describe('レート制限超過(AC-API-014)', () => {
 
 	test('上限超過で 429 RATE_LIMITED + Retry-After', async () => {
 		const server = app.getHttpServer();
-		const ok1 = await request(server).get(`${BASE}/me/profile`).set({ Authorization: `Bearer ${FULL_KEY}` });
-		const ok2 = await request(server).get(`${BASE}/me/profile`).set({ Authorization: `Bearer ${FULL_KEY}` });
+		const ok1 = await request(server)
+			.get(`${BASE}/me/profile`)
+			.set({ Authorization: `Bearer ${FULL_KEY}` });
+		const ok2 = await request(server)
+			.get(`${BASE}/me/profile`)
+			.set({ Authorization: `Bearer ${FULL_KEY}` });
 		const blocked = await request(server)
 			.get(`${BASE}/me/profile`)
 			.set({ Authorization: `Bearer ${FULL_KEY}` });
