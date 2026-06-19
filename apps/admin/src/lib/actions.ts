@@ -121,3 +121,13 @@ export async function disableAdminAction(targetId: string): Promise<ActionResult
 		return toResult(error);
 	}
 }
+
+export async function deletePasskeyAction(id: string): Promise<ActionResult> {
+	try {
+		await api.deletePasskey(id);
+		revalidatePath('/settings/passkeys');
+		return { ok: true };
+	} catch (error) {
+		return toResult(error);
+	}
+}

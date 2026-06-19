@@ -110,6 +110,52 @@ export async function listPasskeys(): Promise<Passkey[]> {
 	return data.adminPasskeys;
 }
 
+// --- WebAuthn(パスキー)。オプション/レスポンスは JSON 文字列で授受する ---
+
+export async function startPasskeyRegistration(): Promise<Record<string, unknown>> {
+	const data = await graphqlRequest<{ adminStartPasskeyRegistration: string }>(
+		`mutation{ adminStartPasskeyRegistration }`
+	);
+	return JSON.parse(data.adminStartPasskeyRegistration) as Record<string, unknown>;
+}
+
+export async function finishPasskeyRegistration(
+	responseJson: string,
+	nickname?: string
+): Promise<void> {
+	await graphqlRequest(
+		`mutation($input:AdminFinishPasskeyRegistrationInput!){ adminFinishPasskeyRegistration(input:$input){ id } }`,
+		{ input: { responseJson, nickname } }
+	);
+}
+
+export async function startPasskeyAuthentication(email: string): Promise<Record<string, unknown>> {
+	const data = await graphqlRequest<{ adminStartPasskeyAuthentication: string }>(
+		`mutation($email:String!){ adminStartPasskeyAuthentication(email:$email) }`,
+		{ email },
+		{ sessionId: null }
+	);
+	return JSON.parse(data.adminStartPasskeyAuthentication) as Record<string, unknown>;
+}
+
+export async function finishPasskeyAuthentication(
+	email: string,
+	responseJson: string
+): Promise<{ sessionId: string; csrfToken: string; role: string }> {
+	const data = await graphqlRequest<{
+		adminFinishPasskeyAuthentication: { sessionId: string; csrfToken: string; role: string };
+	}>(
+		`mutation($input:AdminPasskeyAuthInput!){ adminFinishPasskeyAuthentication(input:$input){ sessionId csrfToken role } }`,
+		{ input: { email, responseJson } },
+		{ sessionId: null }
+	);
+	return data.adminFinishPasskeyAuthentication;
+}
+
+export async function deletePasskey(id: string): Promise<void> {
+	await graphqlRequest(`mutation($id:String!){ adminDeletePasskey(id:$id) }`, { id });
+}
+
 // --- ミューテーション ---
 
 export async function freezeUser(userId: string, reasonCategory: string): Promise<void> {
