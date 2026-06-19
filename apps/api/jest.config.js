@@ -32,6 +32,10 @@ module.exports = {
     // 型・DI トークンの宣言のみ(実行ロジックなし)は計測対象外。
     '!src/application/gateways.ts',
     '!src/application/models.ts',
+    '!src/application/admin/gateways.ts',
+    '!src/application/admin/models.ts',
+    // テスト用のインメモリ・フェイク(本番ロジックではない)は計測対象外。
+    '!src/application/admin/fakes.ts',
   ],
   coverageDirectory: '<rootDir>/coverage',
   coverageThreshold: {

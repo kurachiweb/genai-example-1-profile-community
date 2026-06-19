@@ -1,0 +1,6 @@
+# Next.js / テスト成果物
+.next
+out
+coverage
+next-env.d.ts
+*.tsbuildinfo

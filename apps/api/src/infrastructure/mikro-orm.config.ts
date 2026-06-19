@@ -3,11 +3,32 @@
 // MikroORM 7 は EntitySchema でメタデータを明示するため reflect メタデータプロバイダは不要(ADR 20260617)。
 import { UnderscoreNamingStrategy } from '@mikro-orm/core';
 import { defineConfig } from '@mikro-orm/sqlite';
+import { adminAccountSchema } from './persistence/entities/admin-account.entity';
+import { adminWebauthnCredentialSchema } from './persistence/entities/admin-webauthn-credential.entity';
+import { apiKeySchema } from './persistence/entities/api-key.entity';
+import { appSettingSchema } from './persistence/entities/app-setting.entity';
+import { auditLogSchema } from './persistence/entities/audit-log.entity';
 import { profileSchema } from './persistence/entities/profile.entity';
+import { reportSchema } from './persistence/entities/report.entity';
 import { snsLinkSchema } from './persistence/entities/sns-link.entity';
+import { suspensionSchema } from './persistence/entities/suspension.entity';
+import { unfreezeRequestSchema } from './persistence/entities/unfreeze-request.entity';
 import { userSchema } from './persistence/entities/user.entity';
 
-export const ENTITIES = [userSchema, profileSchema, snsLinkSchema];
+export const ENTITIES = [
+	userSchema,
+	profileSchema,
+	snsLinkSchema,
+	// 管理者コンソール(07)・Trust&Safety(06)・公開 API キー運用(05)向け。
+	adminAccountSchema,
+	adminWebauthnCredentialSchema,
+	auditLogSchema,
+	suspensionSchema,
+	unfreezeRequestSchema,
+	reportSchema,
+	apiKeySchema,
+	appSettingSchema
+];
 
 /** DATABASE_URL(`file:/path` 形式)または `:memory:` から SQLite のパスを解決する。 */
 export function resolveDbName(databaseUrl?: string): string {

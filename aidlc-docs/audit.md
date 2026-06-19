@@ -84,3 +84,44 @@
 **Context**: Workflow Planning / 自律実行モード
 
 ---
+
+## 新ユニット 初期リクエスト（管理者コンソール）
+**Timestamp**: 2026-06-19T00:00:00Z
+**User Input**: "docsディレクトリ内のドキュメントやDockerfileの内容に基づき、AI-DLCフレームワークを活用し、プロフィール共有サービス「GenAI Profile Community」のapps/adminディレクトリ内及びapps/frontend-lib内の実装を完成させてください。Next.jsの他、ESLint、Prettier、Vite、Tailwind CSS、shadcn/ui、Jest、React Testing LibraryなどCLAUDE.mdの技術選定に書かれた技術をインストールしてください。eslintやprettierなどの設定ファイルはapps/apiディレクトリ内の既存ファイルを読み部分的に流用し、コーディングルールはなるべくそれらと揃えること。今後client（利用者側）でも利用するであろう共通処理は必ずapps/frontend-libディレクトリに記述すること。admin（管理者側）で実現したい機能がapps/apiディレクトリ内において未サポートだった場合、そのディレクトリ内も編集してください。なお、作業用のGitブランチを作成し、ファイル変更を複数のコミットに分けて自動コミットしてください。作業が完了したらmainブランチにマージしてください。分からない点や判断に悩む点は都度質問してください。特に各画面のデザインレイアウト、パーツの配置の決定にあたっては原則質問してください。AIモデルは必ずClaude Sonnet 4.6 1M Contextのみを使いますので他に切り替えないでください。"
+**AI Response**: docs/（features/00・06・07・08、service/design 全 5 章、GUIDES/coding/01・02・05、GUIDES/security/01、GUIDES/db/01-data-model、testing）と既存 `apps/api`（GraphQL Profile ドメイン）・`apps/public-api`・Dockerfile・compose・ルート設定を精読。`apps/admin`・`apps/client` は Dockerfile のみ、`apps/frontend-lib` は未作成と確認。Brownfield 継続として新ユニット群を起票。作業ブランチ `feature/admin-console` を作成。
+**Context**: Workspace Detection / Requirements Analysis（管理者コンソール）
+
+---
+
+## 判断確認: 実装範囲・レイアウト・テーマ・認証水準
+**Timestamp**: 2026-06-19T00:10:00Z
+**AI Response**: `apps/api` が Profile ドメインのみで、管理者コンソールは大量の新規バックエンドを要するため、4 点を AskUserQuestion で確認（実装範囲 / 共通シェルのナビゲーション / テーマ対応範囲 / 管理者認証の実装水準）。
+**User Input**: 実装範囲="§08コンテンツ含む全部" / レイアウト="左固定サイドバー" / テーマ="ライト＋ダーク両対応" / 管理者認証="本番水準を今回実装"
+**AI Response**: 8 ユニットに分割（frontend-lib 基盤 → api 管理者ドメイン/ユースケース → api 管理者インターフェース(認証/GraphQL) → admin 基盤・シェル → 認証画面 → ガバナンス画面 → API キー/監査/権限 → §08 コンテンツ）。ローカルに Cloudflare KV が無いため、セッション/WebAuthn チャレンジ保存は Gateway で抽象化し、ローカルは SQLite/インプロセス実装、本番は Workers KV 実装へ差し替え可能とする（クリーンアーキテクチャ）。各画面のレイアウト・パーツ配置は実装着手前に都度質問する。
+**Context**: Requirements Analysis / Workflow Planning / スコープ確定
+
+---
+
+## 実行モードの決定（管理者コンソール）
+**Timestamp**: 2026-06-19T00:12:00Z
+**User Input**: （初期リクエストに含まれる「作業用ブランチ・複数コミット・自動コミット・完了後 main へマージ」「分からない点は都度質問」「画面デザインは原則質問」）
+**AI Response**: 自律完了を事前承認と解釈し承認ゲートで停止しない。ただし画面デザイン・パーツ配置の確定時と判断に悩む点では都度質問する。サブエージェントは起動せず本セッション（指定モデル）で実装する。
+**Context**: Workflow Planning / 自律実行モード
+
+---
+
+## 判断確認: 各画面のデザイン
+**Timestamp**: 2026-06-19T01:00:00Z
+**AI Response**: フロントエンド着手前に、ログイン画面レイアウト・ダッシュボード構成・一覧操作パターン・進め方の 4 点を AskUserQuestion で確認。
+**User Input**: ログイン="Bentoタイル風" / ダッシュボード="統計タイル+要対応キュー" / 一覧操作="詳細ページ+確認ダイアログ" / 進め方="コアガバナンスを完成度優先"
+**AI Response**: 選択に従い実装。コアガバナンス（admin 仕様 §2-5）＋本番水準認証（Argon2id・セッション・WebAuthn）を完成度優先で構築。§08 コンテンツは後続。
+**Context**: Construction / 画面デザイン確定
+
+---
+
+## Construction 完了（コア）
+**Timestamp**: 2026-06-19T02:00:00Z
+**AI Response**: frontend-lib 基盤 → api 管理者ドメイン/ユースケース → api 管理者インターフェース（GraphQL/永続化/認証/WebAuthn）→ admin 基盤・シェル・ログイン・ダッシュボード → ガバナンス画面 → API キー/監査/管理者権限 → WebAuthn パスキー UI を順に実装し、各段でコミット。TDD（ドメイン/ユースケース単体＋ GraphQL 統合）。リポジトリ全体 263 テスト GREEN・typecheck/lint/build 成功。docs（README/CHANGELOG/CODEMAPS）更新。§08 コンテンツ配信は範囲として残存。
+**Context**: Construction / Build and Test（コア）→ §08 とマージ可否を利用者に確認予定
+
+---
