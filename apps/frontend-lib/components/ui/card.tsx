@@ -2,7 +2,7 @@
 // elevation で重要度の階層差を表現できるよう、すべてに同じ影を当てない（design/00 §3.3）。
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utilities/cn';
+import { cn } from '../../utilities/cn';
 
 export const cardVariants = cva('rounded-lg border border-border bg-surface-raised', {
 	variants: {

@@ -1,7 +1,7 @@
 // Input プリミティブ。フォーカス可視・無効状態を設計された見た目で作り込む（design/03 §1）。
 // 不正状態は aria-invalid を真にし、色だけに依存せず枠色＋メッセージで伝える（design/04 §4.3）。
 import * as React from 'react';
-import { cn } from '@/utilities/cn';
+import { cn } from '../../utilities/cn';
 
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 

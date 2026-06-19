@@ -3,7 +3,7 @@
 // ドメインの状態（User の ACTIVE/FROZEN など）→ tone の対応づけは各アプリ側で行い、本層は汎用に保つ。
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utilities/cn';
+import { cn } from '../../utilities/cn';
 
 export const badgeVariants = cva(
 	'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[length:var(--text-caption)] font-medium [&_svg]:size-3 [&_svg]:shrink-0',

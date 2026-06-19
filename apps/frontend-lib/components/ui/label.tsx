@@ -1,7 +1,7 @@
 // Label プリミティブ。入力との関連付け（htmlFor）を前提にする（design/04 §4.3）。
 // 簡易な要素のため外部パッケージ（radix-label）は導入せず、ネイティブ label を装う（CLAUDE.md 方針）。
 import * as React from 'react';
-import { cn } from '@/utilities/cn';
+import { cn } from '../../utilities/cn';
 
 export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
 	/** 必須項目であることを視覚＋支援技術の双方に伝える。 */

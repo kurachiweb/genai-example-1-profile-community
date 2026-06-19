@@ -9,7 +9,7 @@ import {
 	THEME_STORAGE_KEY,
 	type ResolvedTheme,
 	type Theme
-} from '@/utilities/theme';
+} from '../../utilities/theme';
 
 interface ThemeContextValue {
 	readonly theme: Theme;
