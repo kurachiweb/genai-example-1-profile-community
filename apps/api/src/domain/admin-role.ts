@@ -95,7 +95,9 @@ const PERMISSIONS_BY_ROLE: Record<AdminRole, ReadonlySet<AdminPermission>> = {
 };
 
 export function can(role: AdminRole, permission: AdminPermission): boolean {
-	return PERMISSIONS_BY_ROLE[role].has(permission);
+	// 未知のロール(不正なセッション・データ破損)は権限なしとして安全側に倒す。
+	const granted = PERMISSIONS_BY_ROLE[role];
+	return granted ? granted.has(permission) : false;
 }
 
 /** 権限が無ければ ForbiddenError(403)。UI 非表示だけに頼らず API でも強制する(AC-ADMIN-001)。 */
