@@ -21,7 +21,13 @@ import {
 	SuspensionRepository,
 	UnfreezeRequestRepository
 } from './gateways';
-import { AdminPrincipal, SuspensionRecord, UserSummary } from './models';
+import {
+	AdminPrincipal,
+	ReportRecord,
+	SuspensionRecord,
+	UnfreezeRequestRecord,
+	UserSummary
+} from './models';
 
 export interface ModerationServiceDeps {
 	readonly users: AdminUserRepository;
@@ -86,6 +92,21 @@ export class ModerationService {
 			targetId: userId
 		});
 		return this.requireSummary(userId);
+	}
+
+	/** 通報一覧を閲覧する(VIEW_REPORTS、viewer 以上)。 */
+	async listReports(actor: AdminPrincipal, status?: ReportStatus): Promise<ReportRecord[]> {
+		assertCan(actor.role, AdminPermission.VIEW_REPORTS);
+		return this.deps.reports.list(status);
+	}
+
+	/** 解除リクエスト一覧を閲覧する(VIEW_UNFREEZE_REQUESTS、viewer 以上)。 */
+	async listUnfreezeRequests(
+		actor: AdminPrincipal,
+		status?: UnfreezeRequestStatus
+	): Promise<UnfreezeRequestRecord[]> {
+		assertCan(actor.role, AdminPermission.VIEW_UNFREEZE_REQUESTS);
+		return this.deps.unfreezeRequests.list(status);
 	}
 
 	/** 通報を審査・処分する(RESOLVED/DISMISSED、BR-SAFE-005)。 */

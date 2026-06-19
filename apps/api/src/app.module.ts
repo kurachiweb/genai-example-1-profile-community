@@ -7,6 +7,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ProfileService } from './application/profile.service';
 import { buildMikroOrmConfig, resolveDbName } from './infrastructure/mikro-orm.config';
+import { AdminModule } from './interface/graphql/admin/admin.module';
 import { DomainErrorFilter } from './interface/graphql/domain-error.filter';
 import { ProfileModule } from './interface/graphql/profile.module';
 import { createSnsLinkLoader } from './interface/graphql/sns-link.loader';
@@ -19,6 +20,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 			useFactory: () => buildMikroOrmConfig(resolveDbName(process.env.DATABASE_URL))
 		}),
 		ProfileModule,
+		// 管理者コンソール GraphQL(認証・RBAC・ユーザー管理・モデレーション・APIキー・統計・監査)。
+		AdminModule,
 		GraphQLModule.forRootAsync<ApolloDriverConfig>({
 			driver: ApolloDriver,
 			imports: [ProfileModule],
