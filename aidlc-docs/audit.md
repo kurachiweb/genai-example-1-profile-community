@@ -109,3 +109,19 @@
 **Context**: Workflow Planning / 自律実行モード
 
 ---
+
+## 判断確認: 各画面のデザイン
+**Timestamp**: 2026-06-19T01:00:00Z
+**AI Response**: フロントエンド着手前に、ログイン画面レイアウト・ダッシュボード構成・一覧操作パターン・進め方の 4 点を AskUserQuestion で確認。
+**User Input**: ログイン="Bentoタイル風" / ダッシュボード="統計タイル+要対応キュー" / 一覧操作="詳細ページ+確認ダイアログ" / 進め方="コアガバナンスを完成度優先"
+**AI Response**: 選択に従い実装。コアガバナンス（admin 仕様 §2-5）＋本番水準認証（Argon2id・セッション・WebAuthn）を完成度優先で構築。§08 コンテンツは後続。
+**Context**: Construction / 画面デザイン確定
+
+---
+
+## Construction 完了（コア）
+**Timestamp**: 2026-06-19T02:00:00Z
+**AI Response**: frontend-lib 基盤 → api 管理者ドメイン/ユースケース → api 管理者インターフェース（GraphQL/永続化/認証/WebAuthn）→ admin 基盤・シェル・ログイン・ダッシュボード → ガバナンス画面 → API キー/監査/管理者権限 → WebAuthn パスキー UI を順に実装し、各段でコミット。TDD（ドメイン/ユースケース単体＋ GraphQL 統合）。リポジトリ全体 263 テスト GREEN・typecheck/lint/build 成功。docs（README/CHANGELOG/CODEMAPS）更新。§08 コンテンツ配信は範囲として残存。
+**Context**: Construction / Build and Test（コア）→ §08 とマージ可否を利用者に確認予定
+
+---

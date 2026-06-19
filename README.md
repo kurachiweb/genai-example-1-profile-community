@@ -66,8 +66,10 @@
   - 開発: `pnpm --filter @app/api dev`（`:48031`）／ テスト: `pnpm --filter @app/api test` ／ サンプル投入: `pnpm --filter @app/api seed`
 - **公開 REST API（`apps/public-api`）**: API キー認証による本人プロフィールのフル CRUD・他ユーザーの公開分の取得・カーソル一覧・スコープ（read/full）・キー単位レート制限・OpenAPI/Swagger UI を実装済み。構造は[コードマップ](./docs/CODEMAPS/public-api.md)、仕様の正本は[公開 API 仕様](./docs/service/features/05-public-api.md)、使い方は[開発者向けガイド](./docs/GUIDES/api/03-public-api-developer-guide.md)を参照。
   - 開発: `pnpm --filter @app/public-api dev`（`:48034`、Swagger UI `http://localhost:48034/docs`）／ テスト: `pnpm --filter @app/public-api test` ／ 検証用キー投入: `pnpm --filter @app/public-api seed`
+- **管理者コンソール（`apps/admin`）＋共通フロントエンド（`apps/frontend-lib`）**: 運営チーム向け管理者コンソールを実装済み。認証（メール＋パスワード／WebAuthn パスキー）・RBAC・ユーザー管理・モデレーション（凍結/解除/アイコン削除）・通報審査・API キー運用＋共通レート制限・利用統計・監査ログ・管理者/権限管理。`apps/api` に管理者向け GraphQL サーフェス（本番水準認証：Argon2id・サーバーセッション・WebAuthn）を追加。構造は[admin コードマップ](./docs/CODEMAPS/admin.md)・[frontend-lib コードマップ](./docs/CODEMAPS/frontend-lib.md)、仕様の正本は[管理者コンソール仕様](./docs/service/features/07-admin-console.md)を参照。
+  - 開発: `pnpm --filter @app/admin dev`（`:48033`）／ 初期管理者投入: `pnpm --filter @app/api seed:admin`（既定 `admin@example.com` / `admin-password-12345`）／ カタログ: `pnpm --filter @app/frontend-lib storybook`
 - ORM は **MikroORM 7**（EntitySchema）。テストは MikroORM 7/kysely が ESM 専用のため jest を ESM モードで実行する（[MikroORM ガイド](./docs/GUIDES/coding/06-mikroorm.md)）。
-- その他のアプリ（`apps/client`・`apps/admin` など）と、`apps/api` の他ドメイン（アカウント認証・API キー発行 UI・管理者機能ほか）は順次実装予定。変更履歴は [CHANGELOG.md](./CHANGELOG.md) を参照。
+- 残りのアプリ（`apps/client`）と、管理者コンソールの §08 コンテンツ配信（お知らせ・メール通知・ヘルプ記事・問い合わせ対応・規約版管理）は順次実装予定。変更履歴は [CHANGELOG.md](./CHANGELOG.md) を参照。
 
 ## Special Thanks
 
