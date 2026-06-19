@@ -11,6 +11,8 @@ allowBuilds:
   # apps/public-api 依存(@nestjs/swagger 経由)の透過的テレメトリ。ビルドスクリプトは実行しない。
   '@scarf/scarf': false
   better-sqlite3: true
+  # apps/frontend-lib: Storybook(Vite)/Vite が依存する esbuild のネイティブバイナリ取得。
+  esbuild: true
   sqlite3: true
   unrs-resolver: true
 # パッケージの公開から3日以上経過したもののみをインストールする
