@@ -125,3 +125,12 @@
 **Context**: Construction / Build and Test（コア）→ §08 とマージ可否を利用者に確認予定
 
 ---
+
+## マージ判断・§08 着手
+**Timestamp**: 2026-06-20T00:00:00Z
+**AI Response**: コア完了後、マージ可否を AskUserQuestion で確認。
+**User Input**: 「今コアをmainへマージ(推奨)」→（その後）「Phase 8: §08 content & comms も完了させてください。」
+**AI Response**: コアを main へ `--no-ff` マージ（merge コミット）。続けて新ブランチ `feature/admin-content` で §08（お知らせ/メール/ヘルプ/問い合わせ/規約版管理）を、ドメイン→ユースケース(TDD)→永続化/GraphQL/メール送信→admin 画面の順に実装し、各段でコミット。RBAC は BR-CONTENT-001/003（公開/配信は moderator+、規約は super_admin）。リポジトリ全体 292 テスト GREEN。docs（README/CHANGELOG/CODEMAPS）更新のうえ main へマージ。
+**Context**: Construction / §08 完了 → main へマージ
+
+---

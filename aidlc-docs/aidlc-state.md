@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | `api-internal-profile` | 内部 GraphQL API のプロフィール共有コアドメイン（User/Profile/SnsLink） | 完了 |
 | `public-api-rest` | 公開 REST API（API キー認証・スコープ・本人フル CRUD・他者公開分 Read・レート制限・OpenAPI） | 完了 |
-| `admin-console` | 管理者コンソール（`apps/frontend-lib` 共通基盤＋`apps/admin` Next.js＋`apps/api` 管理者バックエンド）。範囲は admin 仕様 §2-5 ＋ §08 コンテンツ全部。 | コア完了（§2-5＋認証/WebAuthn）／§08 コンテンツは後続 |
+| `admin-console` | 管理者コンソール（`apps/frontend-lib` 共通基盤＋`apps/admin` Next.js＋`apps/api` 管理者バックエンド）。範囲は admin 仕様 §2-5 ＋ §08 コンテンツ全部。 | 完了（§2-5＋認証/WebAuthn＋§08 コンテンツ） |
 
 ### ステージ進捗（`admin-console`）
 
@@ -26,9 +26,10 @@
 | admin 基盤・シェル・ログイン・ダッシュボード | ✅ 完了（next build 成功） |
 | ガバナンス画面（ユーザー/モデレーション/通報/解除/APIキー/監査/管理者権限） | ✅ 完了 |
 | WebAuthn パスキー UI（ログイン/セキュリティ設定） | ✅ 完了 |
-| §08 コンテンツ＆コミュニケーション（お知らせ/メール/ヘルプ/問い合わせ/規約版管理） | ⬜ 後続（バックエンド/フロント未着手） |
+| §08 コンテンツ＆コミュニケーション（お知らせ/メール/ヘルプ/問い合わせ/規約版管理） | ✅ 完了（ドメイン/ユースケース/永続化/GraphQL/画面・統合テスト含む） |
 
-> リポジトリ全体 263 テスト GREEN（frontend-lib 57 / api 199 / admin 7）。typecheck・lint・各 build 成功。
+> リポジトリ全体 292 テスト GREEN（frontend-lib 57 / api 228 / admin 7）。typecheck・lint・各 build 成功。
+> 本番化の差し替え（KV/SES+MJML/Workers 互換 Argon2id/公開面サニタイズ・問い合わせ送信フォーム）は後続。
 
 > `api-internal-profile`: サービスの中核「プロフィールの CRUD・公開/共有」を内部 GraphQL API として End-to-End に実装する縦スライス。
 > `public-api-rest`: 同じプロフィール共有コアを **外部開発者向けの公開 REST API** として End-to-End に実装する縦スライス（`apps/public-api`、`:48034`）。エンドポイント・スコープ・エラー・レート制限の正本は [features/05-public-api.md](../docs/service/features/05-public-api.md)。

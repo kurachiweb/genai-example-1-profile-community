@@ -27,6 +27,11 @@ apps/admin/
 │   │   ├── api-keys/               # API キー運用(メタ閲覧/失効)+共通レート制限変更
 │   │   ├── audit-logs/             # 監査ログ閲覧(追記専用・絞り込み/ページング)
 │   │   ├── admins/                 # 管理者・権限管理(super_admin)
+│   │   ├── announcements/          # §08 お知らせ(作成/編集/公開)
+│   │   ├── email/                  # §08 メール通知(下書き/テスト送信/配信)
+│   │   ├── help/                   # §08 ヘルプ記事(作成/編集/公開切替)
+│   │   ├── inquiries/              # §08 問い合わせ対応(状態管理・キュー連携)
+│   │   ├── policies/               # §08 規約・ポリシー版管理(super_admin)
 │   │   └── settings/passkeys/      # パスキー登録/一覧/削除
 │   └── api/passkey/                # WebAuthn の BFF ルートハンドラ(register/auth × start/finish)
 ├── proxy.ts                        # 認証ガード(UX 補助。実認可は api)
@@ -48,14 +53,19 @@ apps/admin/
 ```text
 apps/api/src/
 ├── domain/                         # admin-role(RBAC)/admin-account(ロックアウト防止)/audit-event/
-│                                   #   moderation(状態遷移)/rate-limit/admin-credentials/admin-limits
+│                                   #   moderation(状態遷移)/rate-limit/admin-credentials/admin-limits/
+│                                   #   content(§08 状態遷移/スラッグ/タイトル)/email-templates
 ├── application/admin/              # ユースケース: auth/webauthn/admin-account/user-admin/moderation/
-│                                   #   api-key-admin/stats/audit-log + gateways + audit-recorder + fakes
+│                                   #   api-key-admin/stats/audit-log + §08(announcement/help-article/
+│                                   #   policy/inquiry/email-notification) + gateways + audit-recorder + fakes
 ├── infrastructure/                 # Argon2id(password-hasher)・セッション/チャレンジストア(KV相当)・
-│   │                               #   WebAuthn 検証(@simplewebauthn)・各 MikroORM リポジトリ・seed-admin
+│   │                               #   WebAuthn 検証(@simplewebauthn)・mail-sender(nodemailer→Mailpit)・
+│   │                               #   各 MikroORM リポジトリ・seed-admin
 │   └── persistence/entities/       # admin_accounts/admin_webauthn_credentials/audit_logs/suspensions/
-│                                   #   unfreeze_requests/reports/api_keys/app_settings
-└── interface/graphql/admin/        # 型・入力・admin-context(セッションヘッダ解決)・resolver・module
+│                                   #   unfreeze_requests/reports/api_keys/app_settings/
+│                                   #   announcements/email_notifications/help_articles/inquiries/policies
+└── interface/graphql/admin/        # 型・入力・admin-context(セッションヘッダ解決)・resolver・
+                                    #   content-types/content-inputs/content.resolver・module
 ```
 
 - **認可の集約**: RBAC（`assertCan`）・ロックアウト防止・状態遷移整合はユースケース/ドメインに集約し、UI 非表示だけに頼らず api で 403/422 を返す（`AC-ADMIN-001`）。
@@ -67,6 +77,9 @@ apps/api/src/
 - 初期スーパー管理者: `pnpm --filter @app/api seed:admin`（`ADMIN_SEED_EMAIL`/`ADMIN_SEED_PASSWORD` で上書き可）。
 - テスト: `apps/api` の管理者ドメイン/ユースケース単体＋ GraphQL 統合（`test/graphql-admin.spec.ts`）、`apps/admin` の RBAC ナビ/ラベル等。
 
-## 未実装（後続）
+## 本番化に向けた差し替え（後続）
 
-§08 コンテンツ配信（お知らせ・メール通知・ヘルプ記事・問い合わせ対応・規約版管理、[features/08-content-and-comms.md](../service/features/08-content-and-comms.md)）。
+- セッション/WebAuthn チャレンジ/レート制限カウンタを Cloudflare KV/DO 実装へ（現在はインプロセス）。
+- `MailSender` を Amazon SES＋MJML（`@faire/mjml-react`）へ（現在は nodemailer→Mailpit、簡易 HTML）。
+- Argon2id を Workers 互換実装（WASM/WebCrypto）へ。
+- マークダウン本文の公開面サニタイズ（client 側レンダリング、`AC-CONTENT-002`）。問い合わせ送信フォーム（client・ハニーポット/レート制限、`BR-CONTENT-006`）。
