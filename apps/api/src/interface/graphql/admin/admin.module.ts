@@ -60,10 +60,42 @@ import {
 } from '../../../infrastructure/persistence/moderation.repositories';
 import { MikroSettingsRepository } from '../../../infrastructure/persistence/settings.repository';
 import { MikroStatsRepository } from '../../../infrastructure/persistence/stats.repository';
+import {
+	ANNOUNCEMENT_REPOSITORY,
+	AnnouncementRepository,
+	EMAIL_NOTIFICATION_REPOSITORY,
+	EMAIL_RECIPIENT_REPOSITORY,
+	EmailNotificationRepository,
+	EmailRecipientRepository,
+	HELP_ARTICLE_REPOSITORY,
+	HelpArticleRepository,
+	INQUIRY_REPOSITORY,
+	InquiryRepository,
+	MAIL_SENDER,
+	MailSender,
+	POLICY_REPOSITORY,
+	PolicyRepository
+} from '../../../application/admin/content-gateways';
+import { AnnouncementService } from '../../../application/admin/announcement.service';
+import { EmailNotificationService } from '../../../application/admin/email-notification.service';
+import { HelpArticleService } from '../../../application/admin/help-article.service';
+import { InquiryService } from '../../../application/admin/inquiry.service';
+import { PolicyService } from '../../../application/admin/policy.service';
+import { NodemailerMailSender } from '../../../infrastructure/mail-sender';
+import {
+	MikroAnnouncementRepository,
+	MikroEmailNotificationRepository,
+	MikroEmailRecipientRepository,
+	MikroHelpArticleRepository,
+	MikroInquiryRepository,
+	MikroPolicyRepository
+} from '../../../infrastructure/persistence/content.repositories';
 import { AdminContextProvider } from './admin-context.provider';
+import { AdminContentResolver } from './content.resolver';
 import { AdminResolver } from './admin.resolver';
 
 const WEBAUTHN_CONFIG = Symbol('WebauthnConfig');
+const MAIL_CONFIG = Symbol('MailConfig');
 
 @Module({
 	providers: [
@@ -257,8 +289,92 @@ const WEBAUTHN_CONFIG = Symbol('WebauthnConfig');
 			useFactory: (audit: AuditLogRepository) => new AuditLogService({ audit })
 		},
 
+		// --- §08 コンテンツ&コミュニケーション ---
+		MikroAnnouncementRepository,
+		MikroHelpArticleRepository,
+		MikroPolicyRepository,
+		MikroInquiryRepository,
+		MikroEmailNotificationRepository,
+		MikroEmailRecipientRepository,
+		{ provide: ANNOUNCEMENT_REPOSITORY, useExisting: MikroAnnouncementRepository },
+		{ provide: HELP_ARTICLE_REPOSITORY, useExisting: MikroHelpArticleRepository },
+		{ provide: POLICY_REPOSITORY, useExisting: MikroPolicyRepository },
+		{ provide: INQUIRY_REPOSITORY, useExisting: MikroInquiryRepository },
+		{ provide: EMAIL_NOTIFICATION_REPOSITORY, useExisting: MikroEmailNotificationRepository },
+		{ provide: EMAIL_RECIPIENT_REPOSITORY, useExisting: MikroEmailRecipientRepository },
+		{
+			provide: MAIL_CONFIG,
+			useFactory: () => ({
+				host: process.env.MAIL_SMTP_HOST ?? 'localhost',
+				port: Number(process.env.MAIL_SMTP_PORT ?? 1025),
+				from: process.env.MAIL_FROM ?? 'GenAI Profile Community <no-reply@example.com>'
+			})
+		},
+		{
+			provide: MAIL_SENDER,
+			inject: [MAIL_CONFIG],
+			useFactory: (config: { host: string; port: number; from: string }) =>
+				new NodemailerMailSender(config)
+		},
+		{
+			provide: AnnouncementService,
+			inject: [ANNOUNCEMENT_REPOSITORY, AuditRecorder, CLOCK, ID_GENERATOR],
+			useFactory: (
+				announcements: AnnouncementRepository,
+				audit: AuditRecorder,
+				clock: Clock,
+				ids: IdGenerator
+			) => new AnnouncementService({ announcements, audit, clock, ids })
+		},
+		{
+			provide: HelpArticleService,
+			inject: [HELP_ARTICLE_REPOSITORY, AuditRecorder, CLOCK, ID_GENERATOR],
+			useFactory: (
+				articles: HelpArticleRepository,
+				audit: AuditRecorder,
+				clock: Clock,
+				ids: IdGenerator
+			) => new HelpArticleService({ articles, audit, clock, ids })
+		},
+		{
+			provide: PolicyService,
+			inject: [POLICY_REPOSITORY, AuditRecorder, CLOCK, ID_GENERATOR],
+			useFactory: (
+				policies: PolicyRepository,
+				audit: AuditRecorder,
+				clock: Clock,
+				ids: IdGenerator
+			) => new PolicyService({ policies, audit, clock, ids })
+		},
+		{
+			provide: InquiryService,
+			inject: [INQUIRY_REPOSITORY, AuditRecorder, CLOCK],
+			useFactory: (inquiries: InquiryRepository, audit: AuditRecorder, clock: Clock) =>
+				new InquiryService({ inquiries, audit, clock })
+		},
+		{
+			provide: EmailNotificationService,
+			inject: [
+				EMAIL_NOTIFICATION_REPOSITORY,
+				EMAIL_RECIPIENT_REPOSITORY,
+				MAIL_SENDER,
+				AuditRecorder,
+				CLOCK,
+				ID_GENERATOR
+			],
+			useFactory: (
+				notifications: EmailNotificationRepository,
+				recipients: EmailRecipientRepository,
+				mail: MailSender,
+				audit: AuditRecorder,
+				clock: Clock,
+				ids: IdGenerator
+			) => new EmailNotificationService({ notifications, recipients, mail, audit, clock, ids })
+		},
+
 		AdminContextProvider,
-		AdminResolver
+		AdminResolver,
+		AdminContentResolver
 	]
 })
 export class AdminModule {}
