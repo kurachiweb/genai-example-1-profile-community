@@ -66,6 +66,57 @@ export function apiKeyStatusLabel(status: string): string {
 	return status === 'active' ? '有効' : '失効';
 }
 
+// --- §08 コンテンツ系 ---
+
+export function announcementStatusLabel(status: string): string {
+	return status === 'published' ? '公開中' : '下書き';
+}
+
+export function importanceLabel(importance: string): string {
+	return importance === 'important' ? '重要' : '通常';
+}
+
+export function helpStatusLabel(status: string): string {
+	return status === 'published' ? '公開' : '非公開';
+}
+
+export function policyTypeLabel(type: string): string {
+	return type === 'privacy' ? 'プライバシーポリシー' : '利用規約';
+}
+
+export function inquiryStatusLabel(status: string): string {
+	const map: Record<string, string> = {
+		OPEN: '未対応',
+		IN_PROGRESS: '対応中',
+		CLOSED: '完了'
+	};
+	return map[status] ?? status;
+}
+
+export function inquiryStatusTone(status: string): 'warning' | 'info' | 'success' | 'neutral' {
+	if (status === 'OPEN') return 'warning';
+	if (status === 'IN_PROGRESS') return 'info';
+	if (status === 'CLOSED') return 'success';
+	return 'neutral';
+}
+
+export function inquiryCategoryLabel(category: string): string {
+	const map: Record<string, string> = {
+		general: '一般',
+		report: '通報',
+		unfreeze: '解除申請'
+	};
+	return map[category] ?? category;
+}
+
+export function emailStatusLabel(status: string): string {
+	return status === 'sent' ? '配信済み' : '下書き';
+}
+
+export function emailTargetLabel(condition: string): string {
+	return condition === 'verified' ? 'メール確認済みのみ' : '全利用者';
+}
+
 // 監査ログのイベント種別 → 日本語(主要なもの。未定義はそのまま表示)。
 export function auditEventLabel(eventType: string): string {
 	const map: Record<string, string> = {

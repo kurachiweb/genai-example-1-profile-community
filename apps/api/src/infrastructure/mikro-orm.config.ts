@@ -5,9 +5,14 @@ import { UnderscoreNamingStrategy } from '@mikro-orm/core';
 import { defineConfig } from '@mikro-orm/sqlite';
 import { adminAccountSchema } from './persistence/entities/admin-account.entity';
 import { adminWebauthnCredentialSchema } from './persistence/entities/admin-webauthn-credential.entity';
+import { announcementSchema } from './persistence/entities/announcement.entity';
 import { apiKeySchema } from './persistence/entities/api-key.entity';
 import { appSettingSchema } from './persistence/entities/app-setting.entity';
 import { auditLogSchema } from './persistence/entities/audit-log.entity';
+import { emailNotificationSchema } from './persistence/entities/email-notification.entity';
+import { helpArticleSchema } from './persistence/entities/help-article.entity';
+import { inquirySchema } from './persistence/entities/inquiry.entity';
+import { policySchema } from './persistence/entities/policy.entity';
 import { profileSchema } from './persistence/entities/profile.entity';
 import { reportSchema } from './persistence/entities/report.entity';
 import { snsLinkSchema } from './persistence/entities/sns-link.entity';
@@ -27,7 +32,13 @@ export const ENTITIES = [
 	unfreezeRequestSchema,
 	reportSchema,
 	apiKeySchema,
-	appSettingSchema
+	appSettingSchema,
+	// §08 コンテンツ&コミュニケーション(08-content-and-comms)。
+	announcementSchema,
+	emailNotificationSchema,
+	helpArticleSchema,
+	inquirySchema,
+	policySchema
 ];
 
 /** DATABASE_URL(`file:/path` 形式)または `:memory:` から SQLite のパスを解決する。 */

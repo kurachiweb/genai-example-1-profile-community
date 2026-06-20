@@ -36,10 +36,16 @@ describe('admin-role RBAC', () => {
 			expect(can(AdminRole.MODERATOR, AdminPermission.MODERATE_DELETE_ICON)).toBe(true);
 		});
 
-		test('管理者管理・しきい値変更・規約公開はできない', () => {
+		test('お知らせ公開・メール配信ができる(BR-CONTENT-001/003)', () => {
+			expect(can(AdminRole.MODERATOR, AdminPermission.ANNOUNCEMENT_PUBLISH)).toBe(true);
+			expect(can(AdminRole.MODERATOR, AdminPermission.EMAIL_SEND)).toBe(true);
+		});
+
+		test('管理者管理・しきい値変更・規約公開・ヘルプ編集はできない', () => {
 			expect(can(AdminRole.MODERATOR, AdminPermission.MANAGE_ADMINS)).toBe(false);
 			expect(can(AdminRole.MODERATOR, AdminPermission.API_RATE_LIMIT_UPDATE)).toBe(false);
 			expect(can(AdminRole.MODERATOR, AdminPermission.POLICY_PUBLISH)).toBe(false);
+			expect(can(AdminRole.MODERATOR, AdminPermission.HELP_EDIT)).toBe(false);
 		});
 	});
 

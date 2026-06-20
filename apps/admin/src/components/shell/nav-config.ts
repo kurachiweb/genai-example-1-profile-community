@@ -1,9 +1,14 @@
 // サイドバーのナビゲーション定義。表示は role で絞り、操作可否は最終的に api が強制する(AC-ADMIN-001)。
 import {
+	FileText,
 	Fingerprint,
 	Flag,
+	HelpCircle,
+	Inbox,
 	KeyRound,
 	LayoutDashboard,
+	Mail,
+	Megaphone,
 	ScrollText,
 	ShieldCheck,
 	Unlock,
@@ -27,6 +32,11 @@ export const NAV_ITEMS: readonly NavItem[] = [
 	{ href: '/unfreeze-requests', label: '解除リクエスト', icon: Unlock },
 	{ href: '/api-keys', label: 'API キー運用', icon: KeyRound },
 	{ href: '/audit-logs', label: '監査ログ', icon: ScrollText },
+	{ href: '/announcements', label: 'お知らせ', icon: Megaphone },
+	{ href: '/email', label: 'メール通知', icon: Mail },
+	{ href: '/help', label: 'ヘルプ記事', icon: HelpCircle },
+	{ href: '/inquiries', label: '問い合わせ', icon: Inbox },
+	{ href: '/policies', label: '規約・ポリシー', icon: FileText },
 	{ href: '/admins', label: '管理者・権限', icon: ShieldCheck, superAdminOnly: true },
 	{ href: '/settings/passkeys', label: 'セキュリティ', icon: Fingerprint }
 ];
