@@ -74,7 +74,11 @@ const MODERATOR_PERMISSIONS: readonly AdminPermission[] = [
 	AdminPermission.MODERATE_FREEZE_USER,
 	AdminPermission.MODERATE_REVIEW_REPORT,
 	AdminPermission.MODERATE_REVIEW_UNFREEZE,
-	AdminPermission.API_KEY_REVOKE
+	AdminPermission.API_KEY_REVOKE,
+	// お知らせの公開・メール通知の配信は moderator 以上(BR-CONTENT-001/003)。
+	AdminPermission.ANNOUNCEMENT_DRAFT,
+	AdminPermission.ANNOUNCEMENT_PUBLISH,
+	AdminPermission.EMAIL_SEND
 ];
 
 const SUPPORT_PERMISSIONS: readonly AdminPermission[] = [
