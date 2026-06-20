@@ -8,7 +8,7 @@ FROM node:26.3-trixie-slim
 
 # 再現性のためツールのバージョンを固定する（docs/GUIDES/coding/03-docker.md §2）。
 # 正確なバージョンに固定したい場合は build-arg で上書きする。
-ARG PNPM_VERSION=11.6
+ARG PNPM_VERSION=11.8
 ARG WRANGLER_VERSION=4
 ARG TERRAFORM_VERSION=1.15.6
 # buildx が自動付与するターゲットアーキテクチャ（amd64 / arm64）。

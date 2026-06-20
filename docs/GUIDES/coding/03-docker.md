@@ -73,7 +73,7 @@ cp .env.example .env
 # イメージをビルド（Dockerfile 変更時。ツールのバージョンを上書きする例も可）
 docker compose build
 # 例: Terraform/pnpm のバージョンを build-arg で固定して再ビルド
-# docker compose build --build-arg TERRAFORM_VERSION=1.15.6 --build-arg PNPM_VERSION=11.6 root
+# docker compose build --build-arg TERRAFORM_VERSION=1.15.6 --build-arg PNPM_VERSION=11.8 root
 
 # 全サービスを起動（バックグラウンド）
 # db:48030 / api:48031 / client:48032 / admin:48033 / public-api:48034 / Mailpit Web UI:48035

@@ -7,7 +7,7 @@ FROM node:26.3-trixie-slim
 
 # 再現性のため pnpm のメジャーを固定する（docs/GUIDES/coding/03-docker.md §2）。
 # 正確なバージョンに固定したい場合は build-arg で上書きする。
-ARG PNPM_VERSION=11.6
+ARG PNPM_VERSION=11.8
 RUN npm install -g pnpm@${PNPM_VERSION}
 
 # node_modules は名前付きボリューム(root_node_modules)で隔離する。空ボリュームは
