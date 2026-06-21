@@ -1,4 +1,4 @@
-// db コンテナのエントリポイント。compose の command から `pnpm --filter @app/db dev` で起動する。
+// db コンテナのエントリポイント。compose の command から `pnpm run dev` で起動する。
 import { startDevServer, DEFAULT_PORT } from './dev-server.js';
 
 const port = Number(process.env.DB_DEV_PORT) || DEFAULT_PORT;

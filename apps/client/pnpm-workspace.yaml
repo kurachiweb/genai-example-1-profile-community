@@ -1,0 +1,19 @@
+# Next.js アプリ(client)コンテナの単体インストール(/workspace=apps/client)向け pnpm 設定。
+# 共有ライブラリ(apps/frontend-lib)をコンテナ内 /workspace/lib にマウントし、2 メンバーの
+# ミニワークスペースを構成して @app/frontend-lib(workspace:*)を解決する。
+# apps/client を /workspace にバインドするため本ファイルはそのまま参照される(個別マウント不要)。
+# ホスト側には apps/client/lib を作らないため、ホストでは lib メンバーは未マッチで無視される。
+# pnpm 11 は package.json の "pnpm" を読まないため allowBuilds はこの pnpm-workspace.yaml に置く。
+# allowBuilds の正本はルート pnpm-workspace.yaml。ここはコンテナ単体インストール用の再掲。
+# ルートの monorepo インストールでは、メンバー(apps/*)配下の本ファイルは無視され影響しない。
+packages:
+  - .
+  - lib
+allowBuilds:
+  '@apollo/protobufjs': true
+  '@scarf/scarf': false
+  better-sqlite3: true
+  esbuild: true
+  sharp: true
+  sqlite3: true
+  unrs-resolver: true

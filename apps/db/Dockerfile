@@ -17,8 +17,9 @@ RUN mkdir -p /workspace/node_modules && chown node:node /workspace/node_modules
 
 # 可能な範囲で非 root（node ユーザー）で実行する（docs/GUIDES/coding/03-docker.md §3）。
 USER node
-WORKDIR /workspace/apps/db
+# apps/db を /workspace へ単体マウントする（compose.yaml）。WORKDIR も /workspace に合わせる。
+WORKDIR /workspace
 EXPOSE 48030
 
-# 既定はワークスペースの dev スクリプト。compose 側で install→dev を実行する。
+# 既定はこのアプリの dev スクリプト。compose 側で install→dev を実行する。
 CMD ["pnpm", "dev"]

@@ -4,14 +4,11 @@
 name: genai-example-1-profile-community
 
 # 各アプリサービスの共通設定（DRY: YAML アンカーで集約。03-docker.md §4）。
-# ソースはバインドマウントでホットリロードし、node_modules はホストと混ぜず
-# 名前付きボリュームでコンテナ側に隔離する（OS 差・ネイティブ依存の不整合を避ける）。
+# volumes はサービスごとにマウント構成が異なるため共通化せず、各サービスで個別に定義する。
+# node_modules はホストと混ぜず名前付きボリュームでコンテナ側に隔離する。
 x-app-defaults: &app-defaults
   restart: unless-stopped
   init: true
-  volumes:
-    - .:/workspace
-    - root_node_modules:/workspace/node_modules
   env_file:
     - path: .env
       required: false
@@ -31,6 +28,9 @@ services:
     volumes:
       - .:/workspace
       - root_node_modules:/workspace/node_modules
+      - ./apps/frontend-lib:/workspace/apps/client/lib
+      - ./apps/frontend-lib:/workspace/apps/admin/lib
+      - frontend_lib_node_modules:/workspace/lib/node_modules
     env_file:
       - path: .env
         required: false
@@ -44,10 +44,10 @@ services:
     ports:
       - "48030:48030"
     volumes:
-      - .:/workspace
-      - root_node_modules:/workspace/node_modules
-      - db_data:/workspace/apps/db/.data
-    command: sh -lc "pnpm install && pnpm --filter @app/db dev"
+      - ./apps/db:/workspace
+      - db_node_modules:/workspace/node_modules
+      - db_data:/workspace/.data
+    command: sh -lc "pnpm install && pnpm dev"
     healthcheck:
       # SQLite はサーバーレスのため、dev サーバーのポート開放を疎通確認に用いる。
       test:
@@ -68,12 +68,18 @@ services:
       dockerfile: apps/api/Dockerfile
     ports:
       - "48031:48031"
+    # 単体マウント(/workspace=apps/api)でのネイティブ依存ビルド許可は apps/api/pnpm-workspace.yaml
+    # で与える(apps/api のバインドに含まれ /workspace/pnpm-workspace.yaml として参照されるため
+    # 個別マウントは不要。pnpm 11 は package.json の "pnpm" を読まないため allowBuilds をここに置く)。
+    volumes:
+      - ./apps/api:/workspace
+      - api_node_modules:/workspace/node_modules
     depends_on:
       db:
         condition: service_healthy
       mailpit:
         condition: service_started
-    command: sh -lc "pnpm install && pnpm --filter @app/api dev"
+    command: sh -lc "pnpm install && pnpm dev"
 
   # ---- 利用者・閲覧者向け Web: Next.js（:48032） ----
   client:
@@ -83,10 +89,18 @@ services:
       dockerfile: apps/client/Dockerfile
     ports:
       - "48032:48032"
+    # 共有フロントエンド(apps/frontend-lib)を /workspace/lib にマウントし、コンテナ内のミニ
+    # ワークスペース(apps/client/pnpm-workspace.yaml の packages: ['.', 'lib'])で
+    # @app/frontend-lib(workspace:*)を解決する(ワークスペース定義はバインドに含まれ個別マウント不要)。
+    volumes:
+      - ./apps/client:/workspace
+      - client_node_modules:/workspace/node_modules
+      - ./apps/frontend-lib:/workspace/lib
+      - frontend_lib_node_modules:/workspace/lib/node_modules
     depends_on:
       api:
         condition: service_started
-    command: sh -lc "pnpm install && pnpm --filter @app/client dev"
+    command: sh -lc "pnpm install && pnpm dev"
 
   # ---- 管理者コンソール Web: Next.js（:48033） ----
   admin:
@@ -96,10 +110,18 @@ services:
       dockerfile: apps/admin/Dockerfile
     ports:
       - "48033:48033"
+    # 共有フロントエンド(apps/frontend-lib)を /workspace/lib にマウントし、コンテナ内のミニ
+    # ワークスペース(apps/admin/pnpm-workspace.yaml の packages: ['.', 'lib'])で
+    # @app/frontend-lib(workspace:*)を解決する(ワークスペース定義はバインドに含まれ個別マウント不要)。
+    volumes:
+      - ./apps/admin:/workspace
+      - admin_node_modules:/workspace/node_modules
+      - ./apps/frontend-lib:/workspace/lib
+      - frontend_lib_node_modules:/workspace/lib/node_modules
     depends_on:
       api:
         condition: service_started
-    command: sh -lc "pnpm install && pnpm --filter @app/admin dev"
+    command: sh -lc "pnpm install && pnpm dev"
 
   # ---- 公開 API: NestJS + Hono / REST（:48034） ----
   public-api:
@@ -109,10 +131,16 @@ services:
       dockerfile: apps/public-api/Dockerfile
     ports:
       - "48034:48034"
+    # 単体マウント(/workspace=apps/public-api)でのネイティブ依存ビルド許可は
+    # apps/public-api/pnpm-workspace.yaml で与える(apps/public-api のバインドに含まれ
+    # /workspace/pnpm-workspace.yaml として参照されるため個別マウントは不要)。
+    volumes:
+      - ./apps/public-api:/workspace
+      - public_api_node_modules:/workspace/node_modules
     depends_on:
       db:
         condition: service_healthy
-    command: sh -lc "pnpm install && pnpm --filter @app/public-api dev"
+    command: sh -lc "pnpm install && pnpm dev"
 
   # ---- Mailpit: Amazon SES のローカル代替（SMTP:1025 はサービス間のみ） ----
   mailpit:
@@ -128,5 +156,11 @@ services:
 
 volumes:
   root_node_modules:
+  db_node_modules:
+  api_node_modules:
+  client_node_modules:
+  admin_node_modules:
+  public_api_node_modules:
+  frontend_lib_node_modules:
   db_data:
   mailpit_data:

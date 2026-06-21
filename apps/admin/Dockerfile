@@ -3,7 +3,8 @@
 # ローカル開発専用。本番は Cloudflare Workers（OpenNext）を用い、本イメージはデプロイしない
 #   （docs/GUIDES/coding/03-docker.md §1 / docs/GUIDES/infra/00-overview.md §2・§4）。
 # ソースはルート compose.yaml のバインドマウントで供給し、node_modules は名前付きボリュームで隔離する。
-# 共有フロントエンド（apps/frontend-lib）は apps/admin/lib エイリアスとしてマウント越しに参照する。
+# 共有フロントエンド（apps/frontend-lib）は /workspace/lib にマウントし、コンテナ内のミニ
+# ワークスペース(apps/admin/pnpm-workspace.yaml)で @app/frontend-lib を解決する。
 FROM node:26.3-trixie-slim
 
 # 再現性のため pnpm のメジャーを固定する（docs/GUIDES/coding/03-docker.md §2）。
@@ -11,15 +12,18 @@ FROM node:26.3-trixie-slim
 ARG PNPM_VERSION=11.8
 RUN npm install -g pnpm@${PNPM_VERSION}
 
-# node_modules は名前付きボリューム(root_node_modules)で隔離する。空ボリュームは
-# マウント先ディレクトリの所有権を引き継ぐため、非 root 切替の前に node 所有で用意し、
+# node_modules は名前付きボリュームで隔離する。アプリ本体(/workspace/node_modules)に加え、
+# frontend-lib メンバー(/workspace/lib/node_modules)も専用ボリュームになるため両方を用意する。
+# 空ボリュームはマウント先の所有権を引き継ぐので、非 root 切替の前に node 所有で作成し、
 # node ユーザーの pnpm install が書き込めるようにする(EACCES 回避)。
-RUN mkdir -p /workspace/node_modules && chown node:node /workspace/node_modules
+RUN mkdir -p /workspace/node_modules /workspace/lib/node_modules \
+	&& chown -R node:node /workspace
 
 # 可能な範囲で非 root（node ユーザー）で実行する（docs/GUIDES/coding/03-docker.md §3）。
 USER node
-WORKDIR /workspace/apps/admin
+# apps/admin を /workspace へ単体マウントする（compose.yaml）。WORKDIR も /workspace に合わせる。
+WORKDIR /workspace
 EXPOSE 48033
 
-# 既定はワークスペースの dev スクリプト。compose 側で install→dev を実行する。
+# 既定はこのアプリの dev スクリプト。compose 側で install→dev を実行する。
 CMD ["pnpm", "dev"]

@@ -45,7 +45,6 @@ flowchart TB
 ## 3. Dockerfile の記述規約
 
 - **ローカル開発コンテナはバインドマウント前提の単段イメージ**とする: イメージには root（Node + グローバル `pnpm`）のみを用意し、ソースは `compose.yaml` のバインドマウントで供給する。依存は起動時にコンテナ内で `pnpm install` する（`command` 参照）。`node_modules` はホストと混ぜず名前付きボリュームで隔離する。
-- 依存インストールは**ロックファイル固定**（`pnpm install --frozen-lockfile`）で決定的にする（`pnpm-lock.yaml` 整備後）。
 - **`.dockerignore`** を必ず用意し、`.git` / `node_modules` / `.env*` / ビルド成果物 / テスト成果物を除外する（イメージ肥大化と秘匿情報混入の防止）。
 - 将来、成果物を**イメージに焼き込む**場合は、`package.json` / `pnpm-lock.yaml` / `pnpm-workspace.yaml` を先に `COPY` して依存を入れてからソースを `COPY` し（レイヤキャッシュを活かす）、**マルチステージビルド**でビルド専用依存を最終段に持ち込まない。
 - 可能な範囲で**非 root ユーザー**で実行する（`node` ユーザー）。
@@ -55,10 +54,12 @@ flowchart TB
 
 - **1 アプリ = 1 サービス**として定義し、ポートは [CLAUDE.md](../../../CLAUDE.md) の割り当て（48030〜48034）に厳密に一致させる。
 - 依存関係は `depends_on` と**ヘルスチェック**で表現し、起動順序の取り違えを防ぐ（例: `api` は `db` の healthy を待つ）。
-- ソースは**バインドマウント**でホットリロードを効かせる。`node_modules` はホストと混ぜず、名前付きボリューム等でコンテナ側に隔離する（OS 差・ネイティブ依存の不整合を避ける）。
+- `node_modules` はホストと混ぜず**アプリごとの名前付きボリューム**に隔離する。pnpm パッケージインストール後のビルド許可は各アプリ直下の `pnpm-workspace.yaml`（§3）で与える。
+- ツールチェーンの `root` サービスのみリポジトリ全体（`.:/workspace`）をマウントする（pnpm ワークスペース全体・Terraform・wrangler のため）。
+- **共通フロントエンド（`apps/frontend-lib`）を `client` / `admin` コンテナ内の `/workspace/lib` にマウント**する。各アプリの `pnpm-workspace.yaml`（`packages: ['.', 'lib']`、[admin](../../../apps/admin/pnpm-workspace.yaml) / [client](../../../apps/client/pnpm-workspace.yaml)）がこの `lib` をワークスペースの一員として取り込み、`@app/frontend-lib`（`workspace:*`）を解決する。狙いは、ホスト側のコード・`tsconfig`・`next.config` を変えずにコンテナ内だけで共通ライブラリを参照できるようにすること。ホストには `lib` を置かないので、ホスト側ではこの `lib` 指定は対象なしとして無視されるだけで問題ない。`node_modules` は専用ボリューム（`frontend_lib_node_modules`）でホスト側と隔離する。
 - **Mailpit** を SES 代替サービスとして compose に含める。SQLite はファイル/ボリュームで永続化する。
 - 環境変数は `.env`（リポジトリ管理外）から読み込む。`.env.example` のみコミットし、実値はコミットしない（§6）。
-- ポート・依存・ボリュームの定義は重複を避け、共通部分は YAML アンカー等で集約する（DRY、[00-overview.md](./00-overview.md) §2）。
+- ポート・依存などの共通部分は重複を避け、YAML アンカー等で集約する（DRY、[00-overview.md](./00-overview.md) §2）。`volumes` はサービスごとにマウント構成が異なるため共通化せず、各サービスで個別に定義する。
 
 ## 5. 起動・操作コマンド
 
