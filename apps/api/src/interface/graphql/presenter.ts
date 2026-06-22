@@ -7,9 +7,19 @@ import { ProfileConnectionType } from './types/profile-connection.type';
 import { ProfileType } from './types/profile.type';
 import { SnsLinkType } from './types/sns-link.type';
 
+/** Cloudflare Images の base URL。iconImageId からアイコン URL を構築する。 */
+function resolveIconUrl(iconImageId: string | null): string | null {
+	if (!iconImageId) return null;
+	const base = process.env.ICON_BASE_URL;
+	if (!base) return null;
+	// base URL の末尾スラッシュを正規化して結合する。
+	return `${base.replace(/\/$/, '')}/${iconImageId}/public`;
+}
+
 export function presentProfile(record: ProfileRecord): ProfileType {
 	const view = new ProfileType();
 	view.id = record.id;
+	view.userId = record.userId;
 	view.handle = record.handle;
 	view.displayName = buildDisplayName(
 		record.firstName,
@@ -21,6 +31,7 @@ export function presentProfile(record: ProfileRecord): ProfileType {
 	view.nameDisplayOrder = record.nameDisplayOrder;
 	view.visibility = record.visibility;
 	view.iconImageId = record.iconImageId;
+	view.iconUrl = resolveIconUrl(record.iconImageId);
 	view.occupation = record.occupation;
 	view.bio = record.bio;
 	view.createdAt = record.createdAt;
@@ -30,9 +41,11 @@ export function presentProfile(record: ProfileRecord): ProfileType {
 
 export function presentSnsLink(record: SnsLinkRecord): SnsLinkType {
 	const view = new SnsLinkType();
+	view.id = record.id;
 	view.platform = record.platform;
 	view.url = record.url;
 	view.label = record.label;
+	view.displayOrder = record.sortOrder;
 	view.sortOrder = record.sortOrder;
 	return view;
 }

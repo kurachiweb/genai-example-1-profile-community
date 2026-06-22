@@ -11,18 +11,40 @@ import {
 	ValidationError
 } from '../domain/errors';
 import { assertAssignableHandle } from '../domain/handle';
-import { PROFILE_LIST_DEFAULT_LIMIT, PROFILE_LIST_MAX_LIMIT } from '../domain/limits';
+import {
+	PROFILE_LIST_DEFAULT_LIMIT,
+	PROFILE_LIST_MAX_LIMIT,
+	SNS_URL_MAX_LENGTH
+} from '../domain/limits';
 import { ProfileContentInput, validateProfileContent } from '../domain/profile-fields';
 import { SnsLinkInput, validateSnsLinks } from '../domain/sns-link';
 import { canEditProfile } from '../domain/user-status';
 import {
 	Clock,
 	IdGenerator,
+	ProfileListOffsetResult,
 	ProfileRepository,
 	SnsLinkRepository,
 	UserRepository
 } from './gateways';
 import { ProfileRecord, SnsLinkRecord, Viewer } from './models';
+
+export interface ReportInput {
+	readonly reasonCategory: string;
+	readonly detail?: string | null;
+}
+
+export interface ReportRecord {
+	readonly id: string;
+	readonly targetUserId: string | null;
+	readonly targetHandle: string;
+	readonly reasonCategory: string;
+	readonly detail: string | null;
+}
+
+export interface ReportGateway {
+	create(record: ReportRecord): Promise<void>;
+}
 
 export interface ProfileServiceDeps {
 	readonly users: UserRepository;
@@ -30,12 +52,19 @@ export interface ProfileServiceDeps {
 	readonly snsLinks: SnsLinkRepository;
 	readonly clock: Clock;
 	readonly ids: IdGenerator;
+	readonly reports?: ReportGateway;
 }
 
 export interface ListPublicProfilesInput {
 	readonly first?: number;
 	readonly after?: string;
 	readonly search?: string;
+}
+
+export interface ListPublicProfilesOffsetInput {
+	readonly search?: string;
+	readonly limit?: number;
+	readonly offset?: number;
 }
 
 export interface ProfileEdge {
@@ -93,25 +122,49 @@ export class ProfileService {
 		};
 	}
 
-	/** 自分のプロフィール内容を更新する(氏名・表示順・職業・自己紹介)。検証は画面と同一ルール(BR-API-006)。 */
+	/** オフセットページングで実効公開プロフィールを取得する(client 向け)。 */
+	async listPublicProfilesOffset(
+		input: ListPublicProfilesOffsetInput
+	): Promise<ProfileListOffsetResult> {
+		const limit = Math.min(Math.max(input.limit ?? PROFILE_LIST_DEFAULT_LIMIT, 1), PROFILE_LIST_MAX_LIMIT);
+		const offset = Math.max(input.offset ?? 0, 0);
+		const search = input.search?.trim() || undefined;
+		return this.deps.profiles.listEffectivePublicOffset({ search, limit, offset });
+	}
+
+	/** 自分のプロフィール内容を更新する(氏名・表示順・職業・自己紹介・ハンドル)。 */
 	async updateProfileContent(
 		viewer: Viewer | null,
-		input: ProfileContentInput
+		input: ProfileContentInput & { handle?: string }
 	): Promise<ProfileRecord> {
 		const current = await this.requireEditableOwnProfile(viewer);
+
+		// ハンドル変更が含まれている場合は先に処理する。
+		let profile = current;
+		if (input.handle !== undefined && input.handle !== current.handle) {
+			assertAssignableHandle(input.handle);
+			const existing = await this.deps.profiles.findByHandle(input.handle);
+			if (existing && existing.id !== current.id) {
+				throw new ValidationError('このハンドルは使用できません。', [
+					{ field: 'handle', message: '既に使用されています。' }
+				]);
+			}
+			profile = { ...profile, handle: input.handle, updatedAt: this.deps.clock.now() };
+		}
+
 		const normalized = validateProfileContent(input);
 
-		const firstName = normalized.firstName ?? current.firstName;
-		const lastName = normalized.lastName ?? current.lastName;
-		const nameDisplayOrder = normalized.nameDisplayOrder ?? current.nameDisplayOrder;
+		const firstName = normalized.firstName ?? profile.firstName;
+		const lastName = normalized.lastName ?? profile.lastName;
+		const nameDisplayOrder = normalized.nameDisplayOrder ?? profile.nameDisplayOrder;
 
 		const updated: ProfileRecord = {
-			...current,
+			...profile,
 			firstName,
 			lastName,
 			nameDisplayOrder,
-			occupation: normalized.occupation !== undefined ? normalized.occupation : current.occupation,
-			bio: normalized.bio !== undefined ? normalized.bio : current.bio,
+			occupation: normalized.occupation !== undefined ? normalized.occupation : profile.occupation,
+			bio: normalized.bio !== undefined ? normalized.bio : profile.bio,
 			searchName: this.deriveSearchName(firstName, lastName, nameDisplayOrder),
 			updatedAt: this.deps.clock.now()
 		};
@@ -168,6 +221,30 @@ export class ProfileService {
 	/** DataLoader 用: 複数プロフィールの SNS リンクをまとめて取得する。 */
 	async getSnsLinksByProfileIds(profileIds: readonly string[]): Promise<SnsLinkRecord[]> {
 		return this.deps.snsLinks.findByProfileIds(profileIds);
+	}
+
+	/**
+	 * 公開プロフィールを通報する(BR-SAFE-001)。
+	 * 実効公開でなければ 404(秘匿)。通報者 ID は匿名で記録しない(仕様)。
+	 */
+	async reportProfile(handle: string, input: ReportInput): Promise<void> {
+		if (!this.deps.reports) {
+			// レポートゲートウェイが未設定の場合は無操作(テスト・開発環境用スタブ)。
+			return;
+		}
+		const profile = await this.getPublicProfileByHandle(handle);
+		if (input.detail && input.detail.length > SNS_URL_MAX_LENGTH) {
+			throw new ValidationError('詳細が長すぎます。', [
+				{ field: 'detail', message: `最大 ${SNS_URL_MAX_LENGTH} 文字です。` }
+			]);
+		}
+		await this.deps.reports.create({
+			id: this.deps.ids.ulid(),
+			targetUserId: profile.userId,
+			targetHandle: handle,
+			reasonCategory: input.reasonCategory,
+			detail: input.detail ?? null
+		});
 	}
 
 	private async requireOwnProfile(viewer: Viewer | null): Promise<ProfileRecord> {

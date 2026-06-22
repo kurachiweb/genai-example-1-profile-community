@@ -10,6 +10,7 @@ import { buildMikroOrmConfig, resolveDbName } from './infrastructure/mikro-orm.c
 import { AdminModule } from './interface/graphql/admin/admin.module';
 import { DomainErrorFilter } from './interface/graphql/domain-error.filter';
 import { ProfileModule } from './interface/graphql/profile.module';
+import { UserModule } from './interface/graphql/user.module';
 import { createSnsLinkLoader } from './interface/graphql/sns-link.loader';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -19,6 +20,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 		MikroOrmModule.forRootAsync({
 			useFactory: () => buildMikroOrmConfig(resolveDbName(process.env.DATABASE_URL))
 		}),
+		// 利用者向け GraphQL(認証・アカウント管理・API キー)。ProfileModule より先に登録する。
+		UserModule,
 		ProfileModule,
 		// 管理者コンソール GraphQL(認証・RBAC・ユーザー管理・モデレーション・APIキー・統計・監査)。
 		AdminModule,

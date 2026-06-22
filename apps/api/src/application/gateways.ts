@@ -5,8 +5,38 @@ import { ProfileRecord, SnsLinkRecord, UserRecord } from './models';
 
 export const USER_REPOSITORY = Symbol('UserRepository');
 
+export interface UserCreateInput {
+	readonly id: string;
+	readonly email: string;
+	readonly emailNormalized: string;
+	readonly passwordHash: string;
+	readonly status: UserRecord['status'];
+}
+
+export interface ProfileCreateInput {
+	readonly id: string;
+	readonly userId: string;
+	readonly handle: string;
+}
+
+export interface UserUpdateInput {
+	readonly status?: UserRecord['status'];
+	readonly emailVerifiedAt?: Date | null;
+	readonly passwordHash?: string;
+	readonly email?: string;
+	readonly emailNormalized?: string;
+	readonly sessionEpoch?: number;
+}
+
 export interface UserRepository {
 	findById(id: string): Promise<UserRecord | null>;
+	findByEmailNormalized(emailNormalized: string): Promise<UserRecord | null>;
+	/** ユーザー＋プロフィールをトランザクションで作成する(登録時専用)。 */
+	createWithProfile(user: UserCreateInput, profile: ProfileCreateInput): Promise<void>;
+	/** パスワードハッシュを取得する(認証用・ユーザーレコードに含めない)。 */
+	getPasswordHash(userId: string): Promise<string | null>;
+	/** フィールドを部分更新する(パスワード変更・メール変更・状態変更等)。 */
+	update(userId: string, changes: UserUpdateInput): Promise<void>;
 }
 
 export const PROFILE_REPOSITORY = Symbol('ProfileRepository');
@@ -20,6 +50,17 @@ export interface ProfileListFilter {
 	readonly cursor?: ProfileCursor;
 }
 
+export interface ProfileListOffsetFilter {
+	readonly search?: string;
+	readonly limit: number;
+	readonly offset: number;
+}
+
+export interface ProfileListOffsetResult {
+	readonly profiles: readonly ProfileRecord[];
+	readonly total: number;
+}
+
 export interface ProfileRepository {
 	findByUserId(userId: string): Promise<ProfileRecord | null>;
 	findByHandle(handle: string): Promise<ProfileRecord | null>;
@@ -28,6 +69,8 @@ export interface ProfileRepository {
 	 * 除外行は SQL の段階で確実に落とす(取得後フィルタの漏れを作らない、mikroorm §5)。
 	 */
 	listEffectivePublic(filter: ProfileListFilter): Promise<ProfileRecord[]>;
+	/** オフセットページング方式。client の一覧・検索ページで使用する。 */
+	listEffectivePublicOffset(filter: ProfileListOffsetFilter): Promise<ProfileListOffsetResult>;
 	save(profile: ProfileRecord): Promise<void>;
 }
 
