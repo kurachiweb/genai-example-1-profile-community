@@ -1,10 +1,11 @@
-// 閲覧者(Viewer)の解決。本来は利用者の HTTPS-Only Cookie セッション(BR-COMMON-001)から復元する。
-// セッションストア(KV)は後続ユニットの範囲のため、本ユニットでは開発用のスタンドインとして
-// ヘッダ `x-user-id` を受け取り、UserRepository で状態を引いて Viewer を構成する。
-// 認可・実効公開ゲートはユースケース層で評価するため、本プロバイダは「誰として実行するか」のみを担う。
+// 閲覧者(Viewer)の解決。client BFF(Next.js サーバー)が HttpOnly Cookie から取り出した
+// セッション ID をヘッダ `x-user-session` で転送する。api は Cookie を用いないため CSRF 面を構造的に縮小する
+// (security/01 §1)。CSRF 対策の正本は Cookie を持つ client 側に置く。
 import { Inject, Injectable } from '@nestjs/common';
-// UserRepository はインターフェース(実体なし)。ESM + emitDecoratorMetadata で
-// design:paramtypes に値として出力されないよう、型としてのみ import する(inline type)。
+import {
+	USER_SESSION_STORE,
+	type UserSessionStore
+} from '../../infrastructure/user-session.store';
 import { USER_REPOSITORY, type UserRepository } from '../../application/gateways';
 import { Viewer } from '../../application/models';
 
@@ -12,17 +13,26 @@ export interface RequestLike {
 	readonly headers?: Record<string, string | string[] | undefined>;
 }
 
+function headerValue(req: RequestLike | undefined, name: string): string | undefined {
+	const value = req?.headers?.[name];
+	return Array.isArray(value) ? value[0] : value;
+}
+
 @Injectable()
 export class ViewerProvider {
-	constructor(@Inject(USER_REPOSITORY) private readonly users: UserRepository) {}
+	constructor(
+		@Inject(USER_SESSION_STORE) private readonly sessions: UserSessionStore,
+		@Inject(USER_REPOSITORY) private readonly users: UserRepository
+	) {}
 
 	async resolve(req: RequestLike | undefined): Promise<Viewer | null> {
-		const header = req?.headers?.['x-user-id'];
-		const userId = Array.isArray(header) ? header[0] : header;
-		if (!userId) {
-			return null;
-		}
-		const user = await this.users.findById(userId);
+		const sessionId = headerValue(req, 'x-user-session');
+		if (!sessionId) return null;
+
+		const session = await this.sessions.resolve(sessionId);
+		if (!session) return null;
+
+		const user = await this.users.findById(session.userId);
 		return user ? { userId: user.id, status: user.status } : null;
 	}
 }

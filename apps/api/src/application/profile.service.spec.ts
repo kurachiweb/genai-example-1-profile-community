@@ -26,6 +26,14 @@ class FakeUserRepository implements UserRepository {
 	async findById(id: string): Promise<UserRecord | null> {
 		return this.users.get(id) ?? null;
 	}
+	async findByEmailNormalized(_email: string): Promise<UserRecord | null> {
+		return null;
+	}
+	async createWithProfile(): Promise<void> {}
+	async getPasswordHash(_userId: string): Promise<string | null> {
+		return null;
+	}
+	async update(_userId: string): Promise<void> {}
 }
 
 class FakeProfileRepository implements ProfileRepository {
@@ -64,6 +72,31 @@ class FakeProfileRepository implements ProfileRepository {
 			rows = rows.filter((p) => isAfterCursor(p, filter.cursor!));
 		}
 		return rows.slice(0, filter.limit);
+	}
+	async listEffectivePublicOffset(filter: {
+		search?: string;
+		limit: number;
+		offset: number;
+	}): Promise<{ profiles: ProfileRecord[]; total: number }> {
+		let rows = [...this.profiles.values()].filter((p) => {
+			const owner = this.users.users.get(p.userId);
+			return p.visibility === Visibility.PUBLIC && owner?.status === UserStatus.ACTIVE;
+		});
+		if (filter.search) {
+			const q = filter.search.toLowerCase();
+			rows = rows.filter(
+				(p) =>
+					(p.searchName ?? '').includes(q) ||
+					(p.occupation ?? '').toLowerCase().includes(q) ||
+					(p.bio ?? '').toLowerCase().includes(q)
+			);
+		}
+		rows.sort((a, b) => {
+			const t = b.updatedAt.getTime() - a.updatedAt.getTime();
+			return t !== 0 ? t : b.id.localeCompare(a.id);
+		});
+		const total = rows.length;
+		return { profiles: rows.slice(filter.offset, filter.offset + filter.limit), total };
 	}
 }
 
@@ -128,7 +161,7 @@ function makeHarness(): Harness {
 }
 
 function seedUser(h: Harness, id: string, status: UserStatus): void {
-	h.users.users.set(id, { id, status });
+	h.users.users.set(id, { id, email: `${id}@example.com`, status, emailVerifiedAt: null });
 }
 
 function seedProfile(

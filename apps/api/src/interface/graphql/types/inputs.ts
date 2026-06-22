@@ -19,6 +19,12 @@ import { SNS_LINKS_MAX_COUNT, SNS_URL_MAX_LENGTH } from '../../../domain/limits'
 
 @InputType()
 export class UpdateProfileInput {
+	/** ハンドル名(変更する場合のみ指定)。 */
+	@Field(() => String, { nullable: true })
+	@IsOptional()
+	@IsString()
+	handle?: string;
+
 	@Field(() => String, { nullable: true })
 	@IsOptional()
 	@IsString()
@@ -86,6 +92,23 @@ export class ReplaceSnsLinksInput {
 	links!: SnsLinkInputType[];
 }
 
+/** client(apps/client)が使う SNS リンク入力型。displayOrder を持つ。 */
+@InputType()
+export class ClientSnsLinkInput {
+	@Field(() => String)
+	@IsString()
+	platform!: string;
+
+	@Field(() => String)
+	@IsString()
+	@MaxLength(SNS_URL_MAX_LENGTH)
+	url!: string;
+
+	@Field(() => Int)
+	@IsInt()
+	displayOrder!: number;
+}
+
 @ArgsType()
 export class ListProfilesArgs {
 	@Field(() => Int, { nullable: true })
@@ -102,4 +125,23 @@ export class ListProfilesArgs {
 	@IsOptional()
 	@IsString()
 	search?: string;
+}
+
+/** client 向けオフセットページング引数。 */
+@ArgsType()
+export class PublicProfilesArgs {
+	@Field(() => String, { nullable: true })
+	@IsOptional()
+	@IsString()
+	search?: string;
+
+	@Field(() => Int, { nullable: true })
+	@IsOptional()
+	@IsInt()
+	limit?: number;
+
+	@Field(() => Int, { nullable: true })
+	@IsOptional()
+	@IsInt()
+	offset?: number;
 }

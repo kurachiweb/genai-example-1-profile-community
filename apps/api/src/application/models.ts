@@ -7,7 +7,9 @@ import { UserStatus } from '../domain/user-status';
 
 export interface UserRecord {
 	readonly id: string;
+	readonly email: string;
 	readonly status: UserStatus;
+	readonly emailVerifiedAt: Date | null;
 }
 
 export interface ProfileRecord {

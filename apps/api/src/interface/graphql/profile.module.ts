@@ -1,5 +1,6 @@
 // Profile 機能モジュール。Gateway 実装・ユースケース・リゾルバを束ねる(coding/04-nestjs.md §1)。
 // DI トークンで Gateway(IF)と実装を結びつけ、ユースケースは実装に依存しない(依存性逆転)。
+// ViewerProvider・UserSessionStore は UserModule から受け取り、インスタンスを共有する。
 import { Module } from '@nestjs/common';
 import {
 	CLOCK,
@@ -20,9 +21,13 @@ import { MikroProfileRepository } from '../../infrastructure/persistence/profile
 import { MikroSnsLinkRepository } from '../../infrastructure/persistence/sns-link.repository';
 import { MikroUserRepository } from '../../infrastructure/persistence/user.repository';
 import { ProfileResolver } from './profile.resolver';
-import { ViewerProvider } from './viewer.provider';
+import { UserModule } from './user.module';
 
 @Module({
+	imports: [
+		// ViewerProvider と USER_SESSION_STORE を UserModule から受け取る。
+		UserModule
+	],
 	providers: [
 		// Gateway 実装(Interface Adapters)。
 		MikroUserRepository,
@@ -48,7 +53,7 @@ import { ViewerProvider } from './viewer.provider';
 				ids: IdGenerator
 			) => new ProfileService({ users, profiles, snsLinks, clock, ids })
 		},
-		ViewerProvider,
+		// ViewerProvider は UserModule から提供されるが、ProfileResolver が参照するため明示する。
 		ProfileResolver
 	],
 	exports: [ProfileService]

@@ -6,7 +6,12 @@ import { SnsLinkEntity } from './entities/sns-link.entity';
 import { UserEntity } from './entities/user.entity';
 
 export function toUserRecord(entity: UserEntity): UserRecord {
-	return { id: entity.id, status: entity.status };
+	return {
+		id: entity.id,
+		email: entity.email,
+		status: entity.status,
+		emailVerifiedAt: entity.emailVerifiedAt
+	};
 }
 
 export function toProfileRecord(entity: ProfileEntity): ProfileRecord {

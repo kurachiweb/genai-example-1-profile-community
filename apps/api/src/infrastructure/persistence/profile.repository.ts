@@ -4,7 +4,12 @@ import { EntityManager, FilterQuery } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
 import { Visibility } from '../../domain/effective-public';
 import { UserStatus } from '../../domain/user-status';
-import { ProfileListFilter, ProfileRepository } from '../../application/gateways';
+import {
+	ProfileListFilter,
+	ProfileListOffsetFilter,
+	ProfileListOffsetResult,
+	ProfileRepository
+} from '../../application/gateways';
 import { ProfileRecord } from '../../application/models';
 import { ProfileEntity } from './entities/profile.entity';
 import { UserEntity } from './entities/user.entity';
@@ -62,6 +67,35 @@ export class MikroProfileRepository implements ProfileRepository {
 			{ orderBy: { updatedAt: 'desc', id: 'desc' }, limit: filter.limit }
 		);
 		return entities.map(toProfileRecord);
+	}
+
+	async listEffectivePublicOffset(
+		filter: ProfileListOffsetFilter
+	): Promise<ProfileListOffsetResult> {
+		const em = this.em.fork();
+		const conditions: FilterQuery<ProfileEntity>[] = [
+			{ visibility: Visibility.PUBLIC },
+			{ user: { status: UserStatus.ACTIVE } }
+		];
+
+		if (filter.search) {
+			const q = filter.search.toLowerCase();
+			conditions.push({
+				$or: [
+					{ searchName: { $like: `%${q}%` } },
+					{ occupation: { $like: `%${q}%` } },
+					{ bio: { $like: `%${q}%` } }
+				]
+			});
+		}
+
+		const where: FilterQuery<ProfileEntity> = { $and: conditions };
+		const [entities, total] = await em.findAndCount(ProfileEntity, where, {
+			orderBy: { updatedAt: 'desc', id: 'desc' },
+			limit: filter.limit,
+			offset: filter.offset
+		});
+		return { profiles: entities.map(toProfileRecord), total };
 	}
 
 	async save(profile: ProfileRecord): Promise<void> {
