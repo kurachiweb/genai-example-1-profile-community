@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { Button } from '@app/frontend-lib';
+import { Button } from '@lib';
 import { setProfileVisibilityAction } from '@/lib/actions';
 import type { ProfileVisibility } from '@/lib/api/types';
 

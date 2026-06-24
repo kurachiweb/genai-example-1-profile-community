@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { KeyRound, Trash2 } from 'lucide-react';
-import { Badge, formatRelativeTime } from '@app/frontend-lib';
+import { Badge, formatRelativeTime } from '@lib';
 import { revokeApiKeyAction } from '@/lib/actions';
 import type { ApiKey } from '@/lib/api/types';
 

@@ -1,5 +1,5 @@
 /*
- * 利用者向け Web のグローバルスタイル。共通ライブラリ(@app/frontend-lib)のトークン・テーマを取り込み、
+ * 利用者向け Web のグローバルスタイル。共通ライブラリ(@lib)のトークン・テーマを取り込み、
  * Tailwind v4 のソース走査に client 配下と共通コンポーネントを含める。
  */
 @import '../lib/styles/global.css';

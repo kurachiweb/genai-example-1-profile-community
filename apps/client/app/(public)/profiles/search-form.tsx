@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
-import { Input } from '@app/frontend-lib';
+import { Input } from '@lib';
 
 interface Props {
 	readonly defaultValue?: string;

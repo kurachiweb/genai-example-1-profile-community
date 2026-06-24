@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Button, Input, Label } from '@app/frontend-lib';
+import { Button, Input, Label } from '@lib';
 import { changePasswordAction } from '@/lib/actions';
 
 export function PasswordChangeForm() {

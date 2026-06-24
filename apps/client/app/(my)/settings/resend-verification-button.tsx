@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Button } from '@app/frontend-lib';
+import { Button } from '@lib';
 import { resendVerificationEmailAction } from '@/lib/actions';
 
 export function ResendVerificationButton() {

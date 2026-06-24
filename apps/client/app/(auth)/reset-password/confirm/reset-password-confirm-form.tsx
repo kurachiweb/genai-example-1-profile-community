@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label } from '@app/frontend-lib';
+import { Button, Input, Label } from '@lib';
 import { resetPassword } from '@/lib/api/client';
 import { ApiError } from '@/lib/api/graphql';
 

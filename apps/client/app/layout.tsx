@@ -1,7 +1,7 @@
 // ルートレイアウト。テーマの FOUC 防止スクリプトを beforeInteractive で注入し、ThemeProvider で包む。
 import type { Metadata } from 'next';
 import Script from 'next/script';
-import { getThemeInitScript, ThemeProvider } from '@app/frontend-lib';
+import { getThemeInitScript, ThemeProvider } from '@lib';
 import './globals.css';
 
 export const metadata: Metadata = {

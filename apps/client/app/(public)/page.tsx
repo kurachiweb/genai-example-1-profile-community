@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowRight, Globe, Share2, UserCheck } from 'lucide-react';
-import { Button } from '@app/frontend-lib';
+import { Button } from '@lib';
 import { listPublicProfiles } from '@/lib/api/client';
 import { ProfileCard } from '@/components/profile/profile-card';
 

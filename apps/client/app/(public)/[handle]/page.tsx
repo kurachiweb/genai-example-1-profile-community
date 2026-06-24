@@ -6,7 +6,7 @@ import { User } from 'lucide-react';
 import { getPublicProfile } from '@/lib/api/client';
 import { SnsLinks } from '@/components/profile/sns-links';
 import { ReportButton } from './report-button';
-import { buildDisplayName } from '@app/frontend-lib';
+import { buildDisplayName } from '@lib';
 
 interface Props {
 	readonly params: Promise<{ handle: string }>;

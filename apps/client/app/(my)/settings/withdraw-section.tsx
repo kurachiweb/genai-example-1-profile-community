@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { Button, Input, Label } from '@app/frontend-lib';
+import { Button, Input, Label } from '@lib';
 import { withdrawAccountAction } from '@/lib/actions';
 
 export function WithdrawSection() {

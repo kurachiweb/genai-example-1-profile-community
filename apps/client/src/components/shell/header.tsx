@@ -1,7 +1,7 @@
 // サイトヘッダー。ロゴ・ナビゲーション・テーマ切替・ログイン/マイページリンクを含む。
 import Link from 'next/link';
 import { User } from 'lucide-react';
-import { Button } from '@app/frontend-lib';
+import { Button } from '@lib';
 import { ThemeToggle } from './theme-toggle';
 import { getSessionId } from '@/lib/auth/session';
 

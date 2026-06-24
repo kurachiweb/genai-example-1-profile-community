@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Check, Copy, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@app/frontend-lib';
+import { Button } from '@lib';
 
 interface Props {
 	readonly handle: string;

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Flag } from 'lucide-react';
-import { Button } from '@app/frontend-lib';
+import { Button } from '@lib';
 import { reportProfileAction } from '@/lib/actions';
 
 interface Props {

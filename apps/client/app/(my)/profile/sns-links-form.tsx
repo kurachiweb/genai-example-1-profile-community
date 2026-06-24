@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Button, Input } from '@app/frontend-lib';
+import { Button, Input } from '@lib';
 import { setSnsLinksAction } from '@/lib/actions';
 import type { SnsLink, SnsLinkPlatform } from '@/lib/api/types';
 import { snsLinkPlatformLabel } from '@/lib/i18n/labels';

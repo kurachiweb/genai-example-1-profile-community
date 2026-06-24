@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { User } from 'lucide-react';
 import type { PublicProfileSummary } from '@/lib/api/types';
-import { buildDisplayName } from '@app/frontend-lib';
+import { buildDisplayName } from '@lib';
 
 interface Props {
 	readonly profile: PublicProfileSummary;

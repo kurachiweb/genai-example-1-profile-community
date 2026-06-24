@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { Button, Input, Label } from '@app/frontend-lib';
+import { Button, Input, Label } from '@lib';
 import { registerAction, type AuthState } from '@/lib/auth/actions';
 
 export function RegisterForm() {
