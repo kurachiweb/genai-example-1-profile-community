@@ -36,10 +36,7 @@ export function ProfileForm({ profile }: Props) {
 	}
 
 	return (
-		<form
-			onSubmit={handleSubmit}
-			className="rounded-xl border border-border bg-surface-raised p-6"
-		>
+		<form onSubmit={handleSubmit} className="rounded-xl border border-border bg-surface-raised p-6">
 			{message ? (
 				<p
 					role="alert"

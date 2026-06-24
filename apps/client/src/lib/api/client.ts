@@ -81,28 +81,20 @@ export async function getMe(options?: RequestOptions): Promise<Me> {
 	return data.me;
 }
 
-export async function changePassword(
-	currentPassword: string,
-	newPassword: string
-): Promise<void> {
-	await graphqlRequest(
-		`mutation($input:ChangePasswordInput!){ changePassword(input:$input) }`,
-		{ input: { currentPassword, newPassword } }
-	);
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+	await graphqlRequest(`mutation($input:ChangePasswordInput!){ changePassword(input:$input) }`, {
+		input: { currentPassword, newPassword }
+	});
 }
 
 export async function requestEmailChange(newEmail: string, password: string): Promise<void> {
-	await graphqlRequest(
-		`mutation($input:ChangeEmailInput!){ requestEmailChange(input:$input) }`,
-		{ input: { newEmail, password } }
-	);
+	await graphqlRequest(`mutation($input:ChangeEmailInput!){ requestEmailChange(input:$input) }`, {
+		input: { newEmail, password }
+	});
 }
 
 export async function withdrawAccount(password: string): Promise<void> {
-	await graphqlRequest(
-		`mutation($password:String!){ withdraw(password:$password) }`,
-		{ password }
-	);
+	await graphqlRequest(`mutation($password:String!){ withdraw(password:$password) }`, { password });
 }
 
 // --- プロフィール ---
@@ -187,10 +179,9 @@ export async function reportProfile(
 	reasonCategory: string,
 	detail?: string
 ): Promise<void> {
-	await graphqlRequest(
-		`mutation($input:ReportInput!){ reportProfile(input:$input) }`,
-		{ input: { handle, reasonCategory, detail } }
-	);
+	await graphqlRequest(`mutation($input:ReportInput!){ reportProfile(input:$input) }`, {
+		input: { handle, reasonCategory, detail }
+	});
 }
 
 // --- API キー ---

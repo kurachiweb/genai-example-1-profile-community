@@ -35,15 +35,15 @@ export default async function HomePage() {
 					</div>
 					<h1
 						id="hero-heading"
-						className="mt-2 text-[length:var(--text-display)] font-bold leading-tight tracking-tight text-text"
+						className="mt-2 text-[length:var(--text-display)] leading-tight font-bold tracking-tight text-text"
 					>
 						あなたのプロフィールを、
 						<br className="hidden sm:block" />
 						世界に届けよう
 					</h1>
 					<p className="mt-4 text-[length:var(--text-body)] text-text-muted">
-						アイコン・名前・職業・自己紹介・SNS リンクを一つのページで共有。
-						固有 URL で名刺や署名に貼れる、シンプルなプロフィールサービス。
+						アイコン・名前・職業・自己紹介・SNS リンクを一つのページで共有。 固有 URL
+						で名刺や署名に貼れる、シンプルなプロフィールサービス。
 					</p>
 					<div className="mt-8 flex flex-wrap justify-center gap-3">
 						<Link href="/register">

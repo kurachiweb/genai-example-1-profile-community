@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { KeyRound, Trash2 } from 'lucide-react';
-import { Button, Badge, formatRelativeTime } from '@app/frontend-lib';
+import { Badge, formatRelativeTime } from '@app/frontend-lib';
 import { revokeApiKeyAction } from '@/lib/actions';
 import type { ApiKey } from '@/lib/api/types';
 
@@ -23,9 +23,7 @@ export function ApiKeyList({ keys }: Props) {
 		});
 	}
 
-	const activeKeys = keys.filter(
-		(k) => k.status === 'ACTIVE' && !revokedIds.has(k.id)
-	);
+	const activeKeys = keys.filter((k) => k.status === 'ACTIVE' && !revokedIds.has(k.id));
 
 	if (activeKeys.length === 0) {
 		return (
@@ -48,9 +46,7 @@ export function ApiKeyList({ keys }: Props) {
 					<KeyRound className="size-4 shrink-0 text-text-subtle" aria-hidden="true" />
 					<div className="min-w-0 flex-1">
 						<div className="flex items-center gap-2">
-							<span className="font-medium text-text">
-								{key.label ?? '(ラベルなし)'}
-							</span>
+							<span className="font-medium text-text">{key.label ?? '(ラベルなし)'}</span>
 							<Badge variant={key.scope === 'full' ? 'destructive' : 'secondary'}>
 								{key.scope}
 							</Badge>

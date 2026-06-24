@@ -74,13 +74,7 @@ export function ResetPasswordConfirmForm({ token }: Props) {
 				<Label htmlFor="confirm" required>
 					新しいパスワード（確認）
 				</Label>
-				<Input
-					id="confirm"
-					name="confirm"
-					type="password"
-					autoComplete="new-password"
-					required
-				/>
+				<Input id="confirm" name="confirm" type="password" autoComplete="new-password" required />
 			</div>
 
 			<Button type="submit" disabled={isPending}>

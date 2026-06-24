@@ -44,7 +44,17 @@ describe('SnsLinks', () => {
 
 	it('アクセシビリティ違反がない', async () => {
 		const { container } = render(
-			<SnsLinks links={[makeSnsLink(), makeSnsLink({ id: '2', platform: 'INSTAGRAM', url: 'https://instagram.com/example', displayOrder: 1 })]} />
+			<SnsLinks
+				links={[
+					makeSnsLink(),
+					makeSnsLink({
+						id: '2',
+						platform: 'INSTAGRAM',
+						url: 'https://instagram.com/example',
+						displayOrder: 1
+					})
+				]}
+			/>
 		);
 		const results = await axe(container);
 		expect(results).toHaveNoViolations();

@@ -52,14 +52,19 @@ export function ReportButton({ handle }: Props) {
 			</Button>
 
 			{open ? (
-				<div
-					role="dialog"
-					aria-modal="true"
-					aria-label="プロフィールを通報"
-					className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-					onClick={(e) => e.target === e.currentTarget && setOpen(false)}
-				>
-					<div className="w-full max-w-sm rounded-xl border border-border bg-surface-raised p-6 shadow-e3">
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+					<button
+						type="button"
+						className="absolute inset-0 bg-black/40"
+						onClick={() => setOpen(false)}
+						aria-label="閉じる"
+					/>
+					<div
+						role="dialog"
+						aria-modal="true"
+						aria-label="プロフィールを通報"
+						className="relative w-full max-w-sm rounded-xl border border-border bg-surface-raised p-6 shadow-e3"
+					>
 						<h2 className="text-[length:var(--text-title)] font-semibold text-text">
 							プロフィールを通報
 						</h2>
@@ -116,11 +121,7 @@ export function ReportButton({ handle }: Props) {
 							<Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
 								キャンセル
 							</Button>
-							<Button
-								size="sm"
-								onClick={handleReport}
-								disabled={!reason || status === 'pending'}
-							>
+							<Button size="sm" onClick={handleReport} disabled={!reason || status === 'pending'}>
 								{status === 'pending' ? '送信中…' : '通報する'}
 							</Button>
 						</div>

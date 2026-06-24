@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function RegisterSentPage() {
 	return (
-		<div className="w-full max-w-md rounded-xl border border-border bg-surface-raised p-8 shadow-e2 text-center">
+		<div className="w-full max-w-md rounded-xl border border-border bg-surface-raised p-8 text-center shadow-e2">
 			<div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-accent/10">
 				<Mail className="size-6 text-accent" aria-hidden="true" />
 			</div>

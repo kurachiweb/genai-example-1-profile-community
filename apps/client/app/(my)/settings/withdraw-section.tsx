@@ -74,12 +74,7 @@ export function WithdrawSection() {
 					</div>
 
 					<div className="flex gap-2">
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							onClick={() => setConfirm(false)}
-						>
+						<Button type="button" variant="ghost" size="sm" onClick={() => setConfirm(false)}>
 							キャンセル
 						</Button>
 						<Button

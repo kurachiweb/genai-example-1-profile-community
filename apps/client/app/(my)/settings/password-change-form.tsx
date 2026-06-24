@@ -36,7 +36,7 @@ export function PasswordChangeForm() {
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="rounded-xl border border-border bg-surface-raised p-6 space-y-4"
+			className="space-y-4 rounded-xl border border-border bg-surface-raised p-6"
 		>
 			{message ? (
 				<p
@@ -84,13 +84,7 @@ export function PasswordChangeForm() {
 				<Label htmlFor="confirm" required>
 					新しいパスワード（確認）
 				</Label>
-				<Input
-					id="confirm"
-					name="confirm"
-					type="password"
-					autoComplete="new-password"
-					required
-				/>
+				<Input id="confirm" name="confirm" type="password" autoComplete="new-password" required />
 			</div>
 
 			<div className="flex justify-end">

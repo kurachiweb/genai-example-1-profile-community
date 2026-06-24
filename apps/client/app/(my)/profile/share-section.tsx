@@ -26,7 +26,7 @@ export function ShareSection({ handle }: Props) {
 
 	return (
 		<div className="rounded-xl border border-border bg-accent/5 p-4">
-			<p className="text-[length:var(--text-caption)] font-medium text-text-muted mb-2">
+			<p className="mb-2 text-[length:var(--text-caption)] font-medium text-text-muted">
 				あなたの公開 URL
 			</p>
 			<div className="flex items-center gap-2">

@@ -64,7 +64,7 @@ export function CreateApiKeyButton() {
 								>
 									このキーは一度しか表示されません。必ずコピーして保管してください。
 								</div>
-								<code className="block w-full break-all rounded-md border border-border bg-surface p-3 text-[length:var(--text-caption)] text-text">
+								<code className="block w-full rounded-md border border-border bg-surface p-3 text-[length:var(--text-caption)] break-all text-text">
 									{rawKey}
 								</code>
 								<Button onClick={handleClose} className="w-full">

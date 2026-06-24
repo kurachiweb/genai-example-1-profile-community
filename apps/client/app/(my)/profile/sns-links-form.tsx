@@ -53,9 +53,7 @@ export function SnsLinksForm({ snsLinks }: Props) {
 	}
 
 	function updateLink(id: string, field: 'platform' | 'url', value: string) {
-		setLinks((prev) =>
-			prev.map((l) => (l.id === id ? { ...l, [field]: value } : l))
-		);
+		setLinks((prev) => prev.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
 	}
 
 	function handleSave() {

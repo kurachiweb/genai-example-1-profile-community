@@ -42,12 +42,16 @@ export default async function ProfilesPage({ searchParams }: Props) {
 					「{q}」の検索結果: {total} 件
 				</p>
 			) : (
-				<p className="mb-4 text-[length:var(--text-meta)] text-text-muted">{total} 件のプロフィール</p>
+				<p className="mb-4 text-[length:var(--text-meta)] text-text-muted">
+					{total} 件のプロフィール
+				</p>
 			)}
 
 			{profiles.length === 0 ? (
 				<div className="py-16 text-center text-[length:var(--text-body)] text-text-muted">
-					{q ? `「${q}」に一致するプロフィールが見つかりませんでした。` : 'まだ公開プロフィールがありません。'}
+					{q
+						? `「${q}」に一致するプロフィールが見つかりませんでした。`
+						: 'まだ公開プロフィールがありません。'}
 				</div>
 			) : (
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

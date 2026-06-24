@@ -20,10 +20,22 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 		return <ErrorCard message="確認トークンが見つかりません。" />;
 	}
 
+	let verified = false;
+	let errorMessage = '';
+
 	try {
 		await verifyEmail(token);
+		verified = true;
+	} catch (error) {
+		errorMessage =
+			error instanceof ApiError
+				? error.message
+				: 'メール確認に失敗しました。リンクが無効か期限切れの可能性があります。';
+	}
+
+	if (verified) {
 		return (
-			<div className="w-full max-w-md rounded-xl border border-border bg-surface-raised p-8 shadow-e2 text-center">
+			<div className="w-full max-w-md rounded-xl border border-border bg-surface-raised p-8 text-center shadow-e2">
 				<div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-accent/10">
 					<CheckCircle className="size-6 text-accent" aria-hidden="true" />
 				</div>
@@ -41,22 +53,20 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 				</Link>
 			</div>
 		);
-	} catch (error) {
-		const message =
-			error instanceof ApiError
-				? error.message
-				: 'メール確認に失敗しました。リンクが無効か期限切れの可能性があります。';
-		return <ErrorCard message={message} />;
 	}
+
+	return <ErrorCard message={errorMessage} />;
 }
 
 function ErrorCard({ message }: { message: string }) {
 	return (
-		<div className="w-full max-w-md rounded-xl border border-border bg-surface-raised p-8 shadow-e2 text-center">
+		<div className="w-full max-w-md rounded-xl border border-border bg-surface-raised p-8 text-center shadow-e2">
 			<div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-danger/10">
 				<XCircle className="size-6 text-danger" aria-hidden="true" />
 			</div>
-			<h1 className="text-[length:var(--text-title)] font-semibold text-text">確認に失敗しました</h1>
+			<h1 className="text-[length:var(--text-title)] font-semibold text-text">
+				確認に失敗しました
+			</h1>
 			<p className="mt-3 text-[length:var(--text-body)] text-text-muted">{message}</p>
 			<Link
 				href="/register"

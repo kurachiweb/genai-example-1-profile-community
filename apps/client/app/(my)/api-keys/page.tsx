@@ -33,7 +33,7 @@ export default async function ApiKeysPage() {
 				>
 					API について
 				</h2>
-				<div className="rounded-xl border border-border bg-surface-raised p-5 text-[length:var(--text-meta)] text-text-muted space-y-2">
+				<div className="space-y-2 rounded-xl border border-border bg-surface-raised p-5 text-[length:var(--text-meta)] text-text-muted">
 					<p>
 						<strong className="text-text">read スコープ:</strong>{' '}
 						プロフィールの読み取り専用アクセス。

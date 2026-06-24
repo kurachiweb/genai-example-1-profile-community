@@ -84,7 +84,7 @@ export default async function PublicProfilePage({ params }: Props) {
 
 				{/* 自己紹介 */}
 				{profile.bio ? (
-					<p className="mt-6 whitespace-pre-wrap text-[length:var(--text-body)] text-text-muted">
+					<p className="mt-6 text-[length:var(--text-body)] whitespace-pre-wrap text-text-muted">
 						{profile.bio}
 					</p>
 				) : null}

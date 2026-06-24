@@ -39,9 +39,7 @@ export function ProfileCard({ profile }: Props) {
 					</div>
 				)}
 				<div className="min-w-0">
-					<p className="truncate font-semibold text-text group-hover:text-accent">
-						{displayName}
-					</p>
+					<p className="truncate font-semibold text-text group-hover:text-accent">{displayName}</p>
 					{profile.occupation ? (
 						<p className="truncate text-[length:var(--text-caption)] text-text-muted">
 							{profile.occupation}

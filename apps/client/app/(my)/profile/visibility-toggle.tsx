@@ -51,9 +51,7 @@ export function VisibilityToggle({ currentVisibility, isEmailVerified }: Props) 
 						<EyeOff className="size-5 text-text-subtle" aria-hidden="true" />
 					)}
 					<div>
-						<p className="font-medium text-text">
-							{visibility === 'PUBLIC' ? '公開中' : '非公開'}
-						</p>
+						<p className="font-medium text-text">{visibility === 'PUBLIC' ? '公開中' : '非公開'}</p>
 						<p className="text-[length:var(--text-caption)] text-text-muted">
 							{visibility === 'PUBLIC'
 								? '誰でもプロフィールを閲覧できます。'
@@ -61,12 +59,7 @@ export function VisibilityToggle({ currentVisibility, isEmailVerified }: Props) 
 						</p>
 					</div>
 				</div>
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={toggle}
-					disabled={isPending}
-				>
+				<Button variant="outline" size="sm" onClick={toggle} disabled={isPending}>
 					{isPending ? '更新中…' : visibility === 'PUBLIC' ? '非公開にする' : '公開する'}
 				</Button>
 			</div>

@@ -35,9 +35,7 @@ export default async function ProfilePage() {
 			) : null}
 
 			{/* 公開 URL の共有セクション */}
-			{profile.handle ? (
-				<ShareSection handle={profile.handle} />
-			) : null}
+			{profile.handle ? <ShareSection handle={profile.handle} /> : null}
 
 			{/* 公開設定 */}
 			<section aria-labelledby="visibility-heading">

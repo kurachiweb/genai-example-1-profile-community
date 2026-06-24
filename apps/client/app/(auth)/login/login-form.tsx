@@ -35,13 +35,7 @@ export function LoginForm({ next }: Props) {
 				<Label htmlFor="email" required>
 					メールアドレス
 				</Label>
-				<Input
-					id="email"
-					name="email"
-					type="email"
-					autoComplete="username"
-					required
-				/>
+				<Input id="email" name="email" type="email" autoComplete="username" required />
 			</div>
 
 			<div className="flex flex-col gap-1.5">
