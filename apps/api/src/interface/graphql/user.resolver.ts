@@ -16,10 +16,7 @@ import {
 import { IsEmail, IsString, MaxLength } from 'class-validator';
 import { UnauthorizedError } from '../../domain/errors';
 import { UserService } from '../../application/user.service';
-import {
-	USER_SESSION_STORE,
-	type UserSessionStore
-} from '../../infrastructure/user-session.store';
+import { USER_SESSION_STORE, type UserSessionStore } from '../../infrastructure/user-session.store';
 import { ViewerProvider, type RequestLike } from './viewer.provider';
 
 interface GraphQLContext {
@@ -206,9 +203,7 @@ export class UserResolver {
 	}
 
 	@Mutation(() => Boolean, { name: 'verifyEmail' })
-	async verifyEmail(
-		@Args('token', { type: () => String }) token: string
-	): Promise<boolean> {
+	async verifyEmail(@Args('token', { type: () => String }) token: string): Promise<boolean> {
 		await this.userService.verifyEmail(token);
 		return true;
 	}

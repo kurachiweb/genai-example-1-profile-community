@@ -1,6 +1,16 @@
 // Profile のリゾルバ(Interface Adapters / Controller)。薄く保ち、入出力変換とユースケース呼び出しに徹する。
 // 実効公開ゲート・認可はユースケース層が評価し、本体には業務ロジックを置かない(coding/04-nestjs.md §3)。
-import { Args, Context, Field, InputType, Int, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+	Args,
+	Context,
+	Field,
+	InputType,
+	Mutation,
+	Parent,
+	Query,
+	ResolveField,
+	Resolver
+} from '@nestjs/graphql';
 import { IsOptional, IsString } from 'class-validator';
 import { Visibility } from '../../domain/effective-public';
 

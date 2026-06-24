@@ -2,10 +2,7 @@
 // セッション ID をヘッダ `x-user-session` で転送する。api は Cookie を用いないため CSRF 面を構造的に縮小する
 // (security/01 §1)。CSRF 対策の正本は Cookie を持つ client 側に置く。
 import { Inject, Injectable } from '@nestjs/common';
-import {
-	USER_SESSION_STORE,
-	type UserSessionStore
-} from '../../infrastructure/user-session.store';
+import { USER_SESSION_STORE, type UserSessionStore } from '../../infrastructure/user-session.store';
 import { USER_REPOSITORY, type UserRepository } from '../../application/gateways';
 import { Viewer } from '../../application/models';
 

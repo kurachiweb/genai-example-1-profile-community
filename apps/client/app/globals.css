@@ -2,9 +2,9 @@
  * 利用者向け Web のグローバルスタイル。共通ライブラリ(@app/frontend-lib)のトークン・テーマを取り込み、
  * Tailwind v4 のソース走査に client 配下と共通コンポーネントを含める。
  */
-@import '../../frontend-lib/styles/global.css';
+@import '../lib/styles/global.css';
 
 /* Tailwind v4 の自動検出は apps/client 配下が中心のため、対象ディレクトリを明示する。 */
 @source '../app';
 @source '../src';
-@source '../../frontend-lib/components';
+@source '../lib/components';

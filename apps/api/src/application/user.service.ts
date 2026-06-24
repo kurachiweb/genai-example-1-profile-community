@@ -40,7 +40,11 @@ export interface UserApiKeyRepository {
 }
 
 export interface EmailVerificationTokenStore {
-	create(userId: string, type: 'verify' | 'reset' | 'change_email', extra?: string): Promise<string>;
+	create(
+		userId: string,
+		type: 'verify' | 'reset' | 'change_email',
+		extra?: string
+	): Promise<string>;
 	consume(
 		token: string,
 		type: 'verify' | 'reset' | 'change_email'
@@ -139,7 +143,7 @@ export class UserService {
 
 		// ユーザーが存在しない場合もハッシュ検証相当の処理をする(タイミング攻撃防止)。
 		const dummyHash = '$argon2id$v=19$m=19456,t=2,p=1$dummysalt$dummyhash';
-		const hash = user ? (await this.deps.users.getPasswordHash(user.id)) ?? dummyHash : dummyHash;
+		const hash = user ? ((await this.deps.users.getPasswordHash(user.id)) ?? dummyHash) : dummyHash;
 		const valid = await this.deps.passwordHasher.verify(hash, password);
 		if (!user || !valid) throw FAIL;
 
@@ -323,10 +327,7 @@ export class InMemoryTokenStore implements EmailVerificationTokenStore {
 		return token;
 	}
 
-	async consume(
-		token: string,
-		type: string
-	): Promise<{ userId: string; extra?: string } | null> {
+	async consume(token: string, type: string): Promise<{ userId: string; extra?: string } | null> {
 		const stored = this.tokens.get(token);
 		if (!stored || stored.type !== type || stored.expiresAt < new Date()) {
 			this.tokens.delete(token);

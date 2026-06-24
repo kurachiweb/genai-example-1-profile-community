@@ -22,15 +22,22 @@ import { InMemoryUserSessionStore } from '../infrastructure/user-session.store';
 // --- フェイク実装 ---
 
 class FakeUserRepository implements UserRepository {
-	readonly users = new Map<string, UserRecord & { passwordHash: string; emailNormalized: string }>();
+	readonly users = new Map<
+		string,
+		UserRecord & { passwordHash: string; emailNormalized: string }
+	>();
 
 	async findById(id: string): Promise<UserRecord | null> {
 		const u = this.users.get(id);
-		return u ? { id: u.id, email: u.email, status: u.status, emailVerifiedAt: u.emailVerifiedAt } : null;
+		return u
+			? { id: u.id, email: u.email, status: u.status, emailVerifiedAt: u.emailVerifiedAt }
+			: null;
 	}
 	async findByEmailNormalized(emailNormalized: string): Promise<UserRecord | null> {
 		const u = [...this.users.values()].find((u) => u.emailNormalized === emailNormalized);
-		return u ? { id: u.id, email: u.email, status: u.status, emailVerifiedAt: u.emailVerifiedAt } : null;
+		return u
+			? { id: u.id, email: u.email, status: u.status, emailVerifiedAt: u.emailVerifiedAt }
+			: null;
 	}
 	async getPasswordHash(userId: string): Promise<string | null> {
 		return this.users.get(userId)?.passwordHash ?? null;

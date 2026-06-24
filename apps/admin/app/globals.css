@@ -2,9 +2,9 @@
  * 管理者コンソールのグローバルスタイル。共通ライブラリ(@app/frontend-lib)のトークン・テーマを取り込み、
  * Tailwind v4 のソース走査に admin 配下と共通コンポーネントを含める。
  */
-@import '../../frontend-lib/styles/global.css';
+@import '../lib/styles/global.css';
 
 /* Tailwind v4 の自動検出は apps/admin 配下が中心のため、対象ディレクトリを明示する。 */
 @source '../app';
 @source '../src';
-@source '../../frontend-lib/components';
+@source '../lib/components';

@@ -126,7 +126,10 @@ export class ProfileService {
 	async listPublicProfilesOffset(
 		input: ListPublicProfilesOffsetInput
 	): Promise<ProfileListOffsetResult> {
-		const limit = Math.min(Math.max(input.limit ?? PROFILE_LIST_DEFAULT_LIMIT, 1), PROFILE_LIST_MAX_LIMIT);
+		const limit = Math.min(
+			Math.max(input.limit ?? PROFILE_LIST_DEFAULT_LIMIT, 1),
+			PROFILE_LIST_MAX_LIMIT
+		);
 		const offset = Math.max(input.offset ?? 0, 0);
 		const search = input.search?.trim() || undefined;
 		return this.deps.profiles.listEffectivePublicOffset({ search, limit, offset });

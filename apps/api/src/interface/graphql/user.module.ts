@@ -73,8 +73,7 @@ export const USER_API_KEY_REPO = Symbol('UserApiKeyRepo');
 				ids: IdGenerator,
 				apiKeys: UserApiKeyRepository,
 				tokenStore: EmailVerificationTokenStore
-			) =>
-				new UserService({ users, sessions, passwordHasher, clock, ids, apiKeys, tokenStore })
+			) => new UserService({ users, sessions, passwordHasher, clock, ids, apiKeys, tokenStore })
 		},
 		ViewerProvider,
 		UserResolver
