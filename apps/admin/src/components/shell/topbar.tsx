@@ -1,6 +1,6 @@
 // 上部バー。現在のロール表示・テーマ切替・ログアウト。design 02-layout §6/§7。
 import { LogOut } from 'lucide-react';
-import { Badge } from '@app/frontend-lib';
+import { Badge } from '@lib';
 import { logoutAction } from '@/lib/auth/actions';
 import type { AdminRole } from '@/lib/api/types';
 import { roleLabel } from '@/lib/i18n/labels';

@@ -1,6 +1,6 @@
 // 統計 Bento タイル。スケールコントラストで数値を主役にする(design/01 §3・§5)。
 import type { LucideIcon } from 'lucide-react';
-import { Card } from '@app/frontend-lib';
+import { Card } from '@lib';
 
 interface StatTileProps {
 	readonly label: string;

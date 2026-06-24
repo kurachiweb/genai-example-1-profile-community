@@ -1,5 +1,5 @@
 // メール通知(BR-CONTENT-003)。moderator 以上が作成・テスト送信・配信。配信は監査ログに記録される。
-import { Badge, formatDateTime } from '@app/frontend-lib';
+import { Badge, formatDateTime } from '@lib';
 import { EmailComposeForm, EmailRowActions } from '@/components/content/email';
 import { PageHeader } from '@/components/ui/page-header';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';

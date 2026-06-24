@@ -4,7 +4,7 @@
 import { useActionState, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Fingerprint } from 'lucide-react';
-import { Button, Input, Label } from '@app/frontend-lib';
+import { Button, Input, Label } from '@lib';
 import { loginAction, type LoginState } from '@/lib/auth/actions';
 import { loginWithPasskey } from '@/lib/webauthn/client';
 

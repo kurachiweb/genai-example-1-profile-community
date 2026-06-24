@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@app/frontend-lib';
+import { cn } from '@lib';
 import type { AdminRole } from '@/lib/api/types';
 import { visibleNavItems } from './nav-config';
 

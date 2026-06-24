@@ -1,6 +1,6 @@
 // 問い合わせ対応(BR-CONTENT-006/007)。support 以上が状態管理。report/unfreeze は各キューへ連携(features/06)。
 import Link from 'next/link';
-import { Badge, formatRelativeTime } from '@app/frontend-lib';
+import { Badge, formatRelativeTime } from '@lib';
 import { InquiryStatusButtons } from '@/components/content/inquiries';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatusFilter } from '@/components/ui/status-filter';

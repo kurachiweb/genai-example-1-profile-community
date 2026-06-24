@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
-import { Badge, Card, CardTitle, formatDateTime } from '@app/frontend-lib';
+import { Badge, Card, CardTitle, formatDateTime } from '@lib';
 import { DeleteIconButton, FreezeUserButton } from '@/components/moderation/buttons';
 import { PageHeader } from '@/components/ui/page-header';
 import { getUser } from '@/lib/api/admin';

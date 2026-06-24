@@ -1,6 +1,6 @@
 // 規約・プライバシーポリシーの版管理(BR-CONTENT-008)。super_admin が新版作成・発効。過去版は履歴保持。
 import Link from 'next/link';
-import { Badge, cn, formatDate } from '@app/frontend-lib';
+import { Badge, cn, formatDate } from '@lib';
 import { PolicyVersionForm, PublishPolicyButton } from '@/components/content/policies';
 import { PageHeader } from '@/components/ui/page-header';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';

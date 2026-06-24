@@ -1,5 +1,5 @@
 // お知らせ管理(BR-CONTENT-001/002)。作成/編集・公開/非公開・削除。下書きは support 以上、公開は moderator 以上(apiで強制)。
-import { Badge, formatDateTime } from '@app/frontend-lib';
+import { Badge, formatDateTime } from '@lib';
 import { AnnouncementFormDialog, AnnouncementRowActions } from '@/components/content/announcements';
 import { PageHeader } from '@/components/ui/page-header';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';

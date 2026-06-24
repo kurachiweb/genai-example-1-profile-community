@@ -1,5 +1,5 @@
 // ヘルプ記事管理(BR-CONTENT-005)。support 以上が作成・編集・公開切替。公開記事は client でログイン不要閲覧。
-import { Badge, formatDateTime } from '@app/frontend-lib';
+import { Badge, formatDateTime } from '@lib';
 import { HelpFormDialog, HelpStatusToggle } from '@/components/content/help';
 import { PageHeader } from '@/components/ui/page-header';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';

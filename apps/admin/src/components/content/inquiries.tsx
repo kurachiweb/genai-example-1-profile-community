@@ -2,7 +2,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { Button, type ButtonProps } from '@app/frontend-lib';
+import { Button, type ButtonProps } from '@lib';
 import { updateInquiryStatusAction } from '@/lib/content-actions';
 
 function StatusButton({

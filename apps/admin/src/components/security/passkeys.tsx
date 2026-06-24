@@ -4,7 +4,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Fingerprint } from 'lucide-react';
-import { Button, Input, Label } from '@app/frontend-lib';
+import { Button, Input, Label } from '@lib';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { deletePasskeyAction } from '@/lib/actions';
 import { registerPasskey } from '@/lib/webauthn/client';

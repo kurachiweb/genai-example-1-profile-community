@@ -1,7 +1,7 @@
 // ユーザー一覧。メール/ハンドル検索・状態フィルタ・ページングを URL 状態で保持する(ecc-web/patterns)。
 // 行クリックで詳細ページへ(ユーザー選択のテーブルパターン)。
 import Link from 'next/link';
-import { Badge, Button, formatDate } from '@app/frontend-lib';
+import { Badge, Button, formatDate } from '@lib';
 import { PageHeader } from '@/components/ui/page-header';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
 import { listUsers } from '@/lib/api/admin';

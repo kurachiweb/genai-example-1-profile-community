@@ -2,7 +2,7 @@
 'use client';
 
 import { useId, useRef, useState, useTransition, type ReactNode } from 'react';
-import { Button, type ButtonProps } from '@app/frontend-lib';
+import { Button, type ButtonProps } from '@lib';
 import type { ActionResult } from '@/lib/actions';
 
 interface ConfirmDialogProps {

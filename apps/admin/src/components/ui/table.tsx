@@ -1,6 +1,6 @@
 // テーブルプリミティブ。密度の高い管理一覧向け(design 02-layout §6)。横溢れは横スクロールで吸収する。
 import type { HTMLAttributes, ReactNode, ThHTMLAttributes } from 'react';
-import { cn } from '@app/frontend-lib';
+import { cn } from '@lib';
 
 export function Table({ children, className }: { children: ReactNode; className?: string }) {
 	return (

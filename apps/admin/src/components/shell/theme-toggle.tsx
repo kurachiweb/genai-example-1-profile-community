@@ -2,7 +2,7 @@
 'use client';
 
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { cn, useTheme, type Theme } from '@app/frontend-lib';
+import { cn, useTheme, type Theme } from '@lib';
 
 const OPTIONS: ReadonlyArray<{ value: Theme; label: string; Icon: typeof Sun }> = [
 	{ value: 'light', label: 'ライト', Icon: Sun },

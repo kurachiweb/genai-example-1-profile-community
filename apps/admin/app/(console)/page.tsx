@@ -1,7 +1,7 @@
 // ダッシュボード。統計タイル(上段)＋要対応キュー(下段)。運営の生産性を優先(design 02-layout §6)。
 import Link from 'next/link';
 import { Eye, Flag, KeyRound, Snowflake, UserCheck, Users } from 'lucide-react';
-import { Card, CardTitle, formatRelativeTime } from '@app/frontend-lib';
+import { Card, CardTitle, formatRelativeTime } from '@lib';
 import { StatTile } from '@/components/dashboard/stat-tile';
 import { PageHeader } from '@/components/ui/page-header';
 import { getStats, listReports, listUnfreezeRequests } from '@/lib/api/admin';

@@ -1,6 +1,6 @@
 // セキュリティ設定: パスキー(WebAuthn)の登録・一覧・削除(BR-COMMON-016・AC-ADMIN-013)。
 // 任意かつ推奨。最後のパスキーを削除してもメール＋パスワードで継続できる。
-import { Card, CardDescription, CardTitle, formatDateTime } from '@app/frontend-lib';
+import { Card, CardDescription, CardTitle, formatDateTime } from '@lib';
 import { DeletePasskeyButton, RegisterPasskeyButton } from '@/components/security/passkeys';
 import { PageHeader } from '@/components/ui/page-header';
 import { listPasskeys } from '@/lib/api/admin';

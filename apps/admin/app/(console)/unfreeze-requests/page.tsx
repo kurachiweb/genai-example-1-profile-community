@@ -1,6 +1,6 @@
 // 解除リクエストの審査(BR-ADMIN-006 / BR-SAFE-008)。審査待ちのみ承認/却下操作を出す。
 import Link from 'next/link';
-import { Badge, formatRelativeTime } from '@app/frontend-lib';
+import { Badge, formatRelativeTime } from '@lib';
 import { UnfreezeDecisionButtons } from '@/components/moderation/buttons';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatusFilter } from '@/components/ui/status-filter';

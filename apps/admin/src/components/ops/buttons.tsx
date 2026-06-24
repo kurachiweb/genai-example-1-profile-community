@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Ban, SlidersHorizontal } from 'lucide-react';
-import { Input, Label } from '@app/frontend-lib';
+import { Input, Label } from '@lib';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { revokeApiKeyAction, setRateLimitAction } from '@/lib/actions';
 

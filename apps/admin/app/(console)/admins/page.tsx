@@ -1,5 +1,5 @@
 // 管理者アカウント・権限(BR-ADMIN-001/002・US-0706)。閲覧は viewer 以上、管理操作は super_admin のみ。
-import { Badge, Card, CardTitle, formatDate } from '@app/frontend-lib';
+import { Badge, Card, CardTitle, formatDate } from '@lib';
 import {
 	CreateAdminForm,
 	DisableAdminButton,

@@ -2,7 +2,7 @@
 // 管理画面は検索エンジンに露出しない(robots noindex)。
 import type { Metadata } from 'next';
 import Script from 'next/script';
-import { getThemeInitScript, ThemeProvider } from '@app/frontend-lib';
+import { getThemeInitScript, ThemeProvider } from '@lib';
 import './globals.css';
 
 export const metadata: Metadata = {

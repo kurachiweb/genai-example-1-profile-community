@@ -1,5 +1,5 @@
 // 通報の審査・処分(BR-ADMIN-005 / BR-SAFE-005)。状態フィルタは URL 状態。未対応/審査中のみ処分操作を出す。
-import { Badge, formatRelativeTime } from '@app/frontend-lib';
+import { Badge, formatRelativeTime } from '@lib';
 import { ReportDecisionButtons } from '@/components/moderation/buttons';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatusFilter } from '@/components/ui/status-filter';

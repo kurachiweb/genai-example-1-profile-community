@@ -1,5 +1,5 @@
 // 監査ログ閲覧(BR-ADMIN-010 / AC-ADMIN-011)。追記専用のため編集/削除手段は提供しない。絞り込み・ページングは URL 状態。
-import { Badge, Button, formatDateTime } from '@app/frontend-lib';
+import { Badge, Button, formatDateTime } from '@lib';
 import { PageHeader } from '@/components/ui/page-header';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
 import { listAuditLogs } from '@/lib/api/admin';

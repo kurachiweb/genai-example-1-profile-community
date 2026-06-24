@@ -3,7 +3,7 @@
 
 import { useRef, useState, useTransition } from 'react';
 import { Plus } from 'lucide-react';
-import { Button, Label } from '@app/frontend-lib';
+import { Button, Label } from '@lib';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { createPolicyVersionAction, publishPolicyAction } from '@/lib/content-actions';
 

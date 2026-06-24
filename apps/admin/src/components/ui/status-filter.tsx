@@ -1,6 +1,6 @@
 // 状態フィルタ(タブ風リンク)。URL 状態で共有可能にする(ecc-web/patterns: URL As State)。
 import Link from 'next/link';
-import { cn } from '@app/frontend-lib';
+import { cn } from '@lib';
 
 interface StatusFilterProps {
 	readonly basePath: string;

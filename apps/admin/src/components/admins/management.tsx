@@ -4,7 +4,7 @@
 
 import { useState, useTransition } from 'react';
 import { UserPlus } from 'lucide-react';
-import { Button, Input, Label } from '@app/frontend-lib';
+import { Button, Input, Label } from '@lib';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { changeRoleAction, createAdminAction, disableAdminAction } from '@/lib/actions';
 

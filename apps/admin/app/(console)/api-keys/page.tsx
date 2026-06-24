@@ -1,12 +1,5 @@
 // 公開 API キー運用(BR-ADMIN-007/008)。メタ情報のみ表示し秘匿値は扱わない。失効・しきい値変更は権限で出し分け。
-import {
-	Badge,
-	Card,
-	CardDescription,
-	CardTitle,
-	formatDate,
-	formatDateTime
-} from '@app/frontend-lib';
+import { Badge, Card, CardDescription, CardTitle, formatDate, formatDateTime } from '@lib';
 import { RateLimitControl, RevokeKeyButton } from '@/components/ops/buttons';
 import { PageHeader } from '@/components/ui/page-header';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
