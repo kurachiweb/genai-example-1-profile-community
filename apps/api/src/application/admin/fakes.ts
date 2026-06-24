@@ -1,5 +1,5 @@
 // 管理者ユースケースのテスト用インメモリ・フェイク(決定論的、外部 I/O を Gateway 境界で差し替える)。
-// 本番ロジックではないためカバレッジ対象外(jest.config.js 参照)。
+// 本番ロジックではないためカバレッジ対象外(jest.config.ts 参照)。
 import { AdminRole } from '../../domain/admin-role';
 import { AuditLogRecord } from '../../domain/audit-event';
 import { ReportStatus, SuspensionStatus, UnfreezeRequestStatus } from '../../domain/moderation';

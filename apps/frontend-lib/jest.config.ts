@@ -2,8 +2,9 @@
 // テスト方針: docs/GUIDES/testing/01-unit-integration.md。RTL でアクセシビリティ起点に検証する。
 //
 // 型検査は tsc --noEmit に委ね、ts-jest は isolatedModules でトランスパイルのみ行い高速化する。
-/** @type {import('ts-jest').JestConfigWithTsJest} */
-export default {
+import type { JestConfigWithTsJest } from 'ts-jest';
+
+const config: JestConfigWithTsJest = {
 	rootDir: '.',
 	roots: ['<rootDir>/components', '<rootDir>/utilities'],
 	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
@@ -30,3 +31,5 @@ export default {
 		global: { branches: 80, functions: 80, lines: 80, statements: 80 }
 	}
 };
+
+export default config;

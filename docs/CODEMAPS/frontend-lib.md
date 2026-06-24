@@ -21,7 +21,7 @@ apps/frontend-lib/
 │   └── theme/              # ThemeProvider / useTheme(低頻度 Context)
 ├── .storybook/             # Storybook(React + Vite + Tailwind4・a11y アドオン)
 ├── index.ts                # 公開エントリ(client/admin は @app/frontend-lib から取り込む)
-├── jest.config.js          # Jest(ts-jest・ESM・jsdom)・RTL + jest-axe
+├── jest.config.ts          # Jest(ts-jest・ESM・jsdom)・RTL + jest-axe
 └── eslint.config.ts        # apps/api 流用 + React/Hooks/jsx-a11y
 ```
 
