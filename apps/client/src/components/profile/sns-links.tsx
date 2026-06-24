@@ -1,18 +1,12 @@
 // SNS リンク一覧。各プラットフォームのアイコン付きリンクを表示する。
-import { ExternalLink, Github, Globe, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { ExternalLink, Globe } from 'lucide-react';
 import type { SnsLink } from '@/lib/api/types';
 
 function PlatformIcon({ platform }: { platform: string }) {
 	const className = 'size-4 shrink-0';
+	// lucide-react v1 系でブランドアイコン（GitHub 等）が削除されたため、
+	// プラットフォーム名はテキストラベルで示し、アイコンは汎用のものを用いる。
 	switch (platform) {
-		case 'GITHUB':
-			return <Github className={className} aria-hidden="true" />;
-		case 'INSTAGRAM':
-			return <Instagram className={className} aria-hidden="true" />;
-		case 'LINKEDIN':
-			return <Linkedin className={className} aria-hidden="true" />;
-		case 'YOUTUBE':
-			return <Youtube className={className} aria-hidden="true" />;
 		case 'WEBSITE':
 			return <Globe className={className} aria-hidden="true" />;
 		default:

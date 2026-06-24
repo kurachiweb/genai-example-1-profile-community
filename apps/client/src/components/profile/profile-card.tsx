@@ -10,11 +10,12 @@ interface Props {
 }
 
 export function ProfileCard({ profile }: Props) {
-	const displayName = buildDisplayName({
-		firstName: profile.firstName,
-		lastName: profile.lastName,
-		handle: profile.handle
-	});
+	const displayName =
+		buildDisplayName({
+			firstName: profile.firstName ?? '',
+			lastName: profile.lastName ?? '',
+			order: 'givenNameFirst'
+		}) || profile.handle;
 
 	return (
 		<Link

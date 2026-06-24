@@ -17,11 +17,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const profile = await getPublicProfile(handle).catch(() => null);
 	if (!profile) return { title: 'プロフィールが見つかりません' };
 
-	const displayName = buildDisplayName({
-		firstName: profile.firstName,
-		lastName: profile.lastName,
-		handle: profile.handle
-	});
+	const displayName =
+		buildDisplayName({
+			firstName: profile.firstName ?? '',
+			lastName: profile.lastName ?? '',
+			order: 'givenNameFirst'
+		}) || profile.handle;
 
 	return {
 		title: displayName,
@@ -40,11 +41,12 @@ export default async function PublicProfilePage({ params }: Props) {
 	const profile = await getPublicProfile(handle).catch(() => null);
 	if (!profile) notFound();
 
-	const displayName = buildDisplayName({
-		firstName: profile.firstName,
-		lastName: profile.lastName,
-		handle: profile.handle
-	});
+	const displayName =
+		buildDisplayName({
+			firstName: profile.firstName ?? '',
+			lastName: profile.lastName ?? '',
+			order: 'givenNameFirst'
+		}) || profile.handle;
 
 	return (
 		<div className="mx-auto max-w-2xl px-4 py-12">

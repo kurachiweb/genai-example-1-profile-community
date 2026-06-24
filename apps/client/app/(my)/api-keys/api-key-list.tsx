@@ -47,9 +47,7 @@ export function ApiKeyList({ keys }: Props) {
 					<div className="min-w-0 flex-1">
 						<div className="flex items-center gap-2">
 							<span className="font-medium text-text">{key.label ?? '(ラベルなし)'}</span>
-							<Badge variant={key.scope === 'full' ? 'destructive' : 'secondary'}>
-								{key.scope}
-							</Badge>
+							<Badge tone={key.scope === 'full' ? 'danger' : 'neutral'}>{key.scope}</Badge>
 						</div>
 						<p className="mt-0.5 text-[length:var(--text-caption)] text-text-subtle">
 							作成日: {formatRelativeTime(key.createdAt)}
