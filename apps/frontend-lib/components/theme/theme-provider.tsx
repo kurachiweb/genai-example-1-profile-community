@@ -19,6 +19,63 @@ interface ThemeContextValue {
 
 const ThemeContext = React.createContext<ThemeContextValue | null>(null);
 
+// localStorage の選好を読み書きする外部ストア。useSyncExternalStore で購読するため
+// effect 内での setState を避けられる（cascading renders 回避 / react-hooks 規約）。
+function createThemeStore(storageKey: string, defaultTheme: Theme) {
+	const listeners = new Set<() => void>();
+	const notify = () => {
+		for (const listener of listeners) {
+			listener();
+		}
+	};
+	return {
+		subscribe(listener: () => void) {
+			listeners.add(listener);
+			// 他タブでの変更にも追従する。
+			const onStorage = (event: StorageEvent) => {
+				if (event.key === storageKey) {
+					notify();
+				}
+			};
+			window.addEventListener('storage', onStorage);
+			return () => {
+				listeners.delete(listener);
+				window.removeEventListener('storage', onStorage);
+			};
+		},
+		getSnapshot(): Theme {
+			try {
+				const stored = localStorage.getItem(storageKey);
+				return isTheme(stored) ? stored : defaultTheme;
+			} catch {
+				return defaultTheme;
+			}
+		},
+		getServerSnapshot(): Theme {
+			return defaultTheme;
+		},
+		setTheme(next: Theme) {
+			try {
+				localStorage.setItem(storageKey, next);
+			} catch {
+				// localStorage 不可（プライベートモード等）でも UI は機能させる。
+			}
+			notify();
+		}
+	};
+}
+
+// OS の暗色嗜好を購読する外部ストア。
+function subscribeSystemPrefersDark(listener: () => void) {
+	const media = window.matchMedia('(prefers-color-scheme: dark)');
+	media.addEventListener('change', listener);
+	return () => media.removeEventListener('change', listener);
+}
+
+function getSystemPrefersDark(): boolean {
+	return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
 interface ThemeProviderProps {
 	readonly children: React.ReactNode;
 	readonly storageKey?: string;
@@ -30,21 +87,22 @@ export function ThemeProvider({
 	storageKey = THEME_STORAGE_KEY,
 	defaultTheme = 'system'
 }: ThemeProviderProps) {
-	const [theme, setThemeState] = React.useState<Theme>(defaultTheme);
-	const [systemPrefersDark, setSystemPrefersDark] = React.useState(false);
+	const store = React.useMemo(
+		() => createThemeStore(storageKey, defaultTheme),
+		[storageKey, defaultTheme]
+	);
 
-	// 選好の復元と OS 嗜好の監視（外部システムとの同期なので effect が適切）。
-	React.useEffect(() => {
-		const stored = localStorage.getItem(storageKey);
-		if (isTheme(stored)) {
-			setThemeState(stored);
-		}
-		const media = window.matchMedia('(prefers-color-scheme: dark)');
-		setSystemPrefersDark(media.matches);
-		const onChange = (event: MediaQueryListEvent) => setSystemPrefersDark(event.matches);
-		media.addEventListener('change', onChange);
-		return () => media.removeEventListener('change', onChange);
-	}, [storageKey]);
+	// 選好の復元と OS 嗜好の監視は外部システムとの同期なので useSyncExternalStore で購読する。
+	const theme = React.useSyncExternalStore(
+		store.subscribe,
+		store.getSnapshot,
+		store.getServerSnapshot
+	);
+	const systemPrefersDark = React.useSyncExternalStore(
+		subscribeSystemPrefersDark,
+		getSystemPrefersDark,
+		() => false
+	);
 
 	const resolvedTheme = resolveTheme(theme, systemPrefersDark);
 
@@ -55,17 +113,7 @@ export function ThemeProvider({
 		root.style.colorScheme = resolvedTheme;
 	}, [resolvedTheme]);
 
-	const setTheme = React.useCallback(
-		(next: Theme) => {
-			setThemeState(next);
-			try {
-				localStorage.setItem(storageKey, next);
-			} catch {
-				// localStorage 不可（プライベートモード等）でも UI は機能させる。
-			}
-		},
-		[storageKey]
-	);
+	const setTheme = React.useCallback((next: Theme) => store.setTheme(next), [store]);
 
 	const value = React.useMemo<ThemeContextValue>(
 		() => ({ theme, resolvedTheme, setTheme }),

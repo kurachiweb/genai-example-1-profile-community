@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { axe } from 'jest-axe';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@lib/components/ui/card';
 
 describe('Card', () => {
 	test('見出しと本文を組んだ Bento タイルを描画する', () => {

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { axe } from 'jest-axe';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@lib/components/ui/badge';
 
 describe('Badge', () => {
 	test('内容を描画する', () => {

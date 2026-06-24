@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Input } from '@/components/ui/input';
+import { Input } from '@lib/components/ui/input';
 
 describe('Input', () => {
 	test('入力した値を反映する', async () => {

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ThemeProvider, useTheme } from '@/components/theme/theme-provider';
+import { ThemeProvider, useTheme } from '@lib/components/theme/theme-provider';
 
 function ThemeProbe() {
 	const { theme, resolvedTheme, setTheme } = useTheme();

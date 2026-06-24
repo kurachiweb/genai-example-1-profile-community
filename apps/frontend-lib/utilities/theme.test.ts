@@ -1,4 +1,4 @@
-import { getThemeInitScript, isTheme, resolveTheme, THEME_STORAGE_KEY } from '@/utilities/theme';
+import { getThemeInitScript, isTheme, resolveTheme, THEME_STORAGE_KEY } from '@lib/utilities/theme';
 
 describe('resolveTheme', () => {
 	test('明示 light/dark はそのまま返す', () => {

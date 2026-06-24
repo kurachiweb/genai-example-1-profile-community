@@ -1,4 +1,4 @@
-import { buildDisplayName, profileIconAlt } from '@/utilities/display-name';
+import { buildDisplayName, profileIconAlt } from '@lib/utilities/display-name';
 
 describe('buildDisplayName', () => {
 	test('givenNameFirst は 名→姓 の順で連結する', () => {

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
-import { Button } from '@/components/ui/button';
+import { Button } from '@lib/components/ui/button';
 
 describe('Button', () => {
 	test('ラベルを持つボタンとして描画される', () => {

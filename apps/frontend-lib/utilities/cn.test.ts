@@ -1,4 +1,4 @@
-import { cn } from '@/utilities/cn';
+import { cn } from '@lib/utilities/cn';
 
 describe('cn', () => {
 	test('複数のクラス文字列を結合する', () => {

@@ -1,4 +1,4 @@
-import { countGraphemes, withinGraphemeLimit } from '@/utilities/grapheme';
+import { countGraphemes, withinGraphemeLimit } from '@lib/utilities/grapheme';
 
 describe('countGraphemes', () => {
 	test('空文字は 0', () => {

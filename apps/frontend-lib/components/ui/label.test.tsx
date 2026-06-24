@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Input } from '@lib/components/ui/input';
+import { Label } from '@lib/components/ui/label';
 
 describe('Label', () => {
 	test('htmlFor で入力と関連付く', () => {

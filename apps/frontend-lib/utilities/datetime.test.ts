@@ -1,4 +1,4 @@
-import { formatDate, formatDateTime, formatRelativeTime } from '@/utilities/datetime';
+import { formatDate, formatDateTime, formatRelativeTime } from '@lib/utilities/datetime';
 
 // 端末タイムゾーン差を排除するため、検証では timeZone を固定する。
 const TZ = 'Asia/Tokyo';
