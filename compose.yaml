@@ -74,6 +74,10 @@ services:
     volumes:
       - ./apps/api:/workspace
       - api_node_modules:/workspace/node_modules
+      # 生成AI用
+      - ./.aidlc-rule-details:/workspace/.aidlc-rule-details:ro
+      - ./.claude:/workspace/.claude:ro
+      - ./aidlc-docs:/workspace/aidlc-docs:ro
     depends_on:
       db:
         condition: service_healthy
@@ -97,6 +101,10 @@ services:
       - client_node_modules:/workspace/node_modules
       - ./apps/frontend-lib:/workspace/lib
       - frontend_lib_node_modules:/workspace/lib/node_modules
+      # 生成AI用
+      - ./.aidlc-rule-details:/workspace/.aidlc-rule-details:ro
+      - ./.claude:/workspace/.claude:ro
+      - ./aidlc-docs:/workspace/aidlc-docs:ro
     depends_on:
       api:
         condition: service_started
@@ -118,6 +126,10 @@ services:
       - admin_node_modules:/workspace/node_modules
       - ./apps/frontend-lib:/workspace/lib
       - frontend_lib_node_modules:/workspace/lib/node_modules
+      # 生成AI用
+      - ./.aidlc-rule-details:/workspace/.aidlc-rule-details:ro
+      - ./.claude:/workspace/.claude:ro
+      - ./aidlc-docs:/workspace/aidlc-docs:ro
     depends_on:
       api:
         condition: service_started
@@ -137,6 +149,10 @@ services:
     volumes:
       - ./apps/public-api:/workspace
       - public_api_node_modules:/workspace/node_modules
+      # 生成AI用
+      - ./.aidlc-rule-details:/workspace/.aidlc-rule-details:ro
+      - ./.claude:/workspace/.claude:ro
+      - ./aidlc-docs:/workspace/aidlc-docs:ro
     depends_on:
       db:
         condition: service_healthy
