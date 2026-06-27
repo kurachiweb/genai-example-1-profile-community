@@ -83,7 +83,6 @@ services:
         condition: service_healthy
       mailpit:
         condition: service_started
-    command: sh -lc "pnpm install && pnpm dev"
 
   # ---- 利用者・閲覧者向け Web: Next.js（:48032） ----
   client:
@@ -108,7 +107,6 @@ services:
     depends_on:
       api:
         condition: service_started
-    command: sh -lc "pnpm install && pnpm dev"
 
   # ---- 管理者コンソール Web: Next.js（:48033） ----
   admin:
@@ -133,7 +131,6 @@ services:
     depends_on:
       api:
         condition: service_started
-    command: sh -lc "pnpm install && pnpm dev"
 
   # ---- 公開 API: NestJS + Hono / REST（:48034） ----
   public-api:
@@ -156,7 +153,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: sh -lc "pnpm install && pnpm dev"
 
   # ---- Mailpit: Amazon SES のローカル代替（SMTP:1025 はサービス間のみ） ----
   mailpit:

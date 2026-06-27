@@ -23,7 +23,16 @@ RUN mkdir -p /workspace/node_modules /workspace/lib/node_modules \
 USER node
 # apps/client を /workspace へ単体マウントする（compose.yaml）。WORKDIR も /workspace に合わせる。
 WORKDIR /workspace
+
+# pnpm パッケージ依存解決に必要なマニフェストのみコピーし、パッケージをインストールする。
+# 共有フロントエンド(apps/frontend-lib)は lib メンバーとして解決するため、その package.json を
+# /workspace/lib にも配置する（実体は実行時にバインドマウントで供給される）。
+# ソース本体は実行時に compose のバインドマウントで供給するためコピーしない。
+COPY --chown=node:node apps/client/package.json apps/client/pnpm-lock.yaml apps/client/pnpm-workspace.yaml ./
+COPY --chown=node:node apps/frontend-lib/package.json ./lib/package.json
+RUN pnpm install
+
 EXPOSE 48032
 
-# 既定はこのアプリの dev スクリプト。compose 側で install→dev を実行する。
-CMD ["pnpm", "dev"]
+# 既定コマンド、compose 側で上書き可能。
+CMD ["sleep", "infinity"]
