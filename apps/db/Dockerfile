@@ -15,6 +15,12 @@ RUN npm install -g pnpm@${PNPM_VERSION}
 # node ユーザーの pnpm install が書き込めるようにする(EACCES 回避)。
 RUN mkdir -p /workspace/node_modules && chown node:node /workspace/node_modules
 
+# SQLite 実体を格納する db_data ボリュームの共有マウント先。db は api/public-api より
+# 先に起動する(両者は depends_on で db の healthy を待つ)ため、空ボリュームは本イメージの
+# /workspace/.db-data の所有権で初期化される。api/public-api(node ユーザー)が SQLite を
+# 生成・書き込みできるよう、node 所有で用意する(EACCES 回避)。
+RUN mkdir -p /workspace/.db-data && chown node:node /workspace/.db-data
+
 # 可能な範囲で非 root（node ユーザー）で実行する（docs/GUIDES/coding/03-docker.md §3）。
 USER node
 # apps/db を /workspace へ単体マウントする（compose.yaml）。WORKDIR も /workspace に合わせる。

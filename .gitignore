@@ -5,5 +5,5 @@
 node_modules
 .pnpm-store
 
-# ローカル SQLite の実体(apps/db の .data。本番は Cloudflare D1)
-apps/db/.data
+# ローカル SQLite の実体(apps/db の .db-data。本番は Cloudflare D1)
+apps/db/.db-data

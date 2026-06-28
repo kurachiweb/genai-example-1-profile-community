@@ -58,6 +58,7 @@ flowchart TB
 - ツールチェーンの `root` サービスのみリポジトリ全体（`.:/workspace`）をマウントする（pnpm ワークスペース全体・Terraform・wrangler のため）。
 - **共通フロントエンド（`apps/frontend-lib`）を `client` / `admin` コンテナ内の `/workspace/lib` にマウント**する。各アプリの `pnpm-workspace.yaml`（`packages: ['.', 'lib']`、[admin](../../../apps/admin/pnpm-workspace.yaml) / [client](../../../apps/client/pnpm-workspace.yaml)）がこの `lib` をワークスペースの一員として取り込み、`@app/frontend-lib`（`workspace:*`）を解決する。狙いは、ホスト側のコード・`tsconfig`・`next.config` を変えずにコンテナ内だけで共通ライブラリを参照できるようにすること。ホストには `lib` を置かないので、ホスト側ではこの `lib` 指定は対象なしとして無視されるだけで問題ない。`node_modules` は専用ボリューム（`frontend_lib_node_modules`）でホスト側と隔離する。
 - **Mailpit** を SES 代替サービスとして compose に含める。SQLite はファイル/ボリュームで永続化する。
+- **SQLite はファイルベースでネットワークの「接続先サーバー」を持たない**。そのため `db` の SQLite 実体を格納する名前付きボリューム `db_data` を、`db` / `api` / `public-api` の各コンテナへ**同一パス `/workspace/.db-data` で共有マウント**し、`DATABASE_URL=file:/workspace/.db-data/local.sqlite`（`.env`）で同じ実体を参照する。空ボリュームの所有権は最初に起動するコンテナ（`db`。`api`/`public-api` は `db` の healthy を待つ）の `/workspace/.db-data` から初期化されるため、`db` イメージで同ディレクトリを `node` 所有で用意し、`node` ユーザーの `api`/`public-api` が SQLite を生成・書き込みできるようにする（EACCES 回避）。
 - 環境変数は `.env`（リポジトリ管理外）から読み込む。`.env.example` のみコミットし、実値はコミットしない（§6）。
 - ポート・依存などの共通部分は重複を避け、YAML アンカー等で集約する（DRY、[00-overview.md](./00-overview.md) §2）。`volumes` はサービスごとにマウント構成が異なるため共通化せず、各サービスで個別に定義する。
 

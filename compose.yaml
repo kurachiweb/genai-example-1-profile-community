@@ -46,7 +46,7 @@ services:
     volumes:
       - ./apps/db:/workspace
       - db_node_modules:/workspace/node_modules
-      - db_data:/workspace/.data
+      - db_data:/workspace/.db-data
     command: sh -lc "pnpm install && pnpm dev"
     healthcheck:
       # SQLite はサーバーレスのため、dev サーバーのポート開放を疎通確認に用いる。
@@ -74,6 +74,9 @@ services:
     volumes:
       - ./apps/api:/workspace
       - api_node_modules:/workspace/node_modules
+      # SQLite はファイルベースで「接続先サーバー」を持たないため、db コンテナと同一の
+      # db_data ボリュームを同一パス(/workspace/.db-data)で共有し、同じ SQLite 実体を読み書きする。
+      - db_data:/workspace/.db-data
       # 生成AI用
       - ./.aidlc-rule-details:/workspace/.aidlc-rule-details:ro
       - ./.claude:/workspace/.claude:ro
@@ -146,6 +149,9 @@ services:
     volumes:
       - ./apps/public-api:/workspace
       - public_api_node_modules:/workspace/node_modules
+      # SQLite はファイルベースで「接続先サーバー」を持たないため、db コンテナと同一の
+      # db_data ボリュームを同一パス(/workspace/.db-data)で共有し、同じ SQLite 実体を読み書きする。
+      - db_data:/workspace/.db-data
       # 生成AI用
       - ./.aidlc-rule-details:/workspace/.aidlc-rule-details:ro
       - ./.claude:/workspace/.claude:ro
