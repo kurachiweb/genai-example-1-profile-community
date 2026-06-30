@@ -95,6 +95,9 @@ services:
       dockerfile: apps/client/Dockerfile
     ports:
       - "48032:48032"
+    environment:
+      NODE_ENV: development
+      API_GRAPHQL_URL: http://api:48031/graphql
     # 共有フロントエンド(apps/frontend-lib)を /workspace/lib にマウントし、コンテナ内のミニ
     # ワークスペース(apps/client/pnpm-workspace.yaml の packages: ['.', 'lib'])で
     # @app/frontend-lib(workspace:*)を解決する(ワークスペース定義はバインドに含まれ個別マウント不要)。
@@ -119,6 +122,9 @@ services:
       dockerfile: apps/admin/Dockerfile
     ports:
       - "48033:48033"
+    environment:
+      NODE_ENV: development
+      API_GRAPHQL_URL: http://api:48031/graphql
     # 共有フロントエンド(apps/frontend-lib)を /workspace/lib にマウントし、コンテナ内のミニ
     # ワークスペース(apps/admin/pnpm-workspace.yaml の packages: ['.', 'lib'])で
     # @app/frontend-lib(workspace:*)を解決する(ワークスペース定義はバインドに含まれ個別マウント不要)。
