@@ -33,7 +33,8 @@ apps/admin/
 │   │   ├── inquiries/              # §08 問い合わせ対応(状態管理・キュー連携)
 │   │   ├── policies/               # §08 規約・ポリシー版管理(super_admin)
 │   │   └── settings/passkeys/      # パスキー登録/一覧/削除
-│   └── api/passkey/                # WebAuthn の BFF ルートハンドラ(register/auth × start/finish)
+│   ├── api/passkey/                # WebAuthn の BFF ルートハンドラ(register/auth × start/finish)
+│   └── logout/            # 失効 Cookie 回収ルート。Cookie 破棄→/login。リダイレクトループ防止
 ├── proxy.ts                        # 認証ガード(UX 補助。実認可は api)
 └── src/
     ├── lib/api/                    # サーバー側 GraphQL クライアント・型・操作ラッパー
@@ -47,6 +48,7 @@ apps/admin/
 - **データ取得**: RSC（Server Component）で並列フェッチ（ウォーターフォール回避）。**変更**: Server Action → api → `revalidatePath`。
 - **重要操作**: 確認ダイアログ（ネイティブ `<dialog>`）＋「監査ログに記録されます」明示（`AC-ADMIN-001`〜`013`・design/03 §10）。
 - **共有資産**: トークン・プリミティブ・テーマ・ユーティリティは `@app/frontend-lib`（[frontend-lib コードマップ](./frontend-lib.md)）。
+- **失効セッションの回収**: `proxy.ts` は Cookie の有無だけで判定するため、api 側でセッションが消えた（例: 開発中の api 再起動でインプロセスセッションが揮発）状態で Cookie が残ると `/` ⇄ `/login` の無限リダイレクト（`ERR_TOO_MANY_REDIRECTS`）になる。`requireAdmin` は `UNAUTHORIZED` 時に `/logout` へ送り、そこで Cookie を破棄してから `/login` へ抜けることでループを断つ（Cookie 変更は Route Handler でのみ可能）。
 
 ## `apps/api` 管理者バックエンド（クリーンアーキテクチャ）
 
