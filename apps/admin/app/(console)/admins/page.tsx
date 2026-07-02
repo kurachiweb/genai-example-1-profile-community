@@ -30,10 +30,10 @@ export default async function AdminsPage() {
 
 			{canManage ? (
 				<Card elevation={1} className="mb-6">
-					<CardTitle as="h2" className="text-[length:var(--text-occupation)]">
+					<CardTitle as="h2" className="text-(length:--text-occupation)">
 						管理者を追加
 					</CardTitle>
-					<p className="mt-1 mb-4 text-[length:var(--text-caption)] text-text-muted">
+					<p className="mt-1 mb-4 text-(length:--text-caption) text-text-muted">
 						追加は監査ログに記録されます。初期スーパー管理者はプロビジョニング手順で作成します。
 					</p>
 					<CreateAdminForm />
@@ -59,7 +59,7 @@ export default async function AdminsPage() {
 								<TD className="font-medium">
 									{admin.email}
 									{isSelf ? (
-										<span className="ml-2 text-[length:var(--text-caption)] text-text-subtle">
+										<span className="ml-2 text-(length:--text-caption) text-text-subtle">
 											(自分)
 										</span>
 									) : null}

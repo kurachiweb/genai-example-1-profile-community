@@ -57,9 +57,7 @@ export function EmailComposeForm({ templates }: { templates: EmailTemplate[] }) 
 				ref={ref}
 				className="m-auto w-[min(34rem,94vw)] rounded-xl border border-border bg-surface-raised p-6 text-text shadow-e3 backdrop:bg-black/40"
 			>
-				<h2 className="text-[length:var(--text-title)] font-semibold text-text">
-					メール通知の下書き
-				</h2>
+				<h2 className="text-(length:--text-title) font-semibold text-text">メール通知の下書き</h2>
 				<div className="mt-4 flex flex-col gap-3">
 					<div className="flex flex-col gap-1.5">
 						<Label htmlFor="em-subject" required>
@@ -102,7 +100,7 @@ export function EmailComposeForm({ templates }: { templates: EmailTemplate[] }) 
 					{error ? (
 						<p
 							role="alert"
-							className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger"
+							className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
 						>
 							{error}
 						</p>
@@ -158,7 +156,7 @@ function TestSendButton({ id }: { id: string }) {
 
 export function EmailRowActions({ id, status }: { id: string; status: string }) {
 	if (status === 'sent') {
-		return <span className="text-[length:var(--text-caption)] text-text-subtle">配信済み</span>;
+		return <span className="text-(length:--text-caption) text-text-subtle">配信済み</span>;
 	}
 	return (
 		<div className="flex flex-wrap justify-end gap-2">

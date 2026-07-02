@@ -26,11 +26,11 @@ export function ShareSection({ handle }: Props) {
 
 	return (
 		<div className="rounded-xl border border-border bg-accent/5 p-4">
-			<p className="mb-2 text-[length:var(--text-caption)] font-medium text-text-muted">
+			<p className="mb-2 text-(length:--text-caption) font-medium text-text-muted">
 				あなたの公開 URL
 			</p>
 			<div className="flex items-center gap-2">
-				<code className="flex-1 truncate rounded-md border border-border bg-surface px-3 py-2 text-[length:var(--text-meta)] text-text">
+				<code className="flex-1 truncate rounded-md border border-border bg-surface px-3 py-2 text-(length:--text-meta) text-text">
 					/{handle}
 				</code>
 				<Button variant="outline" size="sm" onClick={handleCopy} aria-label="URL をコピー">

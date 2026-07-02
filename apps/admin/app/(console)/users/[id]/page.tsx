@@ -13,8 +13,8 @@ import type { UserStatus } from '@/lib/api/types';
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
 	return (
 		<div className="flex flex-col gap-0.5">
-			<dt className="text-[length:var(--text-caption)] text-text-muted">{label}</dt>
-			<dd className="text-[length:var(--text-meta)] text-text">{children}</dd>
+			<dt className="text-(length:--text-caption) text-text-muted">{label}</dt>
+			<dd className="text-(length:--text-meta) text-text">{children}</dd>
 		</div>
 	);
 }
@@ -37,7 +37,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
 		<div>
 			<Link
 				href="/users"
-				className="mb-4 inline-flex items-center gap-1 text-[length:var(--text-meta)] text-text-muted hover:text-text"
+				className="mb-4 inline-flex items-center gap-1 text-(length:--text-meta) text-text-muted hover:text-text"
 			>
 				<ArrowLeft className="size-4" aria-hidden="true" />
 				ユーザー一覧へ戻る
@@ -51,7 +51,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
 
 			<div className="grid gap-4 lg:grid-cols-3">
 				<Card elevation={1} className="lg:col-span-2">
-					<CardTitle as="h2" className="text-[length:var(--text-occupation)]">
+					<CardTitle as="h2" className="text-(length:--text-occupation)">
 						基本情報
 					</CardTitle>
 					<dl className="mt-4 grid grid-cols-2 gap-4">
@@ -65,17 +65,17 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
 				</Card>
 
 				<Card elevation={2}>
-					<CardTitle as="h2" className="text-[length:var(--text-occupation)]">
+					<CardTitle as="h2" className="text-(length:--text-occupation)">
 						モデレーション
 					</CardTitle>
-					<p className="mt-1 text-[length:var(--text-caption)] text-text-muted">
+					<p className="mt-1 text-(length:--text-caption) text-text-muted">
 						重要操作は確認のうえ実行され、監査ログに記録されます。
 					</p>
 					<div className="mt-4 flex flex-col gap-2">
 						{status === 'ACTIVE' ? (
 							<FreezeUserButton userId={user.id} />
 						) : status === 'FROZEN' ? (
-							<p className="text-[length:var(--text-meta)] text-text-muted">
+							<p className="text-(length:--text-meta) text-text-muted">
 								このユーザーは凍結中です。解除は
 								<Link href="/unfreeze-requests" className="text-accent hover:underline">
 									解除リクエスト
@@ -83,7 +83,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
 								から審査します。
 							</p>
 						) : (
-							<p className="text-[length:var(--text-meta)] text-text-muted">
+							<p className="text-(length:--text-meta) text-text-muted">
 								現在の状態({userStatusLabel(status)})では凍結操作はできません。
 							</p>
 						)}

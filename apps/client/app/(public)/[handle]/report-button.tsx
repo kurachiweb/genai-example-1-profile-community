@@ -32,7 +32,7 @@ export function ReportButton({ handle }: Props) {
 
 	if (status === 'done') {
 		return (
-			<p className="text-[length:var(--text-caption)] text-text-subtle">
+			<p className="text-(length:--text-caption) text-text-subtle">
 				通報を受け付けました。ご協力ありがとうございます。
 			</p>
 		);
@@ -65,29 +65,26 @@ export function ReportButton({ handle }: Props) {
 						aria-label="プロフィールを通報"
 						className="relative w-full max-w-sm rounded-xl border border-border bg-surface-raised p-6 shadow-e3"
 					>
-						<h2 className="text-[length:var(--text-title)] font-semibold text-text">
+						<h2 className="text-(length:--text-title) font-semibold text-text">
 							プロフィールを通報
 						</h2>
 
 						{status === 'error' ? (
-							<p className="mt-2 text-[length:var(--text-caption)] text-danger">
+							<p className="mt-2 text-(length:--text-caption) text-danger">
 								送信に失敗しました。もう一度お試しください。
 							</p>
 						) : null}
 
 						<div className="mt-4 flex flex-col gap-3">
 							<div>
-								<label
-									htmlFor="reason"
-									className="text-[length:var(--text-meta)] font-medium text-text"
-								>
+								<label htmlFor="reason" className="text-(length:--text-meta) font-medium text-text">
 									理由
 								</label>
 								<select
 									id="reason"
 									value={reason}
 									onChange={(e) => setReason(e.target.value)}
-									className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-[length:var(--text-meta)] text-text focus:border-accent focus:outline-none"
+									className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-(length:--text-meta) text-text focus:border-accent focus:outline-none"
 								>
 									<option value="">選択してください</option>
 									{REASON_OPTIONS.map((opt) => (
@@ -99,10 +96,7 @@ export function ReportButton({ handle }: Props) {
 							</div>
 
 							<div>
-								<label
-									htmlFor="detail"
-									className="text-[length:var(--text-meta)] font-medium text-text"
-								>
+								<label htmlFor="detail" className="text-(length:--text-meta) font-medium text-text">
 									詳細（任意）
 								</label>
 								<textarea
@@ -111,7 +105,7 @@ export function ReportButton({ handle }: Props) {
 									onChange={(e) => setDetail(e.target.value)}
 									rows={3}
 									maxLength={500}
-									className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-[length:var(--text-meta)] text-text placeholder:text-text-subtle focus:border-accent focus:outline-none"
+									className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2 text-(length:--text-meta) text-text placeholder:text-text-subtle focus:border-accent focus:outline-none"
 									placeholder="具体的な内容があれば記入してください"
 								/>
 							</div>

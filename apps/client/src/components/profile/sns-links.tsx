@@ -59,7 +59,7 @@ export function SnsLinks({ links }: Props) {
 							href={href}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="flex items-center gap-1.5 rounded-full border border-border bg-surface-raised px-3 py-1 text-[length:var(--text-caption)] text-text-muted transition-colors hover:border-accent/40 hover:text-text"
+							className="flex items-center gap-1.5 rounded-full border border-border bg-surface-raised px-3 py-1 text-(length:--text-caption) text-text-muted transition-colors hover:border-accent/40 hover:text-text"
 						>
 							<PlatformIcon platform={link.platform} />
 							{platformLabel(link.platform)}

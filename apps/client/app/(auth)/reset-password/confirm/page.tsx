@@ -16,8 +16,8 @@ export default async function ResetPasswordConfirmPage({ searchParams }: Props) 
 	if (!token) {
 		return (
 			<div className="w-full max-w-md rounded-xl border border-border bg-surface-raised p-8 text-center shadow-e2">
-				<h1 className="text-[length:var(--text-title)] font-semibold text-text">無効なリンク</h1>
-				<p className="mt-3 text-[length:var(--text-body)] text-text-muted">
+				<h1 className="text-(length:--text-title) font-semibold text-text">無効なリンク</h1>
+				<p className="mt-3 text-(length:--text-body) text-text-muted">
 					パスワードリセットリンクが無効です。再度お試しください。
 				</p>
 			</div>
@@ -27,7 +27,7 @@ export default async function ResetPasswordConfirmPage({ searchParams }: Props) 
 	return (
 		<div className="w-full max-w-md">
 			<div className="rounded-xl border border-border bg-surface-raised p-8 shadow-e2">
-				<h1 className="text-[length:var(--text-title)] font-semibold text-text">
+				<h1 className="text-(length:--text-title) font-semibold text-text">
 					新しいパスワードを設定
 				</h1>
 				<div className="mt-6">

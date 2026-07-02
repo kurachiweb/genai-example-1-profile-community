@@ -13,19 +13,19 @@ export default function RegisterSentPage() {
 			<div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-accent/10">
 				<Mail className="size-6 text-accent" aria-hidden="true" />
 			</div>
-			<h1 className="text-[length:var(--text-title)] font-semibold text-text">
+			<h1 className="text-(length:--text-title) font-semibold text-text">
 				確認メールを送信しました
 			</h1>
-			<p className="mt-3 text-[length:var(--text-body)] text-text-muted">
+			<p className="mt-3 text-(length:--text-body) text-text-muted">
 				ご入力のメールアドレスに確認リンクをお送りしました。
 				メール内のリンクをクリックして登録を完了してください。
 			</p>
-			<p className="mt-2 text-[length:var(--text-caption)] text-text-subtle">
+			<p className="mt-2 text-(length:--text-caption) text-text-subtle">
 				メールが届かない場合は迷惑メールフォルダをご確認ください。
 			</p>
 			<Link
 				href="/login"
-				className="mt-6 inline-block text-[length:var(--text-meta)] text-accent hover:underline"
+				className="mt-6 inline-block text-(length:--text-meta) text-accent hover:underline"
 			>
 				ログインページへ
 			</Link>

@@ -20,7 +20,7 @@ export function StatusFilter({ basePath, current, options }: StatusFilterProps) 
 						href={href}
 						aria-current={active ? 'page' : undefined}
 						className={cn(
-							'rounded-md px-3 py-1.5 text-[length:var(--text-meta)] font-medium transition-colors',
+							'rounded-md px-3 py-1.5 text-(length:--text-meta) font-medium transition-colors',
 							active
 								? 'bg-accent text-accent-contrast'
 								: 'text-text-muted hover:bg-surface-sunken hover:text-text'

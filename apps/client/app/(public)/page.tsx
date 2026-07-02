@@ -24,24 +24,24 @@ export default async function HomePage() {
 			>
 				{/* 背景アクセント(装飾) */}
 				<div
-					className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,theme(colors.accent/0.12),transparent)]"
+					className="bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,var(--color-accent),transparent)]/12 pointer-events-none absolute inset-0 -z-10"
 					aria-hidden="true"
 				/>
 
 				<div className="mx-auto max-w-2xl">
-					<div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-raised px-3 py-1 text-[length:var(--text-caption)] text-text-muted">
+					<div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-raised px-3 py-1 text-(length:--text-caption) text-text-muted">
 						<span className="size-1.5 rounded-full bg-accent" aria-hidden="true" />
 						プロフィール共有サービス
 					</div>
 					<h1
 						id="hero-heading"
-						className="mt-2 text-[length:var(--text-display)] leading-tight font-bold tracking-tight text-text"
+						className="mt-2 text-(length:--text-display) leading-tight font-bold tracking-tight text-text"
 					>
 						あなたのプロフィールを、
 						<br className="hidden sm:block" />
 						世界に届けよう
 					</h1>
-					<p className="mt-4 text-[length:var(--text-body)] text-text-muted">
+					<p className="mt-4 text-(length:--text-body) text-text-muted">
 						アイコン・名前・職業・自己紹介・SNS リンクを一つのページで共有。 固有 URL
 						で名刺や署名に貼れる、シンプルなプロフィールサービス。
 					</p>
@@ -66,7 +66,7 @@ export default async function HomePage() {
 				<div className="mx-auto max-w-5xl">
 					<h2
 						id="features-heading"
-						className="text-center text-[length:var(--text-heading)] font-bold text-text"
+						className="text-center text-(length:--text-heading) font-bold text-text"
 					>
 						シンプルで使いやすい
 					</h2>
@@ -76,7 +76,7 @@ export default async function HomePage() {
 								<UserCheck className="size-5 text-accent" aria-hidden="true" />
 							</div>
 							<h3 className="font-semibold text-text">かんたん登録</h3>
-							<p className="text-[length:var(--text-meta)] text-text-muted">
+							<p className="text-(length:--text-meta) text-text-muted">
 								メールアドレスだけで登録完了。すぐにプロフィールを設定できます。
 							</p>
 						</div>
@@ -85,7 +85,7 @@ export default async function HomePage() {
 								<Share2 className="size-5 text-accent" aria-hidden="true" />
 							</div>
 							<h3 className="font-semibold text-text">固有 URL で共有</h3>
-							<p className="text-[length:var(--text-meta)] text-text-muted">
+							<p className="text-(length:--text-meta) text-text-muted">
 								自分だけの URL で名刺・署名・SNS に貼れます。QR コードにも対応。
 							</p>
 						</div>
@@ -94,7 +94,7 @@ export default async function HomePage() {
 								<Globe className="size-5 text-accent" aria-hidden="true" />
 							</div>
 							<h3 className="font-semibold text-text">公開 API 対応</h3>
-							<p className="text-[length:var(--text-meta)] text-text-muted">
+							<p className="text-(length:--text-meta) text-text-muted">
 								API キーを発行してプログラムからプロフィールを取得・更新できます。
 							</p>
 						</div>
@@ -107,15 +107,12 @@ export default async function HomePage() {
 				<section aria-labelledby="recent-heading" className="bg-surface px-4 py-16">
 					<div className="mx-auto max-w-5xl">
 						<div className="mb-8 flex items-center justify-between">
-							<h2
-								id="recent-heading"
-								className="text-[length:var(--text-heading)] font-bold text-text"
-							>
+							<h2 id="recent-heading" className="text-(length:--text-heading) font-bold text-text">
 								最近のプロフィール
 							</h2>
 							<Link
 								href="/profiles"
-								className="text-[length:var(--text-meta)] text-accent hover:underline"
+								className="text-(length:--text-meta) text-accent hover:underline"
 							>
 								すべて見る
 							</Link>

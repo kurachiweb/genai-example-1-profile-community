@@ -32,7 +32,7 @@ function RoleSelect({
 			name={name}
 			value={value}
 			onChange={(event) => onChange?.(event.target.value)}
-			className="h-10 rounded-md border border-border bg-surface-raised px-3 text-[length:var(--text-meta)] text-text"
+			className="h-10 rounded-md border border-border bg-surface-raised px-3 text-(length:--text-meta) text-text"
 		>
 			{ROLE_OPTIONS.map(([v, label]) => (
 				<option key={v} value={v}>
@@ -90,8 +90,8 @@ export function CreateAdminForm() {
 					role="status"
 					className={
 						message.ok
-							? 'text-[length:var(--text-meta)] text-success'
-							: 'text-[length:var(--text-meta)] text-danger'
+							? 'text-(length:--text-meta) text-success'
+							: 'text-(length:--text-meta) text-danger'
 					}
 				>
 					{message.text}

@@ -54,8 +54,8 @@ export function RegisterPasskeyButton() {
 					role="status"
 					className={
 						message.ok
-							? 'text-[length:var(--text-meta)] text-success'
-							: 'text-[length:var(--text-meta)] text-danger'
+							? 'text-(length:--text-meta) text-success'
+							: 'text-(length:--text-meta) text-danger'
 					}
 				>
 					{message.text}

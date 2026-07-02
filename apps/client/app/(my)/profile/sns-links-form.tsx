@@ -76,7 +76,7 @@ export function SnsLinksForm({ snsLinks }: Props) {
 			{message ? (
 				<p
 					role="alert"
-					className={`mb-4 rounded-md px-3 py-2 text-[length:var(--text-meta)] ${
+					className={`mb-4 rounded-md px-3 py-2 text-(length:--text-meta) ${
 						message.ok
 							? 'border border-success/40 bg-success/10 text-success'
 							: 'border border-danger/40 bg-danger/10 text-danger'
@@ -92,7 +92,7 @@ export function SnsLinksForm({ snsLinks }: Props) {
 						<select
 							value={link.platform}
 							onChange={(e) => updateLink(link.id, 'platform', e.target.value)}
-							className="w-36 shrink-0 rounded-md border border-border bg-surface px-2 py-2 text-[length:var(--text-caption)] text-text focus:border-accent focus:outline-none"
+							className="w-36 shrink-0 rounded-md border border-border bg-surface px-2 py-2 text-(length:--text-caption) text-text focus:border-accent focus:outline-none"
 							aria-label="プラットフォーム"
 						>
 							{PLATFORMS.map((p) => (

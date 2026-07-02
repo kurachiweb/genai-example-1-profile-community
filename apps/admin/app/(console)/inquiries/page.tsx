@@ -36,7 +36,7 @@ export default async function InquiriesPage({
 			<StatusFilter basePath="/inquiries" current={status} options={STATUS_OPTIONS} />
 
 			{inquiries.length === 0 ? (
-				<p className="mt-4 rounded-lg border border-dashed border-border px-4 py-12 text-center text-[length:var(--text-meta)] text-text-muted">
+				<p className="mt-4 rounded-lg border border-dashed border-border px-4 py-12 text-center text-(length:--text-meta) text-text-muted">
 					該当する問い合わせはありません。
 				</p>
 			) : (
@@ -63,7 +63,7 @@ export default async function InquiriesPage({
 									{inquiry.subject ? (
 										<p className="font-medium text-text">{inquiry.subject}</p>
 									) : null}
-									<p className="line-clamp-2 text-[length:var(--text-caption)] text-text-muted">
+									<p className="line-clamp-2 text-(length:--text-caption) text-text-muted">
 										{inquiry.body}
 									</p>
 								</TD>
@@ -80,14 +80,14 @@ export default async function InquiriesPage({
 									{inquiry.category === 'report' ? (
 										<Link
 											href="/reports"
-											className="text-[length:var(--text-meta)] text-accent hover:underline"
+											className="text-(length:--text-meta) text-accent hover:underline"
 										>
 											通報キューへ ›
 										</Link>
 									) : inquiry.category === 'unfreeze' ? (
 										<Link
 											href="/unfreeze-requests"
-											className="text-[length:var(--text-meta)] text-accent hover:underline"
+											className="text-(length:--text-meta) text-accent hover:underline"
 										>
 											解除キューへ ›
 										</Link>

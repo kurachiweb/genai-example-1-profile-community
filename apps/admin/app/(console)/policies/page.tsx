@@ -40,7 +40,7 @@ export default async function PoliciesPage({
 							href={`/policies?type=${value}`}
 							aria-current={active ? 'page' : undefined}
 							className={cn(
-								'rounded-md px-3 py-1.5 text-[length:var(--text-meta)] font-medium transition-colors',
+								'rounded-md px-3 py-1.5 text-(length:--text-meta) font-medium transition-colors',
 								active
 									? 'bg-accent text-accent-contrast'
 									: 'text-text-muted hover:bg-surface-sunken hover:text-text'
@@ -53,7 +53,7 @@ export default async function PoliciesPage({
 			</div>
 
 			{policies.length === 0 ? (
-				<p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-[length:var(--text-meta)] text-text-muted">
+				<p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-(length:--text-meta) text-text-muted">
 					この種別の版はまだありません。
 				</p>
 			) : (

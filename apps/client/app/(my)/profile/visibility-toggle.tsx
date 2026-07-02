@@ -38,7 +38,7 @@ export function VisibilityToggle({ currentVisibility, isEmailVerified }: Props) 
 			{error ? (
 				<p
 					role="alert"
-					className="mb-3 rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger"
+					className="mb-3 rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
 				>
 					{error}
 				</p>
@@ -52,7 +52,7 @@ export function VisibilityToggle({ currentVisibility, isEmailVerified }: Props) 
 					)}
 					<div>
 						<p className="font-medium text-text">{visibility === 'PUBLIC' ? '公開中' : '非公開'}</p>
-						<p className="text-[length:var(--text-caption)] text-text-muted">
+						<p className="text-(length:--text-caption) text-text-muted">
 							{visibility === 'PUBLIC'
 								? '誰でもプロフィールを閲覧できます。'
 								: 'プロフィールは一般には公開されていません。'}

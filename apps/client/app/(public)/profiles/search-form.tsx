@@ -38,7 +38,7 @@ export function SearchForm({ defaultValue = '' }: Props) {
 			</div>
 			<button
 				type="submit"
-				className="rounded-md bg-accent px-4 text-[length:var(--text-meta)] font-medium text-white hover:opacity-90"
+				className="rounded-md bg-accent px-4 text-(length:--text-meta) font-medium text-white hover:opacity-90"
 			>
 				検索
 			</button>

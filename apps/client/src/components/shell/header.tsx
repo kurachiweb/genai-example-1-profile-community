@@ -14,7 +14,7 @@ export async function Header() {
 			<div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
 				<Link
 					href="/"
-					className="flex items-center gap-2 text-[length:var(--text-meta)] font-semibold text-text hover:opacity-80"
+					className="flex items-center gap-2 text-(length:--text-meta) font-semibold text-text hover:opacity-80"
 				>
 					<span aria-hidden="true" className="size-2.5 rounded-full bg-accent" />
 					GenAI Profile Community
@@ -23,7 +23,7 @@ export async function Header() {
 				<nav aria-label="サイトナビゲーション" className="flex items-center gap-1">
 					<Link
 						href="/profiles"
-						className="rounded-md px-3 py-1.5 text-[length:var(--text-meta)] text-text-muted hover:bg-surface-raised hover:text-text"
+						className="rounded-md px-3 py-1.5 text-(length:--text-meta) text-text-muted hover:bg-surface-raised hover:text-text"
 					>
 						プロフィール一覧
 					</Link>

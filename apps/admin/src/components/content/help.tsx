@@ -62,7 +62,7 @@ export function HelpFormDialog({ article }: { article?: HelpArticle }) {
 				ref={ref}
 				className="m-auto w-[min(40rem,94vw)] rounded-xl border border-border bg-surface-raised p-6 text-text shadow-e3 backdrop:bg-black/40"
 			>
-				<h2 className="text-[length:var(--text-title)] font-semibold text-text">
+				<h2 className="text-(length:--text-title) font-semibold text-text">
 					{isEdit ? 'ヘルプ記事を編集' : 'ヘルプ記事を作成'}
 				</h2>
 				<div className="mt-4 flex flex-col gap-3">
@@ -118,13 +118,13 @@ export function HelpFormDialog({ article }: { article?: HelpArticle }) {
 							value={body}
 							onChange={(e) => setBody(e.target.value)}
 							rows={12}
-							className="resize-y rounded-md border border-border bg-surface-raised px-3 py-2 font-mono text-[length:var(--text-meta)] text-text outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+							className="resize-y rounded-md border border-border bg-surface-raised px-3 py-2 font-mono text-(length:--text-meta) text-text outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
 						/>
 					</div>
 					{error ? (
 						<p
 							role="alert"
-							className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger"
+							className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
 						>
 							{error}
 						</p>

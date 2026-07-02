@@ -5,7 +5,7 @@ import { cn } from '@lib';
 export function Table({ children, className }: { children: ReactNode; className?: string }) {
 	return (
 		<div className={cn('overflow-x-auto rounded-lg border border-border', className)}>
-			<table className="w-full border-collapse text-[length:var(--text-meta)]">{children}</table>
+			<table className="w-full border-collapse text-(length:--text-meta)">{children}</table>
 		</div>
 	);
 }

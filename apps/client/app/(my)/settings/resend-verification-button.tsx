@@ -17,7 +17,7 @@ export function ResendVerificationButton() {
 
 	if (sent) {
 		return (
-			<p className="text-[length:var(--text-caption)] text-success">
+			<p className="text-(length:--text-caption) text-success">
 				確認メールを再送しました。受信トレイをご確認ください。
 			</p>
 		);

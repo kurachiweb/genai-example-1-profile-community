@@ -40,7 +40,7 @@ export function ProfileForm({ profile }: Props) {
 			{message ? (
 				<p
 					role="alert"
-					className={`mb-4 rounded-md px-3 py-2 text-[length:var(--text-meta)] ${
+					className={`mb-4 rounded-md px-3 py-2 text-(length:--text-meta) ${
 						message.ok
 							? 'border border-success/40 bg-success/10 text-success'
 							: 'border border-danger/40 bg-danger/10 text-danger'
@@ -61,7 +61,7 @@ export function ProfileForm({ profile }: Props) {
 						pattern="^[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
 						maxLength={32}
 					/>
-					<p className="text-[length:var(--text-caption)] text-text-subtle">
+					<p className="text-(length:--text-caption) text-text-subtle">
 						英数字・ハイフン。公開 URL: /your-handle
 					</p>
 				</div>
@@ -105,7 +105,7 @@ export function ProfileForm({ profile }: Props) {
 						defaultValue={profile.bio ?? ''}
 						rows={4}
 						maxLength={500}
-						className="w-full rounded-md border border-border bg-surface px-3 py-2 text-[length:var(--text-meta)] text-text placeholder:text-text-subtle focus:border-accent focus:outline-none"
+						className="w-full rounded-md border border-border bg-surface px-3 py-2 text-(length:--text-meta) text-text placeholder:text-text-subtle focus:border-accent focus:outline-none"
 						placeholder="あなた自身について書いてください（最大 500 文字）"
 					/>
 				</div>

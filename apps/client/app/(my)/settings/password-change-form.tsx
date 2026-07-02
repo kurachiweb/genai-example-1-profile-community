@@ -41,7 +41,7 @@ export function PasswordChangeForm() {
 			{message ? (
 				<p
 					role="alert"
-					className={`rounded-md px-3 py-2 text-[length:var(--text-meta)] ${
+					className={`rounded-md px-3 py-2 text-(length:--text-meta) ${
 						message.ok
 							? 'border border-success/40 bg-success/10 text-success'
 							: 'border border-danger/40 bg-danger/10 text-danger'
@@ -77,7 +77,7 @@ export function PasswordChangeForm() {
 					minLength={10}
 					maxLength={128}
 				/>
-				<p className="text-[length:var(--text-caption)] text-text-subtle">10〜128 文字</p>
+				<p className="text-(length:--text-caption) text-text-subtle">10〜128 文字</p>
 			</div>
 
 			<div className="flex flex-col gap-1.5">

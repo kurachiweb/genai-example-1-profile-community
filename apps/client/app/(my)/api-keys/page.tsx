@@ -29,11 +29,11 @@ export default async function ApiKeysPage() {
 			<section aria-labelledby="api-info-heading">
 				<h2
 					id="api-info-heading"
-					className="mb-2 text-[length:var(--text-title)] font-semibold text-text"
+					className="mb-2 text-(length:--text-title) font-semibold text-text"
 				>
 					API について
 				</h2>
-				<div className="space-y-2 rounded-xl border border-border bg-surface-raised p-5 text-[length:var(--text-meta)] text-text-muted">
+				<div className="space-y-2 rounded-xl border border-border bg-surface-raised p-5 text-(length:--text-meta) text-text-muted">
 					<p>
 						<strong className="text-text">read スコープ:</strong>{' '}
 						プロフィールの読み取り専用アクセス。

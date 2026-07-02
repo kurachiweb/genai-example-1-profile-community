@@ -5,7 +5,7 @@ export function Footer() {
 	const year = new Date().getFullYear();
 	return (
 		<footer className="border-t border-border bg-surface">
-			<div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-4 py-6 text-[length:var(--text-caption)] text-text-subtle sm:flex-row sm:justify-between">
+			<div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-4 py-6 text-(length:--text-caption) text-text-subtle sm:flex-row sm:justify-between">
 				<p>© {year} GenAI Profile Community</p>
 				<nav aria-label="フッターナビゲーション" className="flex gap-4">
 					<Link href="/terms" className="hover:text-text-muted hover:underline">

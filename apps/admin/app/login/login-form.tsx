@@ -35,8 +35,8 @@ export function LoginForm() {
 	return (
 		<form action={formAction} className="flex flex-col gap-4" noValidate>
 			<div>
-				<h2 className="text-[length:var(--text-title)] font-semibold text-text">ログイン</h2>
-				<p className="mt-1 text-[length:var(--text-meta)] text-text-muted">
+				<h2 className="text-(length:--text-title) font-semibold text-text">ログイン</h2>
+				<p className="mt-1 text-(length:--text-meta) text-text-muted">
 					メールアドレスとパスワード、またはパスキーでログインします。
 				</p>
 			</div>
@@ -44,7 +44,7 @@ export function LoginForm() {
 			{state.error ? (
 				<p
 					role="alert"
-					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger"
+					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
 				>
 					{state.error}
 				</p>
@@ -82,7 +82,7 @@ export function LoginForm() {
 				{pending ? 'ログイン中…' : 'ログイン'}
 			</Button>
 
-			<div className="flex items-center gap-3 text-[length:var(--text-caption)] text-text-subtle">
+			<div className="flex items-center gap-3 text-(length:--text-caption) text-text-subtle">
 				<span className="h-px flex-1 bg-border" />
 				または
 				<span className="h-px flex-1 bg-border" />
@@ -91,7 +91,7 @@ export function LoginForm() {
 			{passkeyError ? (
 				<p
 					role="alert"
-					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger"
+					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
 				>
 					{passkeyError}
 				</p>

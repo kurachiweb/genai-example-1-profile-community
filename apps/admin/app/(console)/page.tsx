@@ -34,34 +34,31 @@ export default async function DashboardPage() {
 			<section className="mt-6 grid gap-4 lg:grid-cols-2">
 				<Card elevation={1}>
 					<div className="flex items-center justify-between">
-						<CardTitle as="h2" className="text-[length:var(--text-occupation)]">
+						<CardTitle as="h2" className="text-(length:--text-occupation)">
 							未処理の通報
 						</CardTitle>
-						<Link
-							href="/reports"
-							className="text-[length:var(--text-meta)] text-accent hover:underline"
-						>
+						<Link href="/reports" className="text-(length:--text-meta) text-accent hover:underline">
 							すべて見る
 						</Link>
 					</div>
 					<ul className="mt-3 divide-y divide-border">
 						{openReports.length === 0 ? (
-							<li className="py-6 text-center text-[length:var(--text-meta)] text-text-muted">
+							<li className="py-6 text-center text-(length:--text-meta) text-text-muted">
 								未対応の通報はありません。
 							</li>
 						) : (
 							openReports.slice(0, 5).map((report) => (
 								<li key={report.id} className="flex items-center justify-between gap-3 py-2.5">
 									<div className="min-w-0">
-										<p className="truncate text-[length:var(--text-meta)] font-medium text-text">
+										<p className="truncate text-(length:--text-meta) font-medium text-text">
 											@{report.targetHandle}
 										</p>
-										<p className="text-[length:var(--text-caption)] text-text-muted">
+										<p className="text-(length:--text-caption) text-text-muted">
 											{reportReasonLabel(report.reasonCategory)}
 											{report.duplicateCount > 1 ? `・${report.duplicateCount} 件集約` : ''}
 										</p>
 									</div>
-									<time className="shrink-0 text-[length:var(--text-caption)] text-text-subtle">
+									<time className="shrink-0 text-(length:--text-caption) text-text-subtle">
 										{formatRelativeTime(report.createdAt)}
 									</time>
 								</li>
@@ -72,28 +69,28 @@ export default async function DashboardPage() {
 
 				<Card elevation={1}>
 					<div className="flex items-center justify-between">
-						<CardTitle as="h2" className="text-[length:var(--text-occupation)]">
+						<CardTitle as="h2" className="text-(length:--text-occupation)">
 							審査待ちの解除リクエスト
 						</CardTitle>
 						<Link
 							href="/unfreeze-requests"
-							className="text-[length:var(--text-meta)] text-accent hover:underline"
+							className="text-(length:--text-meta) text-accent hover:underline"
 						>
 							すべて見る
 						</Link>
 					</div>
 					<ul className="mt-3 divide-y divide-border">
 						{pendingUnfreeze.length === 0 ? (
-							<li className="py-6 text-center text-[length:var(--text-meta)] text-text-muted">
+							<li className="py-6 text-center text-(length:--text-meta) text-text-muted">
 								審査待ちのリクエストはありません。
 							</li>
 						) : (
 							pendingUnfreeze.slice(0, 5).map((req) => (
 								<li key={req.id} className="flex items-center justify-between gap-3 py-2.5">
-									<p className="min-w-0 truncate text-[length:var(--text-meta)] text-text-muted">
+									<p className="min-w-0 truncate text-(length:--text-meta) text-text-muted">
 										{req.reason}
 									</p>
-									<time className="shrink-0 text-[length:var(--text-caption)] text-text-subtle">
+									<time className="shrink-0 text-(length:--text-caption) text-text-subtle">
 										{formatRelativeTime(req.createdAt)}
 									</time>
 								</li>

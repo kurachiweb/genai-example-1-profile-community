@@ -30,7 +30,7 @@ export function WithdrawSection() {
 				<AlertTriangle className="mt-0.5 size-5 shrink-0 text-danger" aria-hidden="true" />
 				<div>
 					<p className="font-semibold text-danger">アカウントを削除する</p>
-					<p className="mt-1 text-[length:var(--text-meta)] text-text-muted">
+					<p className="mt-1 text-(length:--text-meta) text-text-muted">
 						退会するとプロフィールと関連データはすべて削除され、元に戻せません。
 					</p>
 				</div>
@@ -50,13 +50,13 @@ export function WithdrawSection() {
 					{error ? (
 						<p
 							role="alert"
-							className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger"
+							className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
 						>
 							{error}
 						</p>
 					) : null}
 
-					<p className="text-[length:var(--text-meta)] text-text-muted">
+					<p className="text-(length:--text-meta) text-text-muted">
 						本当に退会しますか？確認のため現在のパスワードを入力してください。
 					</p>
 

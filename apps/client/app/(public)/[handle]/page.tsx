@@ -74,10 +74,10 @@ export default async function PublicProfilePage({ params }: Props) {
 
 					{/* 名前・職業 */}
 					<div className="min-w-0">
-						<h1 className="text-[length:var(--text-heading)] font-bold text-text">{displayName}</h1>
-						<p className="text-[length:var(--text-meta)] text-text-muted">@{handle}</p>
+						<h1 className="text-(length:--text-heading) font-bold text-text">{displayName}</h1>
+						<p className="text-(length:--text-meta) text-text-muted">@{handle}</p>
 						{profile.occupation ? (
-							<p className="mt-1 text-[length:var(--text-body)] font-medium text-text-muted">
+							<p className="mt-1 text-(length:--text-body) font-medium text-text-muted">
 								{profile.occupation}
 							</p>
 						) : null}
@@ -86,7 +86,7 @@ export default async function PublicProfilePage({ params }: Props) {
 
 				{/* 自己紹介 */}
 				{profile.bio ? (
-					<p className="mt-6 text-[length:var(--text-body)] whitespace-pre-wrap text-text-muted">
+					<p className="mt-6 text-(length:--text-body) whitespace-pre-wrap text-text-muted">
 						{profile.bio}
 					</p>
 				) : null}

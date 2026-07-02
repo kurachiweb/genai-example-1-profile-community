@@ -36,7 +36,7 @@ export default async function UnfreezeRequestsPage({
 			<StatusFilter basePath="/unfreeze-requests" current={status} options={STATUS_OPTIONS} />
 
 			{requests.length === 0 ? (
-				<p className="mt-4 rounded-lg border border-dashed border-border px-4 py-12 text-center text-[length:var(--text-meta)] text-text-muted">
+				<p className="mt-4 rounded-lg border border-dashed border-border px-4 py-12 text-center text-(length:--text-meta) text-text-muted">
 					該当する解除リクエストはありません。
 				</p>
 			) : (

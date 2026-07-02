@@ -18,7 +18,7 @@ export default async function AnnouncementsPage() {
 			/>
 
 			{announcements.length === 0 ? (
-				<p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-[length:var(--text-meta)] text-text-muted">
+				<p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-(length:--text-meta) text-text-muted">
 					お知らせはまだありません。
 				</p>
 			) : (

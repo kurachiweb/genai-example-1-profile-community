@@ -24,7 +24,7 @@ export default function MyLayout({ children }: { children: React.ReactNode }) {
 								<li key={href}>
 									<Link
 										href={href}
-										className="flex items-center gap-2 rounded-md px-3 py-2 text-[length:var(--text-meta)] text-text-muted transition-colors hover:bg-surface-raised hover:text-text"
+										className="flex items-center gap-2 rounded-md px-3 py-2 text-(length:--text-meta) text-text-muted transition-colors hover:bg-surface-raised hover:text-text"
 									>
 										<Icon className="size-4 shrink-0" aria-hidden="true" />
 										{label}

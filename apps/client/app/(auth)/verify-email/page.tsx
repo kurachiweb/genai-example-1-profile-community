@@ -39,15 +39,15 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 				<div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-accent/10">
 					<CheckCircle className="size-6 text-accent" aria-hidden="true" />
 				</div>
-				<h1 className="text-[length:var(--text-title)] font-semibold text-text">
+				<h1 className="text-(length:--text-title) font-semibold text-text">
 					メールアドレスを確認しました
 				</h1>
-				<p className="mt-3 text-[length:var(--text-body)] text-text-muted">
+				<p className="mt-3 text-(length:--text-body) text-text-muted">
 					アカウントが有効化されました。ログインしてプロフィールを設定しましょう。
 				</p>
 				<Link
 					href="/login"
-					className="mt-6 inline-block rounded-md bg-accent px-4 py-2 text-[length:var(--text-meta)] font-medium text-white hover:opacity-90"
+					className="mt-6 inline-block rounded-md bg-accent px-4 py-2 text-(length:--text-meta) font-medium text-white hover:opacity-90"
 				>
 					ログインする
 				</Link>
@@ -64,13 +64,11 @@ function ErrorCard({ message }: { message: string }) {
 			<div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-danger/10">
 				<XCircle className="size-6 text-danger" aria-hidden="true" />
 			</div>
-			<h1 className="text-[length:var(--text-title)] font-semibold text-text">
-				確認に失敗しました
-			</h1>
-			<p className="mt-3 text-[length:var(--text-body)] text-text-muted">{message}</p>
+			<h1 className="text-(length:--text-title) font-semibold text-text">確認に失敗しました</h1>
+			<p className="mt-3 text-(length:--text-body) text-text-muted">{message}</p>
 			<Link
 				href="/register"
-				className="mt-6 inline-block text-[length:var(--text-meta)] text-accent hover:underline"
+				className="mt-6 inline-block text-(length:--text-meta) text-accent hover:underline"
 			>
 				再度登録する
 			</Link>

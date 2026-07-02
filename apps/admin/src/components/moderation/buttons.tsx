@@ -32,7 +32,7 @@ export function FreezeUserButton({ userId }: { userId: string }) {
 			confirmVariant="danger"
 			onConfirm={() => freezeUserAction(userId, reason)}
 		>
-			<label className="flex flex-col gap-1.5 text-[length:var(--text-meta)]">
+			<label className="flex flex-col gap-1.5 text-(length:--text-meta)">
 				<span className="font-medium text-text">理由区分</span>
 				<select
 					value={reason}

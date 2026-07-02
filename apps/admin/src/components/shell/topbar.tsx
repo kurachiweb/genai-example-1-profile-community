@@ -14,7 +14,7 @@ export function Topbar({ role }: { role: AdminRole }) {
 			<form action={logoutAction}>
 				<button
 					type="submit"
-					className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[length:var(--text-meta)] font-medium text-text-muted transition-colors hover:bg-surface-sunken hover:text-text"
+					className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-(length:--text-meta) font-medium text-text-muted transition-colors hover:bg-surface-sunken hover:text-text"
 				>
 					<LogOut className="size-4" aria-hidden="true" />
 					ログアウト

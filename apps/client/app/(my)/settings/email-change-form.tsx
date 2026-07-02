@@ -35,7 +35,7 @@ export function EmailChangeForm() {
 			{message ? (
 				<p
 					role="alert"
-					className={`rounded-md px-3 py-2 text-[length:var(--text-meta)] ${
+					className={`rounded-md px-3 py-2 text-(length:--text-meta) ${
 						message.ok
 							? 'border border-success/40 bg-success/10 text-success'
 							: 'border border-danger/40 bg-danger/10 text-danger'

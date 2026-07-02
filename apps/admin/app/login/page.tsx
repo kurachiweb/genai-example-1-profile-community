@@ -10,17 +10,17 @@ export default function LoginPage() {
 				<section className="flex flex-col justify-between gap-8 rounded-xl border border-border bg-accent/8 p-8">
 					<div className="flex items-center gap-2">
 						<span aria-hidden="true" className="size-3 rounded-full bg-accent" />
-						<span className="text-[length:var(--text-meta)] font-semibold text-text">
+						<span className="text-(length:--text-meta) font-semibold text-text">
 							GenAI Profile Community
 						</span>
 					</div>
 					<div>
-						<h1 className="text-[length:var(--text-display)] leading-tight font-bold text-text">
+						<h1 className="text-(length:--text-display) leading-tight font-bold text-text">
 							管理者
 							<br />
 							コンソール
 						</h1>
-						<p className="mt-3 text-[length:var(--text-body)] text-text-muted">
+						<p className="mt-3 text-(length:--text-body) text-text-muted">
 							運営チーム向け。安全に、すばやく。
 						</p>
 					</div>

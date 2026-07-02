@@ -52,19 +52,17 @@ export function CreateApiKeyButton() {
 					className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
 				>
 					<div className="w-full max-w-sm rounded-xl border border-border bg-surface-raised p-6 shadow-e3">
-						<h2 className="text-[length:var(--text-title)] font-semibold text-text">
-							API キーを発行
-						</h2>
+						<h2 className="text-(length:--text-title) font-semibold text-text">API キーを発行</h2>
 
 						{rawKey ? (
 							<div className="mt-4 space-y-3">
 								<div
 									role="alert"
-									className="rounded-md border border-warning/40 bg-warning/10 p-3 text-[length:var(--text-caption)] text-warning"
+									className="rounded-md border border-warning/40 bg-warning/10 p-3 text-(length:--text-caption) text-warning"
 								>
 									このキーは一度しか表示されません。必ずコピーして保管してください。
 								</div>
-								<code className="block w-full rounded-md border border-border bg-surface p-3 text-[length:var(--text-caption)] break-all text-text">
+								<code className="block w-full rounded-md border border-border bg-surface p-3 text-(length:--text-caption) break-all text-text">
 									{rawKey}
 								</code>
 								<Button onClick={handleClose} className="w-full">
@@ -74,7 +72,7 @@ export function CreateApiKeyButton() {
 						) : (
 							<form onSubmit={handleCreate} className="mt-4 space-y-4">
 								{error ? (
-									<p className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger">
+									<p className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger">
 										{error}
 									</p>
 								) : null}
@@ -99,7 +97,7 @@ export function CreateApiKeyButton() {
 									<select
 										id="keyScope"
 										name="scope"
-										className="w-full rounded-md border border-border bg-surface px-3 py-2 text-[length:var(--text-meta)] text-text focus:border-accent focus:outline-none"
+										className="w-full rounded-md border border-border bg-surface px-3 py-2 text-(length:--text-meta) text-text focus:border-accent focus:outline-none"
 									>
 										<option value="read">read — 読み取り専用</option>
 										<option value="full">full — 読み書き</option>

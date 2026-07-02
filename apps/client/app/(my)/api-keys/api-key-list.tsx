@@ -29,10 +29,8 @@ export function ApiKeyList({ keys }: Props) {
 		return (
 			<div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-surface-raised py-12 text-center">
 				<KeyRound className="size-8 text-text-subtle" aria-hidden="true" />
-				<p className="text-[length:var(--text-body)] text-text-muted">
-					有効な API キーがありません。
-				</p>
-				<p className="text-[length:var(--text-caption)] text-text-subtle">
+				<p className="text-(length:--text-body) text-text-muted">有効な API キーがありません。</p>
+				<p className="text-(length:--text-caption) text-text-subtle">
 					「キーを発行」ボタンから新しいキーを作成できます。
 				</p>
 			</div>
@@ -49,7 +47,7 @@ export function ApiKeyList({ keys }: Props) {
 							<span className="font-medium text-text">{key.label ?? '(ラベルなし)'}</span>
 							<Badge tone={key.scope === 'full' ? 'danger' : 'neutral'}>{key.scope}</Badge>
 						</div>
-						<p className="mt-0.5 text-[length:var(--text-caption)] text-text-subtle">
+						<p className="mt-0.5 text-(length:--text-caption) text-text-subtle">
 							作成日: {formatRelativeTime(key.createdAt)}
 							{key.lastUsedAt ? ` · 最終使用: ${formatRelativeTime(key.lastUsedAt)}` : ''}
 						</p>

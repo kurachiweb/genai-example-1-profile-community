@@ -10,10 +10,8 @@ export function RegisterForm() {
 	return (
 		<form action={formAction} className="flex flex-col gap-4" noValidate>
 			<div>
-				<h2 className="text-[length:var(--text-title)] font-semibold text-text">
-					アカウントを作成
-				</h2>
-				<p className="mt-1 text-[length:var(--text-meta)] text-text-muted">
+				<h2 className="text-(length:--text-title) font-semibold text-text">アカウントを作成</h2>
+				<p className="mt-1 text-(length:--text-meta) text-text-muted">
 					登録後、確認メールをお送りします。
 				</p>
 			</div>
@@ -21,7 +19,7 @@ export function RegisterForm() {
 			{state.error ? (
 				<p
 					role="alert"
-					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger"
+					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
 				>
 					{state.error}
 				</p>
@@ -47,7 +45,7 @@ export function RegisterForm() {
 					minLength={10}
 					maxLength={128}
 				/>
-				<p className="text-[length:var(--text-caption)] text-text-subtle">
+				<p className="text-(length:--text-caption) text-text-subtle">
 					10〜128 文字で設定してください。
 				</p>
 			</div>

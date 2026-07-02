@@ -22,19 +22,19 @@ export default async function SettingsPage() {
 			<section aria-labelledby="email-status-heading">
 				<h2
 					id="email-status-heading"
-					className="mb-3 text-[length:var(--text-title)] font-semibold text-text"
+					className="mb-3 text-(length:--text-title) font-semibold text-text"
 				>
 					メールアドレス
 				</h2>
 				<div className="rounded-xl border border-border bg-surface-raised p-5">
-					<p className="text-[length:var(--text-meta)] text-text">
+					<p className="text-(length:--text-meta) text-text">
 						現在のメールアドレス: <strong>{me.email}</strong>
 					</p>
 					{me.emailVerifiedAt ? (
-						<p className="mt-1 text-[length:var(--text-caption)] text-success">確認済み</p>
+						<p className="mt-1 text-(length:--text-caption) text-success">確認済み</p>
 					) : (
 						<div className="mt-2 space-y-2">
-							<p className="text-[length:var(--text-caption)] text-warning">未確認</p>
+							<p className="text-(length:--text-caption) text-warning">未確認</p>
 							<ResendVerificationButton />
 						</div>
 					)}
@@ -45,7 +45,7 @@ export default async function SettingsPage() {
 			<section aria-labelledby="change-email-heading">
 				<h2
 					id="change-email-heading"
-					className="mb-3 text-[length:var(--text-title)] font-semibold text-text"
+					className="mb-3 text-(length:--text-title) font-semibold text-text"
 				>
 					メールアドレスの変更
 				</h2>
@@ -56,7 +56,7 @@ export default async function SettingsPage() {
 			<section aria-labelledby="change-password-heading">
 				<h2
 					id="change-password-heading"
-					className="mb-3 text-[length:var(--text-title)] font-semibold text-text"
+					className="mb-3 text-(length:--text-title) font-semibold text-text"
 				>
 					パスワードの変更
 				</h2>
@@ -67,7 +67,7 @@ export default async function SettingsPage() {
 			<section aria-labelledby="withdraw-heading">
 				<h2
 					id="withdraw-heading"
-					className="mb-3 text-[length:var(--text-title)] font-semibold text-text"
+					className="mb-3 text-(length:--text-title) font-semibold text-text"
 				>
 					退会
 				</h2>

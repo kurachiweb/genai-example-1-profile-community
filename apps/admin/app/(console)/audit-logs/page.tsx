@@ -67,7 +67,7 @@ export default async function AuditLogsPage({
 			/>
 
 			<form method="get" className="mb-4 flex flex-wrap items-end gap-2">
-				<label className="flex flex-col gap-1 text-[length:var(--text-meta)]">
+				<label className="flex flex-col gap-1 text-(length:--text-meta)">
 					<span className="text-text-muted">操作者種別</span>
 					<select
 						name="actorType"
@@ -81,7 +81,7 @@ export default async function AuditLogsPage({
 						))}
 					</select>
 				</label>
-				<label className="flex flex-col gap-1 text-[length:var(--text-meta)]">
+				<label className="flex flex-col gap-1 text-(length:--text-meta)">
 					<span className="text-text-muted">イベント種別</span>
 					<input
 						type="text"
@@ -91,7 +91,7 @@ export default async function AuditLogsPage({
 						className="h-10 w-52 rounded-md border border-border bg-surface-raised px-3 text-text outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
 					/>
 				</label>
-				<label className="flex flex-col gap-1 text-[length:var(--text-meta)]">
+				<label className="flex flex-col gap-1 text-(length:--text-meta)">
 					<span className="text-text-muted">対象 ID</span>
 					<input
 						type="text"
@@ -106,7 +106,7 @@ export default async function AuditLogsPage({
 			</form>
 
 			{logs.length === 0 ? (
-				<p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-[length:var(--text-meta)] text-text-muted">
+				<p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-(length:--text-meta) text-text-muted">
 					該当する記録はありません。
 				</p>
 			) : (
@@ -138,7 +138,7 @@ export default async function AuditLogsPage({
 								<TD>
 									<Badge tone={log.result === 'success' ? 'success' : 'danger'}>{log.result}</Badge>
 								</TD>
-								<TD className="max-w-xs truncate text-[length:var(--text-caption)] text-text-subtle">
+								<TD className="max-w-xs truncate text-(length:--text-caption) text-text-subtle">
 									{formatMetadata(log.metadataJson)}
 								</TD>
 							</TR>
@@ -148,7 +148,7 @@ export default async function AuditLogsPage({
 			)}
 
 			<nav
-				className="mt-4 flex items-center justify-between text-[length:var(--text-meta)]"
+				className="mt-4 flex items-center justify-between text-(length:--text-meta)"
 				aria-label="ページング"
 			>
 				<span className="text-text-muted">

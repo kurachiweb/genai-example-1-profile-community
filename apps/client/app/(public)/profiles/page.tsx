@@ -38,17 +38,15 @@ export default async function ProfilesPage({ searchParams }: Props) {
 			<SearchForm defaultValue={q} />
 
 			{q ? (
-				<p className="mb-4 text-[length:var(--text-meta)] text-text-muted">
+				<p className="mb-4 text-(length:--text-meta) text-text-muted">
 					「{q}」の検索結果: {total} 件
 				</p>
 			) : (
-				<p className="mb-4 text-[length:var(--text-meta)] text-text-muted">
-					{total} 件のプロフィール
-				</p>
+				<p className="mb-4 text-(length:--text-meta) text-text-muted">{total} 件のプロフィール</p>
 			)}
 
 			{profiles.length === 0 ? (
-				<div className="py-16 text-center text-[length:var(--text-body)] text-text-muted">
+				<div className="py-16 text-center text-(length:--text-body) text-text-muted">
 					{q
 						? `「${q}」に一致するプロフィールが見つかりませんでした。`
 						: 'まだ公開プロフィールがありません。'}
@@ -66,18 +64,18 @@ export default async function ProfilesPage({ searchParams }: Props) {
 					{currentPage > 1 ? (
 						<a
 							href={`/profiles?q=${encodeURIComponent(q)}&page=${currentPage - 1}`}
-							className="rounded-md border border-border px-3 py-1.5 text-[length:var(--text-meta)] text-text-muted hover:bg-surface-raised"
+							className="rounded-md border border-border px-3 py-1.5 text-(length:--text-meta) text-text-muted hover:bg-surface-raised"
 						>
 							前へ
 						</a>
 					) : null}
-					<span className="rounded-md border border-accent bg-accent/8 px-3 py-1.5 text-[length:var(--text-meta)] font-medium text-accent">
+					<span className="rounded-md border border-accent bg-accent/8 px-3 py-1.5 text-(length:--text-meta) font-medium text-accent">
 						{currentPage} / {totalPages}
 					</span>
 					{currentPage < totalPages ? (
 						<a
 							href={`/profiles?q=${encodeURIComponent(q)}&page=${currentPage + 1}`}
-							className="rounded-md border border-border px-3 py-1.5 text-[length:var(--text-meta)] text-text-muted hover:bg-surface-raised"
+							className="rounded-md border border-border px-3 py-1.5 text-(length:--text-meta) text-text-muted hover:bg-surface-raised"
 						>
 							次へ
 						</a>

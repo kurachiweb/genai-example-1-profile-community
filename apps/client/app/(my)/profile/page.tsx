@@ -27,7 +27,7 @@ export default async function ProfilePage() {
 			{!me.emailVerifiedAt ? (
 				<div
 					role="alert"
-					className="rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-[length:var(--text-meta)] text-warning"
+					className="rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-(length:--text-meta) text-warning"
 				>
 					メールアドレスの確認が完了していません。プロフィールを公開するには確認が必要です。
 					受信トレイをご確認ください。
@@ -41,7 +41,7 @@ export default async function ProfilePage() {
 			<section aria-labelledby="visibility-heading">
 				<h2
 					id="visibility-heading"
-					className="mb-3 text-[length:var(--text-title)] font-semibold text-text"
+					className="mb-3 text-(length:--text-title) font-semibold text-text"
 				>
 					公開設定
 				</h2>
@@ -55,7 +55,7 @@ export default async function ProfilePage() {
 			<section aria-labelledby="profile-heading">
 				<h2
 					id="profile-heading"
-					className="mb-3 text-[length:var(--text-title)] font-semibold text-text"
+					className="mb-3 text-(length:--text-title) font-semibold text-text"
 				>
 					基本情報
 				</h2>
@@ -64,10 +64,7 @@ export default async function ProfilePage() {
 
 			{/* SNS リンク */}
 			<section aria-labelledby="sns-heading">
-				<h2
-					id="sns-heading"
-					className="mb-3 text-[length:var(--text-title)] font-semibold text-text"
-				>
+				<h2 id="sns-heading" className="mb-3 text-(length:--text-title) font-semibold text-text">
 					SNS リンク
 				</h2>
 				<SnsLinksForm snsLinks={profile.snsLinks} />

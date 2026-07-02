@@ -22,7 +22,7 @@ export function Sidebar({ role }: { role: AdminRole }) {
 		<nav aria-label="管理ナビゲーション" className="flex h-full flex-col gap-1 p-3">
 			<div className="mb-4 flex items-center gap-2 px-2 py-1">
 				<span aria-hidden="true" className="size-3 rounded-full bg-accent" />
-				<span className="text-[length:var(--text-meta)] font-semibold text-text">GenAI Admin</span>
+				<span className="text-(length:--text-meta) font-semibold text-text">GenAI Admin</span>
 			</div>
 			<ul className="flex flex-col gap-0.5">
 				{items.map((item) => {
@@ -34,7 +34,7 @@ export function Sidebar({ role }: { role: AdminRole }) {
 								href={item.href}
 								aria-current={active ? 'page' : undefined}
 								className={cn(
-									'flex items-center gap-3 rounded-md px-3 py-2 text-[length:var(--text-meta)] font-medium transition-colors',
+									'flex items-center gap-3 rounded-md px-3 py-2 text-(length:--text-meta) font-medium transition-colors',
 									active
 										? 'bg-accent/12 text-accent'
 										: 'text-text-muted hover:bg-surface-sunken hover:text-text'

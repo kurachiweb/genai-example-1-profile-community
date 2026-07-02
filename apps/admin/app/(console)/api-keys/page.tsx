@@ -21,7 +21,7 @@ export default async function ApiKeysPage() {
 			<Card elevation={1} className="mb-6">
 				<div className="flex flex-wrap items-center justify-between gap-4">
 					<div>
-						<CardTitle as="h2" className="text-[length:var(--text-occupation)]">
+						<CardTitle as="h2" className="text-(length:--text-occupation)">
 							共通レート制限
 						</CardTitle>
 						<CardDescription>
@@ -29,7 +29,7 @@ export default async function ApiKeysPage() {
 						</CardDescription>
 						<p className="mt-2 text-3xl font-bold text-text tabular-nums">
 							{rateLimit.toLocaleString('ja-JP')}
-							<span className="ml-1 text-[length:var(--text-meta)] font-normal text-text-muted">
+							<span className="ml-1 text-(length:--text-meta) font-normal text-text-muted">
 								リクエスト / 分
 							</span>
 						</p>
@@ -39,7 +39,7 @@ export default async function ApiKeysPage() {
 			</Card>
 
 			{keys.length === 0 ? (
-				<p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-[length:var(--text-meta)] text-text-muted">
+				<p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-(length:--text-meta) text-text-muted">
 					発行済みの API キーはありません。
 				</p>
 			) : (

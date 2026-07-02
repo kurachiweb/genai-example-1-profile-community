@@ -13,7 +13,7 @@ export function StatTile({ label, value, icon: Icon, emphasis = false }: StatTil
 	return (
 		<Card padding="md" elevation={emphasis ? 2 : 1}>
 			<div className="flex items-start justify-between gap-2">
-				<span className="text-[length:var(--text-meta)] text-text-muted">{label}</span>
+				<span className="text-(length:--text-meta) text-text-muted">{label}</span>
 				<Icon className="size-4 shrink-0 text-text-subtle" aria-hidden="true" />
 			</div>
 			<p className="mt-2 text-3xl font-bold text-text tabular-nums">

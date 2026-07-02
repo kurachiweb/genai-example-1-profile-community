@@ -52,7 +52,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
 			/>
 
 			<form method="get" className="mb-4 flex flex-wrap items-end gap-2">
-				<label className="flex flex-col gap-1 text-[length:var(--text-meta)]">
+				<label className="flex flex-col gap-1 text-(length:--text-meta)">
 					<span className="text-text-muted">メール・ハンドル検索</span>
 					<input
 						type="search"
@@ -62,7 +62,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
 						className="h-10 w-64 rounded-md border border-border bg-surface-raised px-3 text-text outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-focus-ring"
 					/>
 				</label>
-				<label className="flex flex-col gap-1 text-[length:var(--text-meta)]">
+				<label className="flex flex-col gap-1 text-(length:--text-meta)">
 					<span className="text-text-muted">状態</span>
 					<select
 						name="status"
@@ -82,7 +82,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
 			</form>
 
 			{users.length === 0 ? (
-				<p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-[length:var(--text-meta)] text-text-muted">
+				<p className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-(length:--text-meta) text-text-muted">
 					該当するユーザーがいません。検索条件を見直してください。
 				</p>
 			) : (
@@ -114,7 +114,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
 								<TD className="text-right">
 									<Link
 										href={`/users/${user.id}`}
-										className="text-[length:var(--text-meta)] text-accent hover:underline"
+										className="text-(length:--text-meta) text-accent hover:underline"
 									>
 										詳細 ›
 									</Link>
@@ -126,7 +126,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
 			)}
 
 			<nav
-				className="mt-4 flex items-center justify-between text-[length:var(--text-meta)]"
+				className="mt-4 flex items-center justify-between text-(length:--text-meta)"
 				aria-label="ページング"
 			>
 				<span className="text-text-muted">

@@ -69,22 +69,22 @@ export function ConfirmDialog({
 				onClose={() => setError(null)}
 				className="m-auto w-[min(28rem,92vw)] rounded-xl border border-border bg-surface-raised p-6 text-text shadow-e3 backdrop:bg-black/40"
 			>
-				<h2 id={titleId} className="text-[length:var(--text-title)] font-semibold text-text">
+				<h2 id={titleId} className="text-(length:--text-title) font-semibold text-text">
 					{title}
 				</h2>
 				{description ? (
-					<p className="mt-1 text-[length:var(--text-meta)] text-text-muted">{description}</p>
+					<p className="mt-1 text-(length:--text-meta) text-text-muted">{description}</p>
 				) : null}
 				{children ? <div className="mt-4">{children}</div> : null}
 				{auditNotice ? (
-					<p className="mt-3 text-[length:var(--text-caption)] text-text-subtle">
+					<p className="mt-3 text-(length:--text-caption) text-text-subtle">
 						この操作は監査ログに記録されます。
 					</p>
 				) : null}
 				{error ? (
 					<p
 						role="alert"
-						className="mt-3 rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger"
+						className="mt-3 rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
 					>
 						{error}
 					</p>

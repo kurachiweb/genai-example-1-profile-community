@@ -15,7 +15,7 @@ export function LoginForm({ next }: Props) {
 	return (
 		<form action={formAction} className="flex flex-col gap-4" noValidate>
 			<div>
-				<h2 className="text-[length:var(--text-title)] font-semibold text-text">
+				<h2 className="text-(length:--text-title) font-semibold text-text">
 					メールアドレスでログイン
 				</h2>
 			</div>
@@ -25,7 +25,7 @@ export function LoginForm({ next }: Props) {
 			{state.error ? (
 				<p
 					role="alert"
-					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger"
+					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
 				>
 					{state.error}
 				</p>
@@ -45,7 +45,7 @@ export function LoginForm({ next }: Props) {
 					</Label>
 					<Link
 						href="/reset-password"
-						className="text-[length:var(--text-caption)] text-accent hover:underline"
+						className="text-(length:--text-caption) text-accent hover:underline"
 					>
 						パスワードを忘れた方
 					</Link>

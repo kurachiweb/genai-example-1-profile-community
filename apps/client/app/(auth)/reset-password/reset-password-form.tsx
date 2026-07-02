@@ -30,13 +30,13 @@ export function ResetPasswordForm() {
 	if (sent) {
 		return (
 			<div className="text-center">
-				<p className="text-[length:var(--text-body)] text-text-muted">
+				<p className="text-(length:--text-body) text-text-muted">
 					ご入力のメールアドレスにリセット用リンクをお送りしました（登録済みの場合）。
 					メールをご確認ください。
 				</p>
 				<Link
 					href="/login"
-					className="mt-4 inline-block text-[length:var(--text-meta)] text-accent hover:underline"
+					className="mt-4 inline-block text-(length:--text-meta) text-accent hover:underline"
 				>
 					ログインページへ
 				</Link>
@@ -49,7 +49,7 @@ export function ResetPasswordForm() {
 			{error ? (
 				<p
 					role="alert"
-					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-[length:var(--text-meta)] text-danger"
+					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
 				>
 					{error}
 				</p>
@@ -68,7 +68,7 @@ export function ResetPasswordForm() {
 
 			<Link
 				href="/login"
-				className="text-center text-[length:var(--text-caption)] text-text-subtle hover:underline"
+				className="text-center text-(length:--text-caption) text-text-subtle hover:underline"
 			>
 				ログインに戻る
 			</Link>

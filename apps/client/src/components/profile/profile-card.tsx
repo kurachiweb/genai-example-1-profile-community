@@ -42,14 +42,14 @@ export function ProfileCard({ profile }: Props) {
 				<div className="min-w-0">
 					<p className="truncate font-semibold text-text group-hover:text-accent">{displayName}</p>
 					{profile.occupation ? (
-						<p className="truncate text-[length:var(--text-caption)] text-text-muted">
+						<p className="truncate text-(length:--text-caption) text-text-muted">
 							{profile.occupation}
 						</p>
 					) : null}
 				</div>
 			</div>
 			{profile.bio ? (
-				<p className="line-clamp-2 text-[length:var(--text-meta)] text-text-muted">{profile.bio}</p>
+				<p className="line-clamp-2 text-(length:--text-meta) text-text-muted">{profile.bio}</p>
 			) : null}
 		</Link>
 	);

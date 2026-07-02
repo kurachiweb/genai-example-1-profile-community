@@ -16,7 +16,7 @@ export default async function PasskeysPage() {
 			/>
 
 			<Card elevation={1} className="mb-6">
-				<CardTitle as="h2" className="text-[length:var(--text-occupation)]">
+				<CardTitle as="h2" className="text-(length:--text-occupation)">
 					パスキーを登録
 				</CardTitle>
 				<CardDescription>
@@ -28,11 +28,11 @@ export default async function PasskeysPage() {
 			</Card>
 
 			<Card elevation={1}>
-				<CardTitle as="h2" className="text-[length:var(--text-occupation)]">
+				<CardTitle as="h2" className="text-(length:--text-occupation)">
 					登録済みのパスキー
 				</CardTitle>
 				{passkeys.length === 0 ? (
-					<p className="mt-4 text-[length:var(--text-meta)] text-text-muted">
+					<p className="mt-4 text-(length:--text-meta) text-text-muted">
 						まだパスキーは登録されていません。
 					</p>
 				) : (
@@ -40,10 +40,10 @@ export default async function PasskeysPage() {
 						{passkeys.map((passkey) => (
 							<li key={passkey.id} className="flex items-center justify-between gap-3 py-3">
 								<div className="min-w-0">
-									<p className="text-[length:var(--text-meta)] font-medium text-text">
+									<p className="text-(length:--text-meta) font-medium text-text">
 										{passkey.nickname || '名称未設定のパスキー'}
 									</p>
-									<p className="text-[length:var(--text-caption)] text-text-subtle">
+									<p className="text-(length:--text-caption) text-text-subtle">
 										登録 {formatDateTime(passkey.createdAt)}
 										{passkey.lastUsedAt ? ` ・ 最終利用 ${formatDateTime(passkey.lastUsedAt)}` : ''}
 									</p>
