@@ -12,6 +12,7 @@ ESLint・Prettier による静的解析/整形、Husky + lint-staged による p
 | --- | --- | --- |
 | 静的解析（バグ・規約） | **ESLint**（Flat Config / TypeScript ESLint） | エディタ保存時・pre-commit（staged）・CI |
 | コード整形 | **Prettier**（+ `prettier-plugin-tailwindcss`） | エディタ保存時・pre-commit（staged）・CI |
+| Tailwind クラス名の妥当性検証 | **eslint-plugin-tailwindcss**（`recommended`、並び順ルール `classnames-order` のみ無効化） | エディタ保存時・pre-commit（staged）・CI |
 | ESLint と Prettier の責務分離 | **eslint-config-prettier** | ESLint 設定に組み込み |
 | pre-commit 実行基盤 | **Husky** | `git commit` / `git push` フック |
 | staged ファイルのみ整形/解析 | **lint-staged** | pre-commit |
@@ -35,7 +36,11 @@ ESLint・Prettier による静的解析/整形、Husky + lint-staged による p
 
 - 本サービスのスタイリングは **Tailwind CSS 主体**で、素の CSS はデザイントークン（`tokens.css`）・`global.css` など限定的（[ecc-web/coding-style.md](../../../.claude/rules/ecc-web/coding-style.md)・[01-architecture.md](./01-architecture.md) §3.3）。
 - CSS の整形は **Prettier**（`prettier-plugin-tailwindcss` でユーティリティクラスを規約順に整列）が担い、ロジック面は ESLint（`jsx-a11y` 含む）と TypeScript が担う。Stylelint を追加すると設定・運用コストが増え、Tailwind 主体の構成では重複が大きい。
+- **クラス名自体の妥当性**（Tailwind に存在しないクラス名・タイポ、矛盾するクラスの併用）は Stylelint の代替ではなく **`eslint-plugin-tailwindcss`**（`tailwindcss/no-custom-classname`・`tailwindcss/no-contradicting-classname`）が担う。並び順（`tailwindcss/classnames-order`）は `prettier-plugin-tailwindcss` と責務が重複するため無効化している（§4）。
 - 以上より、**個人開発向けの低コスト方針**（[CLAUDE.md](../../../CLAUDE.md)）に沿って Stylelint は採用しない。将来、素の CSS の比重が増えた場合は `stylelint-config-tailwindcss` 併用での再検討余地を残す（必要時に ADR 化）。
+
+> **既知の限界**: `tailwindcss/no-custom-classname` は `class`/`className` 属性のリテラル文字列と、`cn`/`cva` 等の関数呼び出し引数のみを解析対象とする。`const FIELD = '...'` のようにクラス文字列を変数へ切り出し、`className={FIELD}` の形で参照する書き方は検知対象外になる（`apps/admin/src/components/content/*.tsx` に実例あり）。タイポ検知の恩恵を受けるには、クラス文字列は `className` に直接記述するか `cn()` でラップすることを推奨する。
+> また `tailwindcss/no-contradicting-classname` は `divide-*`（子要素の区切り線）と `border-*`（要素自体の枠線）の組み合わせを誤って「矛盾」と判定する既知の誤検知がある。実際には競合しないため、該当箇所は無視して構わない。
 
 ## 4. Prettier と責務分離
 

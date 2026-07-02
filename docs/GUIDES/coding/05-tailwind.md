@@ -28,10 +28,11 @@ flowchart LR
 - `@apply` はトークン的な小さな共通クラス（フォーカスリング等）に限って控えめに使う。ユーティリティの羅列を CSS 側へ移し替えただけの「`@apply` の塊」を作らない。
 - 条件付きクラスの合成は **`cn()`（`clsx` + `tailwind-merge`）** を用い、重複・衝突するユーティリティを安全にマージする（shadcn/ui 慣例）。文字列連結でクラスを組み立てない。
 
-## 3. クラス整列・整形
+## 3. クラス整列・整形・妥当性検証
 
 - ユーティリティクラスの並び順は **`prettier-plugin-tailwindcss`** が自動整列する。**手作業で並べ替えない**（[02-lint-format-commit.md](./02-lint-format-commit.md) §4）。
 - **CSS 専用 Linter（Stylelint）は採用しない**。整形は Prettier、規約は本ガイドと ESLint（`jsx-a11y` 等）で担保する（決定の根拠は [02-lint-format-commit.md](./02-lint-format-commit.md) §3）。
+- クラス名の妥当性（**存在しないクラス・タイポ**）・矛盾するクラスの併用は **`eslint-plugin-tailwindcss`**（`recommended`、並び順ルールのみ無効化）が `pnpm lint` 実行時に検知する（[02-lint-format-commit.md](./02-lint-format-commit.md) §1）。クラス文字列は変数へ切り出さず `className` に直書きするか `cn()` でラップすると検知対象になる（同 §3 既知の限界を参照）。
 
 ## 4. レスポンシブ
 
