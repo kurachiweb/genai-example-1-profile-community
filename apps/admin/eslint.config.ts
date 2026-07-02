@@ -1,3 +1,4 @@
+import type { Linter } from 'eslint';
 import { defineConfig } from 'eslint/config';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
@@ -5,7 +6,7 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import eslintPluginTailwindcss from 'eslint-plugin-tailwindcss';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default defineConfig(
 	{
@@ -17,7 +18,7 @@ export default defineConfig(
 	react.configs.flat['jsx-runtime'],
 	jsxA11y.flatConfigs.recommended,
 	reactHooks.configs.flat.recommended,
-	eslintPluginTailwindcss.configs.recommended,
+	eslintPluginTailwindcss.configs.recommended as Linter.Config,
 	{
 		files: ['**/*.{ts,tsx}'],
 		// version に 'detect' を指定すると eslint-plugin-react 7.37 が ESLint 10 の
@@ -39,5 +40,5 @@ export default defineConfig(
 			'tailwindcss/classnames-order': 'off'
 		}
 	},
-	eslintPluginPrettierRecommended
+	eslintConfigPrettier
 );

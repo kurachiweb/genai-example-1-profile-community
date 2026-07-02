@@ -1,7 +1,7 @@
 import { defineConfig } from 'eslint/config';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default defineConfig(
 	{
@@ -15,5 +15,5 @@ export default defineConfig(
 			'@typescript-eslint/explicit-module-boundary-types': 'off'
 		}
 	},
-	eslintPluginPrettierRecommended
+	eslintConfigPrettier
 );
