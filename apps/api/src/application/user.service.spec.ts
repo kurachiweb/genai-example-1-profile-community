@@ -1,3 +1,5 @@
+import { NameDisplayOrder } from '../domain/display-name';
+import { Visibility } from '../domain/effective-public';
 import { UnauthorizedError, ValidationError } from '../domain/errors';
 import { UserStatus } from '../domain/user-status';
 import {
@@ -8,11 +10,10 @@ import {
 	UserRepository,
 	UserUpdateInput
 } from './gateways';
-import { UserRecord } from './models';
+import { ProfileRecord, UserRecord } from './models';
 import {
 	ApiKeyRecord,
 	CreatedApiKey,
-	EmailVerificationTokenStore,
 	InMemoryTokenStore,
 	UserApiKeyRepository,
 	UserService
@@ -26,6 +27,7 @@ class FakeUserRepository implements UserRepository {
 		string,
 		UserRecord & { passwordHash: string; emailNormalized: string }
 	>();
+	readonly profiles = new Map<string, ProfileRecord>();
 
 	async findById(id: string): Promise<UserRecord | null> {
 		const u = this.users.get(id);
@@ -42,7 +44,7 @@ class FakeUserRepository implements UserRepository {
 	async getPasswordHash(userId: string): Promise<string | null> {
 		return this.users.get(userId)?.passwordHash ?? null;
 	}
-	async createWithProfile(user: UserCreateInput, _profile: ProfileCreateInput): Promise<void> {
+	async createWithProfile(user: UserCreateInput, profile: ProfileCreateInput): Promise<void> {
 		this.users.set(user.id, {
 			id: user.id,
 			email: user.email,
@@ -51,13 +53,32 @@ class FakeUserRepository implements UserRepository {
 			status: user.status,
 			emailVerifiedAt: null
 		});
+		// ProfileEntity の既定値(visibility=public, nameDisplayOrder=given_first)を MikroUserRepository と揃える。
+		this.profiles.set(profile.id, {
+			id: profile.id,
+			userId: profile.userId,
+			handle: profile.handle,
+			visibility: Visibility.PUBLIC,
+			iconImageId: null,
+			firstName: '',
+			lastName: '',
+			nameDisplayOrder: NameDisplayOrder.GIVEN_FIRST,
+			occupation: null,
+			searchName: null,
+			bio: null,
+			createdAt: new Date(),
+			updatedAt: new Date()
+		});
 	}
 	async update(userId: string, changes: UserUpdateInput): Promise<void> {
 		const u = this.users.get(userId);
 		if (!u) return;
-		if (changes.status !== undefined) u.status = changes.status;
-		if (changes.emailVerifiedAt !== undefined) u.emailVerifiedAt = changes.emailVerifiedAt;
-		if (changes.passwordHash !== undefined) u.passwordHash = changes.passwordHash;
+		this.users.set(userId, {
+			...u,
+			...(changes.status !== undefined && { status: changes.status }),
+			...(changes.emailVerifiedAt !== undefined && { emailVerifiedAt: changes.emailVerifiedAt }),
+			...(changes.passwordHash !== undefined && { passwordHash: changes.passwordHash })
+		});
 	}
 }
 
@@ -79,10 +100,9 @@ class FakeApiKeyRepo implements UserApiKeyRepository {
 		this.keys.push(record);
 	}
 	async revoke(id: string, userId: string, revokedAt: Date): Promise<void> {
-		const key = this.keys.find((k) => k.id === id && k.userId === userId);
-		if (key) {
-			(key as { status: string }).status = 'revoked';
-			(key as { revokedAt: Date | null }).revokedAt = revokedAt;
+		const index = this.keys.findIndex((k) => k.id === id && k.userId === userId);
+		if (index !== -1) {
+			this.keys[index] = { ...this.keys[index], status: 'revoked', revokedAt };
 		}
 	}
 }
@@ -152,6 +172,39 @@ describe('UserService.register', () => {
 		await h.service.register('user@example.com', 'password1234');
 		// 2 回目も例外を投げずに返る。
 		await expect(h.service.register('user@example.com', 'password1234')).resolves.toBeUndefined();
+	});
+
+	it('ユーザーと同時に紐づくプロフィールを作成する', async () => {
+		const h = makeHarness();
+		await h.service.register('user@example.com', 'password1234');
+		const user = await h.users.findByEmailNormalized('user@example.com');
+		const profile = [...h.users.profiles.values()].find((p) => p.userId === user!.id);
+		expect(profile).toBeDefined();
+		expect(profile?.userId).toBe(user!.id);
+	});
+
+	it('プロフィールのハンドルは profileId を小文字化した値になる', async () => {
+		const h = makeHarness();
+		await h.service.register('user@example.com', 'password1234');
+		const user = await h.users.findByEmailNormalized('user@example.com');
+		const profile = [...h.users.profiles.values()].find((p) => p.userId === user!.id);
+		expect(profile?.handle).toBe(profile?.id.toLowerCase());
+	});
+
+	it('プロフィールは公開・氏名表示順=given_first の既定値で作成される(ProfileEntity の既定値と一致)', async () => {
+		const h = makeHarness();
+		await h.service.register('user@example.com', 'password1234');
+		const user = await h.users.findByEmailNormalized('user@example.com');
+		const profile = [...h.users.profiles.values()].find((p) => p.userId === user!.id);
+		expect(profile?.visibility).toBe(Visibility.PUBLIC);
+		expect(profile?.nameDisplayOrder).toBe(NameDisplayOrder.GIVEN_FIRST);
+	});
+
+	it('登録済みメールで再登録しても重複プロフィールは作成されない(列挙防止)', async () => {
+		const h = makeHarness();
+		await h.service.register('user@example.com', 'password1234');
+		await h.service.register('user@example.com', 'password1234');
+		expect(h.users.profiles.size).toBe(1);
 	});
 });
 

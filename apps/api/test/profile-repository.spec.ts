@@ -10,6 +10,7 @@ import { UserEntity } from '../src/infrastructure/persistence/entities/user.enti
 import { MikroProfileRepository } from '../src/infrastructure/persistence/profile.repository';
 import { MikroSnsLinkRepository } from '../src/infrastructure/persistence/sns-link.repository';
 import { MikroUserRepository } from '../src/infrastructure/persistence/user.repository';
+import type { ProfileCreateInput, UserCreateInput } from '../src/application/gateways';
 import type { SnsLinkRecord } from '../src/application/models';
 
 let orm: MikroORM;
@@ -121,7 +122,107 @@ describe('MikroUserRepository', () => {
 	test('findById は状態を返す', async () => {
 		await seed('a', 'a-handle', { status: UserStatus.FROZEN });
 		const repo = new MikroUserRepository(orm.em);
-		expect(await repo.findById('user-a')).toEqual({ id: 'user-a', status: UserStatus.FROZEN });
+		expect(await repo.findById('user-a')).toEqual({
+			id: 'user-a',
+			email: 'a@example.com',
+			status: UserStatus.FROZEN,
+			emailVerifiedAt: null
+		});
+	});
+
+	describe('createWithProfile', () => {
+		function userInput(overrides: Partial<UserCreateInput> = {}): UserCreateInput {
+			return {
+				id: 'user-new',
+				email: 'new@example.com',
+				emailNormalized: 'new@example.com',
+				passwordHash: 'hashed:password1234',
+				status: UserStatus.UNVERIFIED,
+				...overrides
+			};
+		}
+
+		function profileInput(overrides: Partial<ProfileCreateInput> = {}): ProfileCreateInput {
+			return {
+				id: 'profile-new',
+				userId: 'user-new',
+				handle: 'new-handle',
+				...overrides
+			};
+		}
+
+		test('ユーザーとプロフィールを同時に作成する', async () => {
+			const repo = new MikroUserRepository(orm.em);
+			await repo.createWithProfile(userInput(), profileInput());
+
+			const user = await repo.findById('user-new');
+			expect(user).toEqual({
+				id: 'user-new',
+				email: 'new@example.com',
+				status: UserStatus.UNVERIFIED,
+				emailVerifiedAt: null
+			});
+
+			const profileRepo = new MikroProfileRepository(orm.em);
+			const profile = await profileRepo.findByUserId('user-new');
+			expect(profile?.id).toBe('profile-new');
+			expect(profile?.handle).toBe('new-handle');
+		});
+
+		test('作成直後はメール未確認(emailVerifiedAt=null)である', async () => {
+			const repo = new MikroUserRepository(orm.em);
+			await repo.createWithProfile(userInput(), profileInput());
+			expect((await repo.findById('user-new'))?.emailVerifiedAt).toBeNull();
+		});
+
+		test('パスワードハッシュを保存し、認証用に取得できる(ユーザーレコードには含めない)', async () => {
+			const repo = new MikroUserRepository(orm.em);
+			await repo.createWithProfile(userInput({ passwordHash: 'hashed:secret' }), profileInput());
+			expect(await repo.getPasswordHash('user-new')).toBe('hashed:secret');
+		});
+
+		test('プロフィールは公開・氏名表示順=given_first の既定値で作成される(BR-COMMON-006)', async () => {
+			const repo = new MikroUserRepository(orm.em);
+			await repo.createWithProfile(userInput(), profileInput());
+
+			const profileRepo = new MikroProfileRepository(orm.em);
+			const profile = await profileRepo.findByUserId('user-new');
+			expect(profile?.visibility).toBe(Visibility.PUBLIC);
+			expect(profile?.nameDisplayOrder).toBe(NameDisplayOrder.GIVEN_FIRST);
+			expect(profile?.firstName).toBe('');
+			expect(profile?.lastName).toBe('');
+			expect(profile?.iconImageId).toBeNull();
+			expect(profile?.occupation).toBeNull();
+			expect(profile?.bio).toBeNull();
+		});
+
+		test('emailNormalized が重複する場合は一意制約違反で失敗し、プロフィールも作成されない', async () => {
+			await seed('a', 'a-handle');
+			const repo = new MikroUserRepository(orm.em);
+			await expect(
+				repo.createWithProfile(
+					userInput({ id: 'user-dup', emailNormalized: 'a@example.com' }),
+					profileInput({ id: 'profile-dup', userId: 'user-dup', handle: 'dup-handle' })
+				)
+			).rejects.toThrow();
+
+			expect(await repo.findById('user-dup')).toBeNull();
+			const profileRepo = new MikroProfileRepository(orm.em);
+			expect(await profileRepo.findByHandle('dup-handle')).toBeNull();
+		});
+
+		test('handle が重複する場合は一意制約違反で失敗し、ユーザーも作成されない', async () => {
+			await seed('a', 'a-handle');
+			const repo = new MikroUserRepository(orm.em);
+			await expect(
+				repo.createWithProfile(
+					userInput({ id: 'user-dup2', emailNormalized: 'dup2@example.com' }),
+					profileInput({ id: 'profile-dup2', userId: 'user-dup2', handle: 'a-handle' })
+				)
+			).rejects.toThrow();
+
+			expect(await repo.findById('user-dup2')).toBeNull();
+		});
 	});
 });
 

@@ -26,14 +26,14 @@ class FakeUserRepository implements UserRepository {
 	async findById(id: string): Promise<UserRecord | null> {
 		return this.users.get(id) ?? null;
 	}
-	async findByEmailNormalized(_email: string): Promise<UserRecord | null> {
+	async findByEmailNormalized(): Promise<UserRecord | null> {
 		return null;
 	}
 	async createWithProfile(): Promise<void> {}
-	async getPasswordHash(_userId: string): Promise<string | null> {
+	async getPasswordHash(): Promise<string | null> {
 		return null;
 	}
-	async update(_userId: string): Promise<void> {}
+	async update(): Promise<void> {}
 }
 
 class FakeProfileRepository implements ProfileRepository {
