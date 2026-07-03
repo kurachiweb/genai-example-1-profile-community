@@ -1,5 +1,6 @@
 // 内部 GraphQL API の統合テスト(Nest Testing + インメモリ SQLite + Supertest)。
 // 認可・実効公開ゲート・エラー表現(extensions.code)・カーソル接続・DataLoader を検証する(testing/01 §2.2)。
+import { hash } from '@node-rs/argon2';
 import { MikroORM } from '@mikro-orm/core';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -34,6 +35,8 @@ beforeEach(async () => {
 	await orm.schema.refresh();
 });
 
+const TEST_PASSWORD = 'password-123456';
+
 interface SeedOptions {
 	status?: UserStatus;
 	visibility?: Visibility;
@@ -46,7 +49,7 @@ async function seed(id: string, handle: string, options: SeedOptions = {}): Prom
 		id: `user-${id}`,
 		email: `${id}@example.com`,
 		emailNormalized: `${id}@example.com`,
-		passwordHash: 'x',
+		passwordHash: await hash(TEST_PASSWORD),
 		status: options.status ?? UserStatus.ACTIVE
 	});
 	em.create(ProfileEntity, {
@@ -70,6 +73,15 @@ interface GraphQLBody {
 
 function gql(body: GraphQLBody, headers: Record<string, string> = {}) {
 	return request(app.getHttpServer()).post('/graphql').set(headers).send(body);
+}
+
+/** `id` のユーザーとしてログインし、`x-user-session` に使えるセッション ID を得る。 */
+async function login(id: string): Promise<string> {
+	const res = await gql({
+		query: `mutation($input: UserLoginInput!) { login(input: $input) { sessionId } }`,
+		variables: { input: { email: `${id}@example.com`, password: TEST_PASSWORD } }
+	});
+	return res.body.data.login.sessionId as string;
 }
 
 describe('Query profile(handle)', () => {
@@ -111,11 +123,12 @@ describe('Query profiles(カーソル接続)', () => {
 });
 
 describe('Query myProfile(セッション)', () => {
-	test('x-user-id ヘッダで本人の非公開プロフィールを取得できる(AC-API-005)', async () => {
+	test('x-user-session ヘッダで本人の非公開プロフィールを取得できる(AC-API-005)', async () => {
 		await seed('a', 'minato', { visibility: Visibility.PRIVATE });
+		const sessionId = await login('a');
 		const res = await gql(
 			{ query: `query { myProfile { handle visibility } }` },
-			{ 'x-user-id': 'user-a' }
+			{ 'x-user-session': sessionId }
 		);
 		expect(res.body.data.myProfile).toEqual({ handle: 'minato', visibility: 'private' });
 	});
@@ -129,14 +142,15 @@ describe('Query myProfile(セッション)', () => {
 describe('Mutation updateProfile', () => {
 	test('内容を更新し表示名へ反映する(AC-PROF-009)', async () => {
 		await seed('a', 'minato');
+		const sessionId = await login('a');
 		const res = await gql(
 			{
-				query: `mutation($input: UpdateProfileInput!) { updateProfile(input: $input) { profile { displayName nameDisplayOrder } } }`,
+				query: `mutation($input: UpdateProfileInput!) { updateProfile(input: $input) { displayName nameDisplayOrder } }`,
 				variables: { input: { nameDisplayOrder: 'familyNameFirst' } }
 			},
-			{ 'x-user-id': 'user-a' }
+			{ 'x-user-session': sessionId }
 		);
-		expect(res.body.data.updateProfile.profile).toEqual({
+		expect(res.body.data.updateProfile).toEqual({
 			displayName: '里中 みなと',
 			nameDisplayOrder: 'familyNameFirst'
 		});
@@ -144,12 +158,13 @@ describe('Mutation updateProfile', () => {
 
 	test('自己紹介 501 文字は VALIDATION_ERROR(AC-PROF-011)', async () => {
 		await seed('a', 'minato');
+		const sessionId = await login('a');
 		const res = await gql(
 			{
-				query: `mutation($input: UpdateProfileInput!) { updateProfile(input: $input) { profile { handle } } }`,
+				query: `mutation($input: UpdateProfileInput!) { updateProfile(input: $input) { handle } }`,
 				variables: { input: { bio: 'あ'.repeat(501) } }
 			},
-			{ 'x-user-id': 'user-a' }
+			{ 'x-user-session': sessionId }
 		);
 		expect(res.body.errors[0].extensions.code).toBe('VALIDATION_ERROR');
 	});
@@ -158,12 +173,13 @@ describe('Mutation updateProfile', () => {
 describe('Mutation changeHandle', () => {
 	test('予約語は VALIDATION_ERROR(AC-SHARE-004)', async () => {
 		await seed('a', 'minato');
+		const sessionId = await login('a');
 		const res = await gql(
 			{
 				query: `mutation($input: ChangeHandleInput!) { changeHandle(input: $input) { profile { handle } } }`,
 				variables: { input: { handle: 'admin' } }
 			},
-			{ 'x-user-id': 'user-a' }
+			{ 'x-user-session': sessionId }
 		);
 		expect(res.body.errors[0].extensions.code).toBe('VALIDATION_ERROR');
 	});
@@ -172,6 +188,7 @@ describe('Mutation changeHandle', () => {
 describe('SnsLink の DataLoader 解決', () => {
 	test('replaceSnsLinks 後に profile.snsLinks が順序付きで解決される(AC-PROF-013/016)', async () => {
 		await seed('a', 'minato');
+		const sessionId = await login('a');
 		await gql(
 			{
 				query: `mutation($input: ReplaceSnsLinksInput!) { replaceSnsLinks(input: $input) { snsLinks { platform sortOrder } } }`,
@@ -184,7 +201,7 @@ describe('SnsLink の DataLoader 解決', () => {
 					}
 				}
 			},
-			{ 'x-user-id': 'user-a' }
+			{ 'x-user-session': sessionId }
 		);
 		const res = await gql({
 			query: `query { profile(handle: "minato") { snsLinks { platform sortOrder } } }`
