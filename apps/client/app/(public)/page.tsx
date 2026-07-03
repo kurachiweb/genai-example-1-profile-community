@@ -24,7 +24,7 @@ export default async function HomePage() {
 			>
 				{/* 背景アクセント(装飾) */}
 				<div
-					className="bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,var(--color-accent),transparent)]/12 pointer-events-none absolute inset-0 -z-10"
+					className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,color-mix(in_oklab,var(--color-accent)_12%,transparent),transparent)]"
 					aria-hidden="true"
 				/>
 

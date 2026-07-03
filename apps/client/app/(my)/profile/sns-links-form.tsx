@@ -92,7 +92,7 @@ export function SnsLinksForm({ snsLinks }: Props) {
 						<select
 							value={link.platform}
 							onChange={(e) => updateLink(link.id, 'platform', e.target.value)}
-							className="w-36 shrink-0 rounded-md border border-border bg-surface px-2 py-2 text-(length:--text-caption) text-text focus:border-accent focus:outline-none"
+							className="w-36 shrink-0 rounded-md border border-border bg-surface p-2 text-(length:--text-caption) text-text focus:border-accent focus:outline-none"
 							aria-label="プラットフォーム"
 						>
 							{PLATFORMS.map((p) => (

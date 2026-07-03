@@ -28,10 +28,6 @@ export default defineConfig(
 			tailwindcss: { cssConfigPath: './app/globals.css' }
 		},
 		rules: {
-			'@typescript-eslint/no-unused-vars': [
-				'error',
-				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }
-			],
 			'@typescript-eslint/explicit-function-return-type': 'off',
 			'@typescript-eslint/explicit-module-boundary-types': 'off',
 			// prop-types は TypeScript の型で代替する。
