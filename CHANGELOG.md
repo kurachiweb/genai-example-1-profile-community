@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **会員登録（`register`）時にメールアドレス確認メールが送信されない不具合を修正**（`apps/api`）。`UserService.register`/`resendVerificationEmail` が確認トークンを発行するだけで送信処理が未実装だった（`BR-ACCT-003`）ため、既存の `MailSender`（nodemailer→Mailpit）を `UserModule` に配線し、確認メール・既登録案内メール（`BR-ACCT-001`）を実際に送信するよう修正。
+
 ### Added
 
 - **管理者コンソール（`apps/admin`）と共通フロントエンド（`apps/frontend-lib`）を実装**（ユニット `admin-console`）。

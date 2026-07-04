@@ -25,7 +25,7 @@ export function assertValidTemplateKey(key: string): void {
 	}
 }
 
-function escapeHtml(value: string): string {
+export function escapeHtml(value: string): string {
 	return value.replace(
 		/[&<>"]/g,
 		(char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char] ?? char

@@ -14,6 +14,11 @@ import {
 import { UserRecord } from './models';
 import { UserSession, UserSessionStore } from '../infrastructure/user-session.store';
 import { PasswordHasher } from './admin/gateways';
+import { MailSender } from './admin/content-gateways';
+import {
+	renderAlreadyRegisteredEmailHtml,
+	renderVerificationEmailHtml
+} from '../domain/account-email-templates';
 
 /** API キーのスコープ。 */
 export type ApiKeyScope = 'read' | 'full';
@@ -59,6 +64,9 @@ export interface UserServiceDeps {
 	readonly ids: IdGenerator;
 	readonly apiKeys: UserApiKeyRepository;
 	readonly tokenStore: EmailVerificationTokenStore;
+	readonly mail: MailSender;
+	/** 確認リンク組み立て用の client オリジン(config/env.ts の clientOrigin)。 */
+	readonly clientOrigin: string;
 }
 
 const PASSWORD_MIN_LENGTH = 10;
@@ -108,8 +116,12 @@ export class UserService {
 
 		const existing = await this.deps.users.findByEmailNormalized(emailNorm);
 		if (existing) {
-			// 登録済みの場合は案内メールを送るが UI 側には同一完了を返す(BR-ACCT-001)。
-			// TODO: 登録済み通知メール送信
+			// 登録済みの場合は案内メールを送るが UI 側には同一完了を返す(BR-ACCT-001、列挙防止)。
+			await this.deps.mail.send({
+				to: existing.email,
+				subject: '【GenAI Profile Community】このメールアドレスは既にご登録済みです',
+				html: renderAlreadyRegisteredEmailHtml()
+			});
 			return;
 		}
 
@@ -129,10 +141,20 @@ export class UserService {
 
 		await this.deps.users.createWithProfile(userInput, profileInput);
 
-		// メール確認トークンを発行して送信する。
+		// メール送信失敗時、ユーザーは UNVERIFIED のまま残る。復旧手段はログイン後の
+		// resendVerificationEmail のみのため、ここでは例外を握りつぶさず呼び出し元に伝播させる。
+		await this.sendVerificationEmail(email, userId);
+	}
+
+	/** 確認メールを発行・送信する(register/resendVerificationEmail共通、BR-ACCT-003)。 */
+	private async sendVerificationEmail(email: string, userId: string): Promise<void> {
 		const token = await this.deps.tokenStore.create(userId, 'verify');
-		// TODO: 確認メール送信(token を含む URL)
-		void token;
+		const verifyUrl = `${this.deps.clientOrigin}/verify-email?token=${token}`;
+		await this.deps.mail.send({
+			to: email,
+			subject: '【GenAI Profile Community】メールアドレスの確認をお願いします',
+			html: renderVerificationEmailHtml(verifyUrl)
+		});
 	}
 
 	/** メール＋パスワードでログインし、セッションを返す(BR-ACCT-004)。 */
@@ -200,9 +222,7 @@ export class UserService {
 	async resendVerificationEmail(userId: string): Promise<void> {
 		const user = await this.deps.users.findById(userId);
 		if (!user || user.emailVerifiedAt) return;
-		const token = await this.deps.tokenStore.create(userId, 'verify');
-		// TODO: 確認メール送信
-		void token;
+		await this.sendVerificationEmail(user.email, userId);
 	}
 
 	// --- アカウント管理 ---

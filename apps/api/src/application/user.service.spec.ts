@@ -19,6 +19,7 @@ import {
 	UserService
 } from './user.service';
 import { InMemoryUserSessionStore } from '../infrastructure/user-session.store';
+import { MailMessage, MailSender } from './admin/content-gateways';
 
 // --- フェイク実装 ---
 
@@ -121,6 +122,28 @@ class SeqIdGenerator implements IdGenerator {
 	}
 }
 
+class FakeMailSender implements MailSender {
+	readonly sent: MailMessage[] = [];
+	async send(message: MailMessage): Promise<void> {
+		this.sent.push(message);
+	}
+}
+
+class ThrowingMailSender implements MailSender {
+	async send(): Promise<void> {
+		throw new Error('SMTP接続に失敗しました(テスト用)');
+	}
+}
+
+const CLIENT_ORIGIN = 'http://localhost:48032';
+
+/** メール本文に埋め込まれた確認トークンを取り出す(実際に発行されたトークンとの一致を検証するため)。 */
+function extractVerifyToken(html: string): string {
+	const match = /verify-email\?token=([^"&<\s]+)/.exec(html);
+	if (!match) throw new Error('確認リンクがメール本文に見つからない');
+	return match[1];
+}
+
 // --- ハーネス ---
 
 interface Harness {
@@ -129,6 +152,7 @@ interface Harness {
 	sessions: InMemoryUserSessionStore;
 	apiKeys: FakeApiKeyRepo;
 	tokenStore: InMemoryTokenStore;
+	mail: FakeMailSender;
 }
 
 function makeHarness(): Harness {
@@ -137,6 +161,7 @@ function makeHarness(): Harness {
 	const sessions = new InMemoryUserSessionStore(clock);
 	const apiKeys = new FakeApiKeyRepo();
 	const tokenStore = new InMemoryTokenStore();
+	const mail = new FakeMailSender();
 	const service = new UserService({
 		users,
 		sessions,
@@ -144,9 +169,11 @@ function makeHarness(): Harness {
 		clock,
 		ids: new SeqIdGenerator(),
 		apiKeys,
-		tokenStore
+		tokenStore,
+		mail,
+		clientOrigin: CLIENT_ORIGIN
 	});
-	return { service, users, sessions, apiKeys, tokenStore };
+	return { service, users, sessions, apiKeys, tokenStore, mail };
 }
 
 // --- テスト ---
@@ -206,6 +233,57 @@ describe('UserService.register', () => {
 		await h.service.register('user@example.com', 'password1234');
 		expect(h.users.profiles.size).toBe(1);
 	});
+
+	it('新規登録で確認メールが送信される(BR-ACCT-003)', async () => {
+		const h = makeHarness();
+		await h.service.register('user@example.com', 'password1234');
+		expect(h.mail.sent).toHaveLength(1);
+		expect(h.mail.sent[0].to).toBe('user@example.com');
+		expect(h.mail.sent[0].html).toContain(`${CLIENT_ORIGIN}/verify-email?token=`);
+	});
+
+	it('登録済みメールでの再登録では確認メールではなく登録済み案内メールが送られる(BR-ACCT-001)', async () => {
+		const h = makeHarness();
+		await h.service.register('user@example.com', 'password1234');
+		await h.service.register('user@example.com', 'password1234');
+
+		expect(h.mail.sent).toHaveLength(2);
+		const notice = h.mail.sent[1];
+		expect(notice.to).toBe('user@example.com');
+		expect(notice.html).not.toContain('/verify-email?token=');
+	});
+
+	it('確認メールに埋め込まれたトークンで実際にメール確認が完了する(AC-ACCT-004)', async () => {
+		const h = makeHarness();
+		await h.service.register('user@example.com', 'password1234');
+		const user = await h.users.findByEmailNormalized('user@example.com');
+
+		const token = extractVerifyToken(h.mail.sent[0].html);
+		await h.service.verifyEmail(token);
+
+		const updated = await h.users.findById(user!.id);
+		expect(updated?.status).toBe(UserStatus.ACTIVE);
+	});
+
+	it('メール送信が失敗した場合は例外が呼び出し元に伝播する(握りつぶさない)', async () => {
+		const users = new FakeUserRepository();
+		const clock = new FixedClock();
+		const service = new UserService({
+			users,
+			sessions: new InMemoryUserSessionStore(clock),
+			passwordHasher: new FakePasswordHasher(),
+			clock,
+			ids: new SeqIdGenerator(),
+			apiKeys: new FakeApiKeyRepo(),
+			tokenStore: new InMemoryTokenStore(),
+			mail: new ThrowingMailSender(),
+			clientOrigin: CLIENT_ORIGIN
+		});
+
+		await expect(service.register('user@example.com', 'password1234')).rejects.toThrow(
+			'SMTP接続に失敗しました(テスト用)'
+		);
+	});
 });
 
 describe('UserService.login', () => {
@@ -256,6 +334,37 @@ describe('UserService.verifyEmail', () => {
 	it('無効なトークンは ValidationError', async () => {
 		const h = makeHarness();
 		await expect(h.service.verifyEmail('invalidtoken')).rejects.toBeInstanceOf(ValidationError);
+	});
+});
+
+describe('UserService.resendVerificationEmail', () => {
+	it('未確認ユーザーには確認メールが再送される(BR-ACCT-003)', async () => {
+		const h = makeHarness();
+		await h.service.register('user@example.com', 'password1234');
+		const user = await h.users.findByEmailNormalized('user@example.com');
+
+		await h.service.resendVerificationEmail(user!.id);
+
+		expect(h.mail.sent).toHaveLength(2);
+		expect(h.mail.sent[1].to).toBe('user@example.com');
+		expect(h.mail.sent[1].html).toContain(`${CLIENT_ORIGIN}/verify-email?token=`);
+	});
+
+	it('確認済みユーザーには送信しない', async () => {
+		const h = makeHarness();
+		await h.service.register('user@example.com', 'password1234');
+		const user = await h.users.findByEmailNormalized('user@example.com');
+		await h.users.update(user!.id, { status: UserStatus.ACTIVE, emailVerifiedAt: new Date() });
+
+		await h.service.resendVerificationEmail(user!.id);
+
+		expect(h.mail.sent).toHaveLength(1);
+	});
+
+	it('存在しない userId では何も送信しない', async () => {
+		const h = makeHarness();
+		await h.service.resendVerificationEmail('nonexistent-user-id');
+		expect(h.mail.sent).toHaveLength(0);
 	});
 });
 

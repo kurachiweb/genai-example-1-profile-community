@@ -14,6 +14,8 @@ export interface AppEnv {
 	readonly autoSyncSchema: boolean;
 	/** 管理者 WebAuthn(パスキー)の RP 設定。origin/rpId は admin アプリのドメインに一致させる。 */
 	readonly adminWebauthn: WebauthnEnv;
+	/** 利用者向け Web(client)のオリジン。確認メール等のリンク組み立てに使う。 */
+	readonly clientOrigin: string;
 }
 
 const DEFAULT_PORT = 48031;
@@ -21,6 +23,8 @@ const DEFAULT_PORT = 48031;
 const DEFAULT_ADMIN_ORIGIN = 'http://localhost:48033';
 const DEFAULT_ADMIN_RP_ID = 'localhost';
 const DEFAULT_ADMIN_RP_NAME = 'GenAI Profile Community 管理者コンソール';
+// ローカル client アプリ(:48032)を既定のオリジンとする。本番は env で上書きする。
+const DEFAULT_CLIENT_ORIGIN = 'http://localhost:48032';
 
 export function loadEnv(env: NodeJS.ProcessEnv = process.env): AppEnv {
 	const databaseUrl = env.DATABASE_URL;
@@ -44,6 +48,7 @@ export function loadEnv(env: NodeJS.ProcessEnv = process.env): AppEnv {
 			rpName: env.ADMIN_WEBAUTHN_RP_NAME ?? DEFAULT_ADMIN_RP_NAME,
 			rpId: env.ADMIN_WEBAUTHN_RP_ID ?? DEFAULT_ADMIN_RP_ID,
 			origin: env.ADMIN_WEBAUTHN_ORIGIN ?? DEFAULT_ADMIN_ORIGIN
-		}
+		},
+		clientOrigin: env.CLIENT_ORIGIN ?? DEFAULT_CLIENT_ORIGIN
 	};
 }
