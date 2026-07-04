@@ -13,7 +13,7 @@ const PROTECTED_PREFIXES = ['/profile', '/settings', '/api-keys'];
 // ログイン済みの場合にリダイレクトするルート。
 const AUTH_ONLY_PATHS = ['/login', '/register'];
 
-export function middleware(request: NextRequest): NextResponse {
+export function proxy(request: NextRequest): NextResponse {
 	const hasSession = request.cookies.has(SESSION_COOKIE);
 	const { pathname } = request.nextUrl;
 
