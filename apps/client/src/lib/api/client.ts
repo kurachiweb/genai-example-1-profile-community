@@ -23,7 +23,7 @@ export interface LoginResult {
 
 export async function register(input: RegisterInput): Promise<void> {
 	await graphqlRequest(
-		`mutation($input:RegisterInput!){ register(input:$input) }`,
+		`mutation($input:UserRegisterInput!){ register(input:$input) }`,
 		{ input },
 		{ sessionId: null }
 	);
@@ -31,7 +31,7 @@ export async function register(input: RegisterInput): Promise<void> {
 
 export async function login(email: string, password: string): Promise<LoginResult> {
 	const data = await graphqlRequest<{ login: LoginResult }>(
-		`mutation($input:LoginInput!){ login(input:$input){ sessionId } }`,
+		`mutation($input:UserLoginInput!){ login(input:$input){ sessionId } }`,
 		{ input: { email, password } },
 		{ sessionId: null }
 	);
@@ -60,7 +60,7 @@ export async function requestPasswordReset(email: string): Promise<void> {
 
 export async function resetPassword(token: string, newPassword: string): Promise<void> {
 	await graphqlRequest(
-		`mutation($input:ResetPasswordInput!){ resetPassword(input:$input) }`,
+		`mutation($input:UserResetPasswordInput!){ resetPassword(input:$input) }`,
 		{ input: { token, newPassword } },
 		{ sessionId: null }
 	);
@@ -82,15 +82,21 @@ export async function getMe(options?: RequestOptions): Promise<Me> {
 }
 
 export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
-	await graphqlRequest(`mutation($input:ChangePasswordInput!){ changePassword(input:$input) }`, {
-		input: { currentPassword, newPassword }
-	});
+	await graphqlRequest(
+		`mutation($input:UserChangePasswordInput!){ changePassword(input:$input) }`,
+		{
+			input: { currentPassword, newPassword }
+		}
+	);
 }
 
 export async function requestEmailChange(newEmail: string, password: string): Promise<void> {
-	await graphqlRequest(`mutation($input:ChangeEmailInput!){ requestEmailChange(input:$input) }`, {
-		input: { newEmail, password }
-	});
+	await graphqlRequest(
+		`mutation($input:UserChangeEmailInput!){ requestEmailChange(input:$input) }`,
+		{
+			input: { newEmail, password }
+		}
+	);
 }
 
 export async function withdrawAccount(password: string): Promise<void> {
@@ -134,7 +140,7 @@ export interface SnsLinkInput {
 
 export async function setSnsLinks(links: SnsLinkInput[]): Promise<MyProfile> {
 	const data = await graphqlRequest<{ setSnsLinks: MyProfile }>(
-		`mutation($links:[SnsLinkInput!]!){ setSnsLinks(links:$links){ ${PROFILE_FIELDS} } }`,
+		`mutation($links:[ClientSnsLinkInput!]!){ setSnsLinks(links:$links){ ${PROFILE_FIELDS} } }`,
 		{ links }
 	);
 	return data.setSnsLinks;
@@ -179,7 +185,7 @@ export async function reportProfile(
 	reasonCategory: string,
 	detail?: string
 ): Promise<void> {
-	await graphqlRequest(`mutation($input:ReportInput!){ reportProfile(input:$input) }`, {
+	await graphqlRequest(`mutation($input:ReportProfileInput!){ reportProfile(input:$input) }`, {
 		input: { handle, reasonCategory, detail }
 	});
 }
@@ -197,7 +203,7 @@ export async function listMyApiKeys(): Promise<ApiKey[]> {
 
 export async function createApiKey(label: string, scope: string): Promise<CreatedApiKey> {
 	const data = await graphqlRequest<{ createApiKey: CreatedApiKey }>(
-		`mutation($input:CreateApiKeyInput!){ createApiKey(input:$input){ ${API_KEY_FIELDS} rawKey } }`,
+		`mutation($input:UserCreateApiKeyInput!){ createApiKey(input:$input){ ${API_KEY_FIELDS} rawKey } }`,
 		{ input: { label, scope } }
 	);
 	return data.createApiKey;
