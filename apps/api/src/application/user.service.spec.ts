@@ -144,6 +144,13 @@ function extractVerifyToken(html: string): string {
 	return match[1];
 }
 
+/** メール本文に埋め込まれたリセットトークンを取り出す。 */
+function extractResetToken(html: string): string {
+	const match = /reset-password\/confirm\?token=([^"&<\s]+)/.exec(html);
+	if (!match) throw new Error('リセットリンクがメール本文に見つからない');
+	return match[1];
+}
+
 // --- ハーネス ---
 
 interface Harness {
@@ -365,6 +372,127 @@ describe('UserService.resendVerificationEmail', () => {
 		const h = makeHarness();
 		await h.service.resendVerificationEmail('nonexistent-user-id');
 		expect(h.mail.sent).toHaveLength(0);
+	});
+});
+
+describe('UserService.requestPasswordReset / resetPassword', () => {
+	async function seedActiveUser(h: Harness): Promise<string> {
+		await h.service.register('user@example.com', 'password1234');
+		const user = await h.users.findByEmailNormalized('user@example.com');
+		await h.users.update(user!.id, { status: UserStatus.ACTIVE, emailVerifiedAt: new Date() });
+		return user!.id;
+	}
+
+	it('登録済みユーザーにリセットメールが送信される(BR-ACCT-006)', async () => {
+		const h = makeHarness();
+		await seedActiveUser(h);
+
+		await h.service.requestPasswordReset('user@example.com');
+
+		expect(h.mail.sent).toHaveLength(2); // 登録時の確認メール + リセットメール
+		const resetMail = h.mail.sent[1];
+		expect(resetMail.to).toBe('user@example.com');
+		expect(resetMail.html).toContain(`${CLIENT_ORIGIN}/reset-password/confirm?token=`);
+	});
+
+	it('未登録メールでは何も送信せず同一完了を返す(列挙防止、AC-ACCT-011)', async () => {
+		const h = makeHarness();
+		await expect(h.service.requestPasswordReset('nobody@example.com')).resolves.toBeUndefined();
+		expect(h.mail.sent).toHaveLength(0);
+	});
+
+	it('退会済みユーザーには送信しない', async () => {
+		const h = makeHarness();
+		const userId = await seedActiveUser(h);
+		await h.users.update(userId, { status: UserStatus.WITHDRAWN });
+
+		await h.service.requestPasswordReset('user@example.com');
+
+		expect(h.mail.sent).toHaveLength(1); // 登録時の確認メールのみ
+	});
+
+	it('メール本文のリンクからリセットが実行できる(BR-ACCT-006)', async () => {
+		const h = makeHarness();
+		await seedActiveUser(h);
+
+		await h.service.requestPasswordReset('user@example.com');
+		const token = extractResetToken(h.mail.sent[1].html);
+		await h.service.resetPassword(token, 'newpassword1234');
+
+		const session = await h.service.login('user@example.com', 'newpassword1234');
+		expect(session.sessionId).toBeTruthy();
+	});
+});
+
+describe('UserService.changePassword', () => {
+	async function seedActiveUser(h: Harness): Promise<string> {
+		await h.service.register('user@example.com', 'password1234');
+		const user = await h.users.findByEmailNormalized('user@example.com');
+		await h.users.update(user!.id, { status: UserStatus.ACTIVE, emailVerifiedAt: new Date() });
+		return user!.id;
+	}
+
+	it('変更成功時に本人へ通知メールが送られる(BR-ACCT-005、AC-ACCT-010)', async () => {
+		const h = makeHarness();
+		const userId = await seedActiveUser(h);
+
+		await h.service.changePassword(userId, 'password1234', 'newpassword1234');
+
+		expect(h.mail.sent).toHaveLength(2); // 登録時の確認メール + 変更通知
+		const notice = h.mail.sent[1];
+		expect(notice.to).toBe('user@example.com');
+	});
+
+	it('現在のパスワードが誤っている場合は通知メールを送らない', async () => {
+		const h = makeHarness();
+		const userId = await seedActiveUser(h);
+
+		await expect(
+			h.service.changePassword(userId, 'wrongpassword', 'newpassword1234')
+		).rejects.toBeInstanceOf(ValidationError);
+		expect(h.mail.sent).toHaveLength(1); // 登録時の確認メールのみ
+	});
+});
+
+describe('UserService.requestEmailChange', () => {
+	async function seedActiveUser(h: Harness): Promise<string> {
+		await h.service.register('user@example.com', 'password1234');
+		const user = await h.users.findByEmailNormalized('user@example.com');
+		await h.users.update(user!.id, { status: UserStatus.ACTIVE, emailVerifiedAt: new Date() });
+		return user!.id;
+	}
+
+	it('新しいメールアドレス宛に確認メールが送られる(BR-ACCT-007、AC-ACCT-013)', async () => {
+		const h = makeHarness();
+		const userId = await seedActiveUser(h);
+
+		await h.service.requestEmailChange(userId, 'new@example.com', 'password1234');
+
+		expect(h.mail.sent).toHaveLength(2); // 登録時の確認メール + 変更確認メール
+		const confirmMail = h.mail.sent[1];
+		expect(confirmMail.to).toBe('new@example.com');
+		expect(confirmMail.html).toContain(`${CLIENT_ORIGIN}/`);
+	});
+
+	it('パスワードが誤っている場合は確認メールを送らない', async () => {
+		const h = makeHarness();
+		const userId = await seedActiveUser(h);
+
+		await expect(
+			h.service.requestEmailChange(userId, 'new@example.com', 'wrongpassword')
+		).rejects.toBeInstanceOf(ValidationError);
+		expect(h.mail.sent).toHaveLength(1);
+	});
+
+	it('既に登録済みの新メールアドレスでは同一完了を返し送信しない(列挙防止)', async () => {
+		const h = makeHarness();
+		const userId = await seedActiveUser(h);
+		await h.service.register('other@example.com', 'password1234');
+
+		await expect(
+			h.service.requestEmailChange(userId, 'other@example.com', 'password1234')
+		).resolves.toBeUndefined();
+		expect(h.mail.sent).toHaveLength(2); // 双方の登録時確認メールのみ(変更確認は送らない)
 	});
 });
 

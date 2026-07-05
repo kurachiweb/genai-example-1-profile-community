@@ -17,6 +17,9 @@ import { PasswordHasher } from './admin/gateways';
 import { MailSender } from './admin/content-gateways';
 import {
 	renderAlreadyRegisteredEmailHtml,
+	renderEmailChangeConfirmationEmailHtml,
+	renderPasswordChangedEmailHtml,
+	renderPasswordResetEmailHtml,
 	renderVerificationEmailHtml
 } from '../domain/account-email-templates';
 
@@ -199,9 +202,18 @@ export class UserService {
 			// 存在有無を問わず同一の完了を返す(列挙防止、BR-ACCT-006)。
 			return;
 		}
-		const token = await this.deps.tokenStore.create(user.id, 'reset');
-		// TODO: リセットメール送信
-		void token;
+		await this.sendPasswordResetEmail(user.email, user.id);
+	}
+
+	/** パスワードリセットリンクを発行・送信する(requestPasswordReset 専用、BR-ACCT-006)。 */
+	private async sendPasswordResetEmail(email: string, userId: string): Promise<void> {
+		const token = await this.deps.tokenStore.create(userId, 'reset');
+		const resetUrl = `${this.deps.clientOrigin}/reset-password/confirm?token=${token}`;
+		await this.deps.mail.send({
+			to: email,
+			subject: '【GenAI Profile Community】パスワードの再設定',
+			html: renderPasswordResetEmailHtml(resetUrl)
+		});
 	}
 
 	/** パスワードをリセットする(BR-ACCT-006)。 */
@@ -253,7 +265,16 @@ export class UserService {
 		const newHash = await this.deps.passwordHasher.hash(newPassword);
 		// 当該セッション以外を全失効(BR-ACCT-005)。
 		await this.deps.users.update(userId, { passwordHash: newHash, sessionEpoch: Date.now() });
-		// TODO: パスワード変更通知メール
+		await this.sendPasswordChangedNotification(user.email);
+	}
+
+	/** パスワード変更完了を本人へ通知する(changePassword 専用、BR-ACCT-005)。 */
+	private async sendPasswordChangedNotification(email: string): Promise<void> {
+		await this.deps.mail.send({
+			to: email,
+			subject: '【GenAI Profile Community】パスワードが変更されました',
+			html: renderPasswordChangedEmailHtml()
+		});
 	}
 
 	/** メールアドレス変更リクエストを行う(BR-ACCT-007)。 */
@@ -274,8 +295,17 @@ export class UserService {
 			return;
 		}
 		const token = await this.deps.tokenStore.create(userId, 'change_email', emailNorm);
-		// TODO: 確認メール送信
-		void token;
+		await this.sendEmailChangeConfirmation(newEmail, token);
+	}
+
+	/** 新メールアドレス宛に変更確認リンクを送信する(requestEmailChange 専用、BR-ACCT-007)。 */
+	private async sendEmailChangeConfirmation(newEmail: string, token: string): Promise<void> {
+		const confirmUrl = `${this.deps.clientOrigin}/settings/confirm-email-change?token=${token}`;
+		await this.deps.mail.send({
+			to: newEmail,
+			subject: '【GenAI Profile Community】メールアドレス変更の確認をお願いします',
+			html: renderEmailChangeConfirmationEmailHtml(confirmUrl)
+		});
 	}
 
 	/** 退会する(BR-ACCT-009)。 */
