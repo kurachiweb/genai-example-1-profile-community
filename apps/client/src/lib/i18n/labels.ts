@@ -18,7 +18,7 @@ export function snsLinkPlatformLabel(platform: SnsLinkPlatform): string {
 export function reportReasonLabel(category: string): string {
 	const labels: Record<string, string> = {
 		SPAM: 'スパム',
-		NSFW: '不適切なコンテンツ',
+		INAPPROPRIATE_IMAGE: '不適切なコンテンツ',
 		HARASSMENT: '嫌がらせ・ハラスメント',
 		IMPERSONATION: 'なりすまし',
 		OTHER: 'その他'

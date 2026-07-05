@@ -10,6 +10,7 @@ import { Visibility } from '../src/domain/effective-public';
 import { UserStatus } from '../src/domain/user-status';
 import { AppModule } from '../src/app.module';
 import { ProfileEntity } from '../src/infrastructure/persistence/entities/profile.entity';
+import { ReportEntity } from '../src/infrastructure/persistence/entities/report.entity';
 import { UserEntity } from '../src/infrastructure/persistence/entities/user.entity';
 import { buildValidationPipe } from '../src/interface/graphql/validation';
 
@@ -181,6 +182,58 @@ describe('Mutation changeHandle', () => {
 			},
 			{ 'x-user-session': sessionId }
 		);
+		expect(res.body.errors[0].extensions.code).toBe('VALIDATION_ERROR');
+	});
+});
+
+describe('Mutation reportProfile(BR-SAFE-001)', () => {
+	test('実効公開プロフィールへの通報が reports テーブルへ保存される', async () => {
+		await seed('a', 'minato');
+		const res = await gql({
+			query: `mutation($input: ReportProfileInput!) { reportProfile(input: $input) }`,
+			variables: { input: { handle: 'minato', reasonCategory: 'SPAM', detail: '広告の連投' } }
+		});
+		expect(res.body.data.reportProfile).toBe(true);
+
+		const reports = await orm.em.fork().find(ReportEntity, { targetHandle: 'minato' });
+		expect(reports).toHaveLength(1);
+		expect(reports[0]).toMatchObject({
+			targetHandle: 'minato',
+			targetUserId: 'user-a',
+			reasonCategory: 'spam',
+			detail: '広告の連投'
+		});
+	});
+
+	test('未ログインでも通報できる(匿名通報)', async () => {
+		await seed('a', 'minato');
+		const res = await gql({
+			query: `mutation($input: ReportProfileInput!) { reportProfile(input: $input) }`,
+			variables: { input: { handle: 'minato', reasonCategory: 'OTHER' } }
+		});
+		expect(res.body.data.reportProfile).toBe(true);
+
+		const reports = await orm.em.fork().find(ReportEntity, { targetHandle: 'minato' });
+		expect(reports[0].detail).toBeNull();
+	});
+
+	test('存在しないハンドルは NOT_FOUND で reports へ保存されない(AC-SHARE-007 秘匿)', async () => {
+		const res = await gql({
+			query: `mutation($input: ReportProfileInput!) { reportProfile(input: $input) }`,
+			variables: { input: { handle: 'none', reasonCategory: 'SPAM' } }
+		});
+		expect(res.body.errors[0].extensions.code).toBe('NOT_FOUND');
+
+		const reports = await orm.em.fork().find(ReportEntity, {});
+		expect(reports).toHaveLength(0);
+	});
+
+	test('不正な reasonCategory は VALIDATION_ERROR', async () => {
+		await seed('a', 'minato');
+		const res = await gql({
+			query: `mutation($input: ReportProfileInput!) { reportProfile(input: $input) }`,
+			variables: { input: { handle: 'minato', reasonCategory: 'not-a-real-category' } }
+		});
 		expect(res.body.errors[0].extensions.code).toBe('VALIDATION_ERROR');
 	});
 });

@@ -10,7 +10,7 @@ interface Props {
 }
 
 const REASON_OPTIONS = [
-	{ value: 'NSFW', label: '不適切なコンテンツ' },
+	{ value: 'INAPPROPRIATE_IMAGE', label: '不適切なコンテンツ' },
 	{ value: 'SPAM', label: 'スパム' },
 	{ value: 'HARASSMENT', label: '嫌がらせ・ハラスメント' },
 	{ value: 'IMPERSONATION', label: 'なりすまし' },

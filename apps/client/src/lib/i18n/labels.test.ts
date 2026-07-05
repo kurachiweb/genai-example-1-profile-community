@@ -17,7 +17,7 @@ describe('snsLinkPlatformLabel', () => {
 describe('reportReasonLabel', () => {
 	it('既知の通報理由を日本語ラベルに変換する', () => {
 		expect(reportReasonLabel('SPAM')).toBe('スパム');
-		expect(reportReasonLabel('NSFW')).toBe('不適切なコンテンツ');
+		expect(reportReasonLabel('INAPPROPRIATE_IMAGE')).toBe('不適切なコンテンツ');
 		expect(reportReasonLabel('HARASSMENT')).toBe('嫌がらせ・ハラスメント');
 		expect(reportReasonLabel('IMPERSONATION')).toBe('なりすまし');
 		expect(reportReasonLabel('OTHER')).toBe('その他');

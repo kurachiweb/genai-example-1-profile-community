@@ -7,6 +7,7 @@ import {
 	UnauthorizedError,
 	ValidationError
 } from '../domain/errors';
+import { ReportReasonCategory } from '../domain/moderation';
 import { UserStatus } from '../domain/user-status';
 import {
 	Clock,
@@ -17,7 +18,7 @@ import {
 	UserRepository
 } from './gateways';
 import { ProfileRecord, SnsLinkRecord, UserRecord, Viewer } from './models';
-import { ProfileService } from './profile.service';
+import { ProfileService, ReportGateway, ReportRecord } from './profile.service';
 
 // --- テスト用フェイク(Gateway 境界で差し替え。決定論的、testing/01 §3) ---
 
@@ -117,6 +118,13 @@ class FakeSnsLinkRepository implements SnsLinkRepository {
 	}
 }
 
+class FakeReportGateway implements ReportGateway {
+	readonly records: ReportRecord[] = [];
+	async create(record: ReportRecord): Promise<void> {
+		this.records.push(record);
+	}
+}
+
 class FixedClock implements Clock {
 	constructor(private value: Date) {}
 	now(): Date {
@@ -142,6 +150,7 @@ interface Harness {
 	users: FakeUserRepository;
 	profiles: FakeProfileRepository;
 	snsLinks: FakeSnsLinkRepository;
+	reports: FakeReportGateway;
 	clock: FixedClock;
 }
 
@@ -149,15 +158,17 @@ function makeHarness(): Harness {
 	const users = new FakeUserRepository();
 	const profiles = new FakeProfileRepository(users);
 	const snsLinks = new FakeSnsLinkRepository();
+	const reports = new FakeReportGateway();
 	const clock = new FixedClock(new Date('2026-06-15T00:00:00.000Z'));
 	const service = new ProfileService({
 		users,
 		profiles,
 		snsLinks,
+		reports,
 		clock,
 		ids: new SeqIdGenerator()
 	});
-	return { service, users, profiles, snsLinks, clock };
+	return { service, users, profiles, snsLinks, reports, clock };
 }
 
 function seedUser(h: Harness, id: string, status: UserStatus): void {
@@ -411,5 +422,73 @@ describe('ProfileService.updateVisibility', () => {
 		seedProfile(h, { id: 'p1', userId: 'u1', visibility: Visibility.PUBLIC });
 		const updated = await h.service.updateVisibility(activeViewer('u1'), Visibility.PRIVATE);
 		expect(updated.visibility).toBe(Visibility.PRIVATE);
+	});
+});
+
+describe('ProfileService.reportProfile(BR-SAFE-001)', () => {
+	test('実効公開プロフィールを通報するとレコードが作成される', async () => {
+		const h = makeHarness();
+		seedUser(h, 'u1', UserStatus.ACTIVE);
+		seedProfile(h, { id: 'p1', userId: 'u1', handle: 'minato' });
+		await h.service.reportProfile('minato', {
+			reasonCategory: ReportReasonCategory.SPAM,
+			detail: '広告リンクの連投'
+		});
+		expect(h.reports.records).toHaveLength(1);
+		expect(h.reports.records[0]).toMatchObject({
+			targetUserId: 'u1',
+			targetHandle: 'minato',
+			reasonCategory: ReportReasonCategory.SPAM,
+			detail: '広告リンクの連投'
+		});
+	});
+
+	test('detail 省略時は null として保存される', async () => {
+		const h = makeHarness();
+		seedUser(h, 'u1', UserStatus.ACTIVE);
+		seedProfile(h, { id: 'p1', userId: 'u1', handle: 'minato' });
+		await h.service.reportProfile('minato', { reasonCategory: ReportReasonCategory.OTHER });
+		expect(h.reports.records[0].detail).toBeNull();
+	});
+
+	test('存在しないハンドルは NotFound で通報も作成されない', async () => {
+		const h = makeHarness();
+		await expect(
+			h.service.reportProfile('none', { reasonCategory: ReportReasonCategory.SPAM })
+		).rejects.toBeInstanceOf(NotFoundError);
+		expect(h.reports.records).toHaveLength(0);
+	});
+
+	test('非公開プロフィールは NotFound で秘匿され通報も作成されない', async () => {
+		const h = makeHarness();
+		seedUser(h, 'u1', UserStatus.ACTIVE);
+		seedProfile(h, { id: 'p1', userId: 'u1', handle: 'minato', visibility: Visibility.PRIVATE });
+		await expect(
+			h.service.reportProfile('minato', { reasonCategory: ReportReasonCategory.SPAM })
+		).rejects.toBeInstanceOf(NotFoundError);
+		expect(h.reports.records).toHaveLength(0);
+	});
+
+	test('不正な reasonCategory は ValidationError で通報も作成されない', async () => {
+		const h = makeHarness();
+		seedUser(h, 'u1', UserStatus.ACTIVE);
+		seedProfile(h, { id: 'p1', userId: 'u1', handle: 'minato' });
+		await expect(
+			h.service.reportProfile('minato', { reasonCategory: 'not-a-real-category' })
+		).rejects.toBeInstanceOf(ValidationError);
+		expect(h.reports.records).toHaveLength(0);
+	});
+
+	test('detail が最大長を超えると ValidationError で通報も作成されない', async () => {
+		const h = makeHarness();
+		seedUser(h, 'u1', UserStatus.ACTIVE);
+		seedProfile(h, { id: 'p1', userId: 'u1', handle: 'minato' });
+		await expect(
+			h.service.reportProfile('minato', {
+				reasonCategory: ReportReasonCategory.SPAM,
+				detail: 'あ'.repeat(2049)
+			})
+		).rejects.toBeInstanceOf(ValidationError);
+		expect(h.reports.records).toHaveLength(0);
 	});
 });

@@ -12,6 +12,10 @@ import {
 	SuspensionRecord,
 	UnfreezeRequestRecord
 } from '../../application/admin/models';
+import {
+	ReportGateway,
+	ReportRecord as ReportCreateRecord
+} from '../../application/profile.service';
 import { ReportEntity } from './entities/report.entity';
 import { SuspensionEntity } from './entities/suspension.entity';
 import { UnfreezeRequestEntity } from './entities/unfreeze-request.entity';
@@ -129,8 +133,24 @@ function toReportRecord(entity: ReportEntity): ReportRecord {
 }
 
 @Injectable()
-export class MikroReportRepository implements ReportRepository {
+export class MikroReportRepository implements ReportRepository, ReportGateway {
 	constructor(private readonly em: EntityManager) {}
+
+	/** 公開プロフィール通報の新規作成(BR-SAFE-001)。匿名通報のため reporterId は保持しない。 */
+	async create(record: ReportCreateRecord): Promise<void> {
+		const em = this.em.fork();
+		const entity = em.create(ReportEntity, {
+			id: record.id,
+			targetUserId: record.targetUserId,
+			targetHandle: record.targetHandle,
+			reasonCategory: record.reasonCategory,
+			detail: record.detail,
+			contactEmail: null,
+			inquiryId: null
+		});
+		em.persist(entity);
+		await em.flush();
+	}
 
 	async list(status?: ReportStatus): Promise<ReportRecord[]> {
 		const entities = await this.em

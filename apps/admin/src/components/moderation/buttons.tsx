@@ -15,6 +15,7 @@ import {
 const FREEZE_REASONS: ReadonlyArray<readonly [string, string]> = [
 	['spam', 'スパム'],
 	['inappropriate_image', '不適切な画像'],
+	['harassment', '嫌がらせ・ハラスメント'],
 	['impersonation', 'なりすまし'],
 	['other', 'その他']
 ];

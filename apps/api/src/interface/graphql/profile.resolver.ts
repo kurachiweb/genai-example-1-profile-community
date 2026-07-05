@@ -47,6 +47,7 @@ import { PublicProfilesConnectionType } from './types/public-profiles-connection
 import { ProfileType } from './types/profile.type';
 import { SnsLinkType } from './types/sns-link.type';
 import { RequestLike, ViewerProvider } from './viewer.provider';
+import { ReportReasonCategory } from '@domain/moderation';
 
 interface GraphQLContext {
 	readonly req?: RequestLike;
@@ -202,14 +203,11 @@ export class ProfileResolver {
 
 	/** プロフィールを通報する(実効公開のみ対象)。 */
 	@Mutation(() => Boolean, { name: 'reportProfile' })
-	async reportProfile(
-		@Args('input') input: ReportProfileInput,
-		@Context() ctx: GraphQLContext
-	): Promise<boolean> {
-		// ログイン不要(匿名通報を許容)。viewer は null でも可。
-		void ctx;
+	async reportProfile(@Args('input') input: ReportProfileInput): Promise<boolean> {
+		// ログイン不要(匿名通報を許容)
 		await this.service.reportProfile(input.handle, {
-			reasonCategory: input.reasonCategory,
+			reasonCategory:
+				ReportReasonCategory[input.reasonCategory as keyof typeof ReportReasonCategory],
 			detail: input.detail
 		});
 		return true;

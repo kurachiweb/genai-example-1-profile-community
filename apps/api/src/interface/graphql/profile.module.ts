@@ -17,6 +17,7 @@ import {
 import { ProfileService } from '../../application/profile.service';
 import { SystemClock } from '../../infrastructure/clock';
 import { UlidGenerator } from '../../infrastructure/id-generator';
+import { MikroReportRepository } from '../../infrastructure/persistence/moderation.repositories';
 import { MikroProfileRepository } from '../../infrastructure/persistence/profile.repository';
 import { MikroSnsLinkRepository } from '../../infrastructure/persistence/sns-link.repository';
 import { MikroUserRepository } from '../../infrastructure/persistence/user.repository';
@@ -33,6 +34,7 @@ import { UserModule } from './user.module';
 		MikroUserRepository,
 		MikroProfileRepository,
 		MikroSnsLinkRepository,
+		MikroReportRepository,
 		SystemClock,
 		UlidGenerator,
 		// Gateway(IF)トークン → 実装の束ね。
@@ -44,14 +46,22 @@ import { UserModule } from './user.module';
 		// ユースケース(純粋クラス)を Gateway から組み立てる。
 		{
 			provide: ProfileService,
-			inject: [USER_REPOSITORY, PROFILE_REPOSITORY, SNS_LINK_REPOSITORY, CLOCK, ID_GENERATOR],
+			inject: [
+				USER_REPOSITORY,
+				PROFILE_REPOSITORY,
+				SNS_LINK_REPOSITORY,
+				CLOCK,
+				ID_GENERATOR,
+				MikroReportRepository
+			],
 			useFactory: (
 				users: UserRepository,
 				profiles: ProfileRepository,
 				snsLinks: SnsLinkRepository,
 				clock: Clock,
-				ids: IdGenerator
-			) => new ProfileService({ users, profiles, snsLinks, clock, ids })
+				ids: IdGenerator,
+				reports: MikroReportRepository
+			) => new ProfileService({ users, profiles, snsLinks, clock, ids, reports })
 		},
 		// ViewerProvider は UserModule から提供されるが、ProfileResolver が参照するため明示する。
 		ProfileResolver

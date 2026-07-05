@@ -73,8 +73,13 @@ export function assertUnfreezeTransition(
 export const ReportReasonCategory = {
 	INAPPROPRIATE_IMAGE: 'inappropriate_image',
 	IMPERSONATION: 'impersonation',
+	HARASSMENT: 'harassment',
 	SPAM: 'spam',
 	OTHER: 'other'
 } as const;
 
 export type ReportReasonCategory = (typeof ReportReasonCategory)[keyof typeof ReportReasonCategory];
+
+export function isReportReasonCategory(value: string): value is ReportReasonCategory {
+	return (Object.values(ReportReasonCategory) as string[]).includes(value);
+}

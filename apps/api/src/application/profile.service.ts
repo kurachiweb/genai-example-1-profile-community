@@ -16,6 +16,7 @@ import {
 	PROFILE_LIST_MAX_LIMIT,
 	SNS_URL_MAX_LENGTH
 } from '../domain/limits';
+import { isReportReasonCategory, ReportReasonCategory } from '../domain/moderation';
 import { ProfileContentInput, validateProfileContent } from '../domain/profile-fields';
 import { SnsLinkInput, validateSnsLinks } from '../domain/sns-link';
 import { canEditProfile } from '../domain/user-status';
@@ -38,7 +39,7 @@ export interface ReportRecord {
 	readonly id: string;
 	readonly targetUserId: string | null;
 	readonly targetHandle: string;
-	readonly reasonCategory: string;
+	readonly reasonCategory: ReportReasonCategory;
 	readonly detail: string | null;
 }
 
@@ -52,7 +53,7 @@ export interface ProfileServiceDeps {
 	readonly snsLinks: SnsLinkRepository;
 	readonly clock: Clock;
 	readonly ids: IdGenerator;
-	readonly reports?: ReportGateway;
+	readonly reports: ReportGateway;
 }
 
 export interface ListPublicProfilesInput {
@@ -231,11 +232,13 @@ export class ProfileService {
 	 * 実効公開でなければ 404(秘匿)。通報者 ID は匿名で記録しない(仕様)。
 	 */
 	async reportProfile(handle: string, input: ReportInput): Promise<void> {
-		if (!this.deps.reports) {
-			// レポートゲートウェイが未設定の場合は無操作(テスト・開発環境用スタブ)。
-			return;
-		}
 		const profile = await this.getPublicProfileByHandle(handle);
+		const { reasonCategory } = input;
+		if (!isReportReasonCategory(reasonCategory)) {
+			throw new ValidationError('通報理由の区分が不正です。', [
+				{ field: 'reasonCategory', message: '許可されていない値です。' }
+			]);
+		}
 		if (input.detail && input.detail.length > SNS_URL_MAX_LENGTH) {
 			throw new ValidationError('詳細が長すぎます。', [
 				{ field: 'detail', message: `最大 ${SNS_URL_MAX_LENGTH} 文字です。` }
@@ -245,7 +248,7 @@ export class ProfileService {
 			id: this.deps.ids.ulid(),
 			targetUserId: profile.userId,
 			targetHandle: handle,
-			reasonCategory: input.reasonCategory,
+			reasonCategory,
 			detail: input.detail ?? null
 		});
 	}

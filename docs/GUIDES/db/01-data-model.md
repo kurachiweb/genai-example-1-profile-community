@@ -390,7 +390,7 @@ erDiagram
 | `id` | TEXT(ULID) | PK | |
 | `target_user_id` | TEXT | nullable, FK→users | 解決した通報対象 |
 | `target_handle` | TEXT | NN | 送信時のハンドル（実在検証） |
-| `reason_category` | TEXT(enum) | NN, CHECK | `inappropriate_image`/`impersonation`/`spam`/`other` |
+| `reason_category` | TEXT(enum) | NN, CHECK | `inappropriate_image`/`impersonation`/`harassment`/`spam`/`other` |
 | `detail` | TEXT | nullable | 最大 1000・プレーンテキスト |
 | `contact_email` | TEXT | nullable | 返信が必要な場合 |
 | `status` | TEXT(enum) | NN, CHECK | `OPEN`/`IN_REVIEW`/`RESOLVED`/`DISMISSED` |
