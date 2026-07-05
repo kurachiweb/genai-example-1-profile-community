@@ -2,7 +2,7 @@
 export type UserStatus = 'UNVERIFIED' | 'ACTIVE' | 'FROZEN' | 'WITHDRAWN';
 export type ProfileVisibility = 'PUBLIC' | 'PRIVATE';
 export type ApiKeyScope = 'read' | 'full';
-export type ApiKeyStatus = 'ACTIVE' | 'REVOKED';
+export type ApiKeyStatus = 'active' | 'revoked';
 export type SnsLinkPlatform =
 	| 'X'
 	| 'INSTAGRAM'

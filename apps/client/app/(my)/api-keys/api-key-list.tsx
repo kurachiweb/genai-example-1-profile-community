@@ -23,7 +23,7 @@ export function ApiKeyList({ keys }: Props) {
 		});
 	}
 
-	const activeKeys = keys.filter((k) => k.status === 'ACTIVE' && !revokedIds.has(k.id));
+	const activeKeys = keys.filter((k) => k.status === 'active' && !revokedIds.has(k.id));
 
 	if (activeKeys.length === 0) {
 		return (
