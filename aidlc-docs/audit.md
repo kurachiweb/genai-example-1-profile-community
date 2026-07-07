@@ -148,4 +148,16 @@
 - client: `/terms`・`/privacy`（現行版）と `/terms/[version]`・`/privacy/[version]`（過去版、BR-CONTENT-010）を追加。
 - TDD（RED→GREEN→REFACTOR）で単体・統合テストを追加し、docs（features/GUIDES/README）を更新する。
 
+### 完了報告
+**Timestamp**: 2026-07-07T01:00:00Z
+**AI Response**: TDD（RED→GREEN）で実装。api: `PublicPolicyService`（7 テスト）＋公開GraphQL統合テスト（4 テスト）。
+frontend-lib: `parseMarkdownDocument`/`parseInline`（16 テスト）＋`MarkdownContent`（6 テスト、jest-axe 含む）。
+client: `PolicyDocumentView`（6 テスト）＋`parsePolicyVersionParam`（2 テスト）＋`/terms`・`/privacy`・
+`/terms/[version]`・`/privacy/[version]` ページ。api/frontend-lib/client 全テスト GREEN、typecheck/lint 通過
+（api・frontend-lib は tsc クリーン、client の tsc/next build はホスト環境固有のシンボリックリンク不整合により
+コード変更前から失敗しており未解決 — 詳細は本セッションの作業ログ参照、Docker 経由の本来の開発フローでは
+発生しない想定）。3 コミットに分割（api → frontend-lib → client）＋ docs 更新の計 4 コミット。
+main へのマージは利用者に確認のうえ実施する。
+**Context**: Construction / Build and Test 完了 → マージ可否を利用者に確認予定
+
 ---

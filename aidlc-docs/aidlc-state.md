@@ -78,6 +78,7 @@
   - frontend-lib: 自作の安全な Markdown レンダラー（`MarkdownContent`）
   - client: `/terms`・`/privacy`（現行版）、`/terms/[version]`・`/privacy/[version]`（過去版）
 - 詳細は [audit.md](./audit.md) の「初期リクエスト（規約・プライバシーポリシーの公開閲覧）」を参照。
+- **状態**: 実装・テスト（TDD）・docs 更新まで完了。ブランチ `feature/public-policy-pages`。main へのマージは利用者確認待ち。
 
 ## 実行モード
 
