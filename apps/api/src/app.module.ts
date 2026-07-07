@@ -9,6 +9,7 @@ import { ProfileService } from './application/profile.service';
 import { buildMikroOrmConfig, resolveDbName } from './infrastructure/mikro-orm.config';
 import { AdminModule } from './interface/graphql/admin/admin.module';
 import { DomainErrorFilter } from './interface/graphql/domain-error.filter';
+import { HelpArticleModule } from './interface/graphql/help-article.module';
 import { PolicyModule } from './interface/graphql/policy.module';
 import { ProfileModule } from './interface/graphql/profile.module';
 import { UserModule } from './interface/graphql/user.module';
@@ -26,6 +27,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 		ProfileModule,
 		// 規約・プライバシーポリシーの公開閲覧 GraphQL(ログイン不要、BR-CONTENT-010)。
 		PolicyModule,
+		// ヘルプ記事の公開閲覧 GraphQL(ログイン不要、BR-CONTENT-005)。
+		HelpArticleModule,
 		// 管理者コンソール GraphQL(認証・RBAC・ユーザー管理・モデレーション・APIキー・統計・監査)。
 		AdminModule,
 		GraphQLModule.forRootAsync<ApolloDriverConfig>({
