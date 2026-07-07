@@ -161,3 +161,26 @@ main へのマージは利用者に確認のうえ実施する。
 **Context**: Construction / Build and Test 完了 → マージ可否を利用者に確認予定
 
 ---
+
+## 初期リクエスト（ヘルプ記事の公開閲覧）
+**Timestamp**: 2026-07-07T02:00:00Z
+**User Input**: "help_articlesテーブル内にstatus=published(公開)の記事があるにも関わらず、apps/clientディレクトリ内アプリのヘルプ記事画面(/helps)にアクセスしても404エラーになってしまうので、ヘルプ記事一覧画面および記事詳細画面を実装してください。"
+**AI Response**: 調査の結果、規約・プライバシーポリシーの追補と同型のギャップと判明。§08 コンテンツ（admin-console ユニット、完了済み）は BR-CONTENT-005（ヘルプ記事の編集・公開/非公開）を管理者側（admin）でのみ実装しており、client 側の公開閲覧が未実装のまま欠落していた。api には管理者用の `HelpArticleRepository`/`MikroHelpArticleRepository`（`list`/`findBySlug`）が既存のため、公開用の薄いサービス層追加のみで実現できる。
+既存 SSoT（features/08-content-and-comms.md `BR-CONTENT-005`/`AC-CONTENT-005`）には記事詳細の閲覧条件のみ定義され、一覧画面（/helps）のソート順・ページネーション・カテゴリ絞り込みの受け入れ条件が未定義だったため、AskUserQuestion で確認した。
+**User Input**: 一覧画面の仕様="シンプル版（カテゴリ別グルーピング、カテゴリ内は更新日時降順、ページネーションなし）" / 進め方="前回（規約・プライバシーポリシー追補）と同じ（作業用ブランチ・複数コミットに分割・自動コミット、完了後マージ可否を確認）"
+**AI Response**: 選択に従い、`admin-console` の追補として扱う（新規ユニットは起票しない、minimal 深度）。作業用ブランチ `feature/help-article-public-pages` を作成し、TDD で実装後、完了時にマージ可否を確認する。
+**Context**: Workspace Detection / Requirements Analysis（minimal, 既存 BR-CONTENT-005 を参照）/ Workflow Planning
+
+### 補足: 調査エージェントによる意図しないファイル変更
+**Timestamp**: 2026-07-07T02:05:00Z
+**AI Response**: 事前調査用に起動した読み取り専用想定の Explore エージェントの実行後、`apps/client/src/components/shell/footer.tsx`（`/help` → `/helps` へのリンク修正）と `apps/client/src/components/policy/policy-document-view.tsx`（関数シグネチャの整形）が `git add` 済みの状態になっているのを発見した。破壊的操作を避けるため `git reset HEAD --`（作業ツリーは保持）でアンステージし、利用者に報告した。footer.tsx の修正内容自体は本タスクで必要な内容と一致するため、後続のコミットに意図的に含める。
+**Context**: Workspace Detection / 予期しない状態の調査（安全プロトコル）
+
+### 実装方針（Workflow Planning, minimal）
+- 対象は既存ユニット `admin-console`（§08 コンテンツ）の未実装ギャップ埋めであり新規ユニットとしては起票しない。
+- api: 公開 GraphQL クエリ `publicHelpArticles`（一覧・公開のみ）/ `publicHelpArticle(slug)`（単一・公開のみ、非公開/不在は null）を追加（認可不要、既存 `HelpArticleRepository`/`HELP_ARTICLE_REPOSITORY`/`MikroHelpArticleRepository` を再利用）。
+- client: `/helps`（一覧、カテゴリ別グルーピング・カテゴリ内更新日時降順・ページネーションなし）と `/helps/[slug]`（詳細、非公開/不在は notFound()）を追加。本文表示は既存の `MarkdownContent`（frontend-lib）を再利用。
+- footer.tsx の `/help` → `/helps` リンク修正を含める。
+- TDD（RED→GREEN→REFACTOR）で単体・統合テストを追加し、docs（features/08-content-and-comms.md に一覧画面の受け入れ条件を追記・README）を更新する。
+
+---

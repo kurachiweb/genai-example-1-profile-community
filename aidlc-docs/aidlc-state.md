@@ -80,6 +80,17 @@
 - 詳細は [audit.md](./audit.md) の「初期リクエスト（規約・プライバシーポリシーの公開閲覧）」を参照。
 - **状態**: 実装・テスト（TDD）・docs 更新まで完了。ブランチ `feature/public-policy-pages`。main へのマージは利用者確認待ち。
 
+## 追補（`admin-console` ギャップ対応）: ヘルプ記事の公開閲覧
+
+- **契機**: `help_articles` テーブルに `status=published` の記事があるにも関わらず、client の `/helps` にアクセスすると 404 になる不具合報告。
+- **原因**: BR-CONTENT-005（ヘルプ記事の公開閲覧はログイン不要）が admin 側の作成・編集・公開/非公開切替のみ実装され、client 側の公開閲覧面（一覧・詳細）が未実装だった。
+- **対応範囲**: 新規ユニットは起票せず `admin-console` の追補として扱う（brownfield・要件は既存 SSoT を流用、minimal 深度）。
+  - api: 公開 GraphQL（`publicHelpArticles`/`publicHelpArticle`、認可不要、既存 `HelpArticleRepository` を再利用）
+  - client: `/helps`（一覧、カテゴリ別グルーピング・カテゴリ内更新日時降順・ページネーションなし）、`/helps/[slug]`（詳細）
+  - footer.tsx のリンク不整合（`/help` → `/helps`）修正
+- 詳細は [audit.md](./audit.md) の「初期リクエスト（ヘルプ記事の公開閲覧）」を参照。
+- **状態**: 実装・テスト（TDD）・docs 更新まで完了。ブランチ `feature/help-article-public-pages`。main へのマージは利用者確認待ち。
+
 ## 実行モード
 
 - 利用者の明示指示（「作業用ブランチで複数コミットに分割し自動コミット、完了後 main へマージ」）に基づき、**承認ゲートで都度停止せず自律実行**する。監査証跡は [audit.md](./audit.md) に記録する。
