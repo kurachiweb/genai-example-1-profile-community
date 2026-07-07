@@ -64,6 +64,17 @@ export interface PublicProfileConnection {
 	readonly total: number;
 }
 
+export type PolicyDocumentType = 'terms' | 'privacy';
+
+export interface PolicyDocument {
+	readonly type: PolicyDocumentType;
+	readonly version: number;
+	readonly bodyMarkdown: string;
+	readonly isPublished: boolean;
+	readonly requiresReconsent: boolean;
+	readonly effectiveDate: string;
+}
+
 export interface ApiKey {
 	readonly id: string;
 	readonly label: string | null;

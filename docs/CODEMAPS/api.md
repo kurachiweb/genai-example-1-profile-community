@@ -25,7 +25,9 @@ apps/api/src/
 ├── application/                  # Use Cases(Interactor・Gateway 宣言)
 │   ├── gateways.ts               # UserRepository/ProfileRepository/SnsLinkRepository/Clock/IdGenerator(DI トークン)
 │   ├── models.ts                 # 境界をまたぐプレーンレコード(ProfileRecord/SnsLinkRecord/Viewer)
-│   └── profile.service.ts        # プロフィール取得/一覧/更新/公開切替/ハンドル変更/SNS 一括設定
+│   ├── profile.service.ts        # プロフィール取得/一覧/更新/公開切替/ハンドル変更/SNS 一括設定
+│   └── policy.service.ts         # 規約・プライバシーポリシーの公開閲覧(PublicPolicyService、認可不要、BR-CONTENT-010)。
+│                                  #   Gateway は application/admin/content-gateways.ts(POLICY_REPOSITORY)を再利用
 │
 ├── infrastructure/               # Interface Adapters(Gateway 実装)+ Frameworks & Drivers
 │   ├── persistence/
@@ -46,7 +48,9 @@ apps/api/src/
 │   ├── domain-error.filter.ts    # ドメイン例外 → extensions.code 写像
 │   ├── validation.ts             # ValidationPipe(ValidationError へ写像)
 │   ├── viewer.provider.ts        # 閲覧者解決(Cookie セッションのスタンドイン)
-│   └── profile.module.ts         # Profile 機能モジュール(Gateway をトークンで束ねる)
+│   ├── profile.module.ts         # Profile 機能モジュール(Gateway をトークンで束ねる)
+│   ├── policy.resolver.ts        # 規約公開閲覧 Query(publicPolicy/publicPolicyVersions/publicPolicyVersion)。ログイン不要
+│   └── policy.module.ts          # Policy 公開閲覧モジュール(POLICY_REPOSITORY を admin 側と共有)
 │
 ├── config/env.ts                 # 起動時の環境変数検証
 ├── app.module.ts                 # Composition root(MikroORM/Apollo 結線・例外フィルタ)
@@ -65,6 +69,9 @@ apps/api/src/
 | Mutation | `changeHandle(input)` | 所有権・形式/予約語/一意性 | `BR-SHARE-001/002` |
 | Mutation | `replaceSnsLinks(input)` | 所有権・0〜10 件/https | `BR-PROF-007` |
 | Field | `Profile.snsLinks` | DataLoader でバッチ解決 | `api/01-graphql-internal.md` §5 |
+| Query | `publicPolicy(type)` | ログイン不要・発効中の版のみ、未発行は `null` | `BR-CONTENT-010` |
+| Query | `publicPolicyVersions(type)` | ログイン不要・過去版含む全版(版番号降順) | `BR-CONTENT-010`/`AC-CONTENT-011` |
+| Query | `publicPolicyVersion(type, version)` | ログイン不要・版番号指定、無ければ `null` | `BR-CONTENT-010`/`AC-CONTENT-011` |
 
 ## テスト
 
@@ -75,8 +82,10 @@ apps/api/src/
 | 単体 | `src/config/env.spec.ts` | 起動時環境変数検証 |
 | 統合 | `test/profile-repository.spec.ts` | MikroORM 永続化層(インメモリ SQLite) |
 | 統合 | `test/graphql-profile.spec.ts` | Nest Testing + Supertest(認可・ゲート・カーソル・DataLoader) |
+| 単体 | `src/application/policy.service.spec.ts` | 規約公開閲覧ユースケース(発効中取得/過去版一覧/版指定取得) |
+| 統合 | `test/graphql-public-policy.spec.ts` | 未ログインでの公開規約取得・境界検証(Nest Testing + Supertest) |
 
-合計 107 件 GREEN・ドメイン/ユースケースのカバレッジ 98%。テスト方針は [GUIDES/testing/01-unit-integration.md](../GUIDES/testing/01-unit-integration.md)。
+合計 107 件 GREEN・ドメイン/ユースケースのカバレッジ 98%(規約公開閲覧の追加分は別カウント、リポジトリ全体のテスト件数は README/CHANGELOG 参照)。テスト方針は [GUIDES/testing/01-unit-integration.md](../GUIDES/testing/01-unit-integration.md)。
 
 ## 開発コマンド
 

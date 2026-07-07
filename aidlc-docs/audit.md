@@ -134,3 +134,30 @@
 **Context**: Construction / §08 完了 → main へマージ
 
 ---
+
+## 初期リクエスト（規約・プライバシーポリシーの公開閲覧）
+**Timestamp**: 2026-07-07T00:00:00Z
+**User Input**: "appsディレクトリ内admin管理者コンソールで規約・プライバシーポリシーを作成・発行しても、apps/client内Next.jsアプリの該当画面（/terms・/privacy）を開くと404エラーになってしまうので、発行したマークダウン文書を表示できるよう修正して。"
+**AI Response**: 調査の結果、§08 コンテンツ（admin-console ユニット、完了済み）は管理者側の版管理・発効機能のみを実装しており、client 側の公開閲覧（BR-CONTENT-010: 規約・プライバシーポリシーの公開中の版はログイン不要で閲覧でき、過去版も参照できる）が未実装のまま欠落していたことが判明。既存 SSoT（features/08-content-and-comms.md）に要件が既に定義済みのギャップ実装のため、Requirements/User Stories は既存ドキュメントを正本として流用し（minimal 深度）、Workflow Planning のみ簡潔に記録する。作業用ブランチ `feature/public-policy-pages` を作成し、TDD で実装後、完了時にマージ可否を確認する（過去の §08 実装時と同様の運用）。
+**Context**: Workspace Detection / Requirements Analysis（minimal, 既存 BR-CONTENT-010 を参照）/ Workflow Planning
+
+### 実装方針（Workflow Planning, minimal）
+- 対象は既存ユニット `admin-console`（§08 コンテンツ）の未実装ギャップ埋めであり新規ユニットとしては起票しない。
+- api: 公開 GraphQL クエリ `publicPolicy(type)` / `publicPolicyVersions(type)` を追加（認可不要、既存 `PolicyRepository`/`POLICY_REPOSITORY` を再利用）。
+- frontend-lib: マークダウンを安全に React 要素へ変換する自作パーサ（`dangerouslySetInnerHTML` 不使用、AC-CONTENT-002 のスクリプト非実行要件を構造的に満たす）。npm パッケージは追加しない（プロジェクト方針）。
+- client: `/terms`・`/privacy`（現行版）と `/terms/[version]`・`/privacy/[version]`（過去版、BR-CONTENT-010）を追加。
+- TDD（RED→GREEN→REFACTOR）で単体・統合テストを追加し、docs（features/GUIDES/README）を更新する。
+
+### 完了報告
+**Timestamp**: 2026-07-07T01:00:00Z
+**AI Response**: TDD（RED→GREEN）で実装。api: `PublicPolicyService`（7 テスト）＋公開GraphQL統合テスト（4 テスト）。
+frontend-lib: `parseMarkdownDocument`/`parseInline`（16 テスト）＋`MarkdownContent`（6 テスト、jest-axe 含む）。
+client: `PolicyDocumentView`（6 テスト）＋`parsePolicyVersionParam`（2 テスト）＋`/terms`・`/privacy`・
+`/terms/[version]`・`/privacy/[version]` ページ。api/frontend-lib/client 全テスト GREEN、typecheck/lint 通過
+（api・frontend-lib は tsc クリーン、client の tsc/next build はホスト環境固有のシンボリックリンク不整合により
+コード変更前から失敗しており未解決 — 詳細は本セッションの作業ログ参照、Docker 経由の本来の開発フローでは
+発生しない想定）。3 コミットに分割（api → frontend-lib → client）＋ docs 更新の計 4 コミット。
+main へのマージは利用者に確認のうえ実施する。
+**Context**: Construction / Build and Test 完了 → マージ可否を利用者に確認予定
+
+---

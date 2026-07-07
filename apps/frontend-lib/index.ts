@@ -25,6 +25,13 @@ export {
 	type ResolvedTheme,
 	type Theme
 } from './utilities/theme';
+export {
+	parseInline,
+	parseMarkdownDocument,
+	type BlockNode,
+	type HeadingLevel,
+	type InlineNode
+} from './utilities/markdown';
 
 // コンポーネント（プリミティブ）
 export { Button, buttonVariants, type ButtonProps } from './components/ui/button';
@@ -42,6 +49,7 @@ export {
 } from './components/ui/card';
 export { Input, type InputProps } from './components/ui/input';
 export { Label, type LabelProps } from './components/ui/label';
+export { MarkdownContent, type MarkdownContentProps } from './components/content/markdown-content';
 
 // テーマ
 export { ThemeProvider, useTheme } from './components/theme/theme-provider';
