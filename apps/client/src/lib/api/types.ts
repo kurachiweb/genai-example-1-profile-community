@@ -75,6 +75,17 @@ export interface PolicyDocument {
 	readonly effectiveDate: string;
 }
 
+export interface HelpArticleSummary {
+	readonly title: string;
+	readonly slug: string;
+	readonly category: string | null;
+	readonly updatedAt: string;
+}
+
+export interface HelpArticle extends HelpArticleSummary {
+	readonly bodyMarkdown: string;
+}
+
 export interface ApiKey {
 	readonly id: string;
 	readonly label: string | null;

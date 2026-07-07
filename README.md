@@ -71,7 +71,7 @@
   - メール通知はローカルでは Mailpit（`http://localhost:48035`）へ送信され、Web UI で確認できる。
   - 利用者・管理者のログインセッションおよび各種ワンタイムトークンはローカルでは Valkey（`localhost:48036`、本番の Cloudflare KV 相当）に保存され、`apps/api` コンテナを再起動してもセッションが失われない。
 - ORM は **MikroORM 7**（EntitySchema）。テストは MikroORM 7/kysely が ESM 専用のため jest を ESM モードで実行する（[MikroORM ガイド](./docs/GUIDES/coding/06-mikroorm.md)）。
-- **利用者向け Web（`apps/client`）**: 会員登録・ログイン（メール確認・パスワードリセット含む）・自分のプロフィール編集・API キー発行、公開プロフィール閲覧・検索、利用規約・プライバシーポリシーの公開閲覧（現行版・過去版、ログイン不要、`apps/admin` で発行した版を表示）を実装済み。
+- **利用者向け Web（`apps/client`）**: 会員登録・ログイン（メール確認・パスワードリセット含む）・自分のプロフィール編集・API キー発行、公開プロフィール閲覧・検索、利用規約・プライバシーポリシーの公開閲覧（現行版・過去版、ログイン不要、`apps/admin` で発行した版を表示）、ヘルプ記事の公開閲覧（一覧・詳細、ログイン不要、公開状態の記事のみカテゴリ別に表示）を実装済み。
   - 開発: `pnpm --filter @app/client dev`（`:48032`）
 - 変更履歴は [CHANGELOG.md](./CHANGELOG.md) を参照。
 

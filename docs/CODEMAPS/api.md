@@ -50,7 +50,9 @@ apps/api/src/
 │   ├── viewer.provider.ts        # 閲覧者解決(Cookie セッションのスタンドイン)
 │   ├── profile.module.ts         # Profile 機能モジュール(Gateway をトークンで束ねる)
 │   ├── policy.resolver.ts        # 規約公開閲覧 Query(publicPolicy/publicPolicyVersions/publicPolicyVersion)。ログイン不要
-│   └── policy.module.ts          # Policy 公開閲覧モジュール(POLICY_REPOSITORY を admin 側と共有)
+│   ├── policy.module.ts          # Policy 公開閲覧モジュール(POLICY_REPOSITORY を admin 側と共有)
+│   ├── help-article.resolver.ts  # ヘルプ記事公開閲覧 Query(publicHelpArticles/publicHelpArticle)。ログイン不要
+│   └── help-article.module.ts    # HelpArticle 公開閲覧モジュール(HELP_ARTICLE_REPOSITORY を admin 側と共有)
 │
 ├── config/env.ts                 # 起動時の環境変数検証
 ├── app.module.ts                 # Composition root(MikroORM/Apollo 結線・例外フィルタ)
@@ -72,6 +74,8 @@ apps/api/src/
 | Query | `publicPolicy(type)` | ログイン不要・発効中の版のみ、未発行は `null` | `BR-CONTENT-010` |
 | Query | `publicPolicyVersions(type)` | ログイン不要・過去版含む全版(版番号降順) | `BR-CONTENT-010`/`AC-CONTENT-011` |
 | Query | `publicPolicyVersion(type, version)` | ログイン不要・版番号指定、無ければ `null` | `BR-CONTENT-010`/`AC-CONTENT-011` |
+| Query | `publicHelpArticles` | ログイン不要・公開状態の記事のみ | `BR-CONTENT-005`/`AC-CONTENT-005b` |
+| Query | `publicHelpArticle(slug)` | ログイン不要・公開状態のみ、非公開/不在は `null` | `BR-CONTENT-005`/`AC-CONTENT-005` |
 
 ## テスト
 
@@ -84,8 +88,10 @@ apps/api/src/
 | 統合 | `test/graphql-profile.spec.ts` | Nest Testing + Supertest(認可・ゲート・カーソル・DataLoader) |
 | 単体 | `src/application/policy.service.spec.ts` | 規約公開閲覧ユースケース(発効中取得/過去版一覧/版指定取得) |
 | 統合 | `test/graphql-public-policy.spec.ts` | 未ログインでの公開規約取得・境界検証(Nest Testing + Supertest) |
+| 単体 | `src/application/help-article.service.spec.ts` | ヘルプ記事公開閲覧ユースケース(公開のみ一覧/スラッグ取得) |
+| 統合 | `test/graphql-public-help-article.spec.ts` | 未ログインでの公開ヘルプ記事取得・境界検証(Nest Testing + Supertest) |
 
-合計 107 件 GREEN・ドメイン/ユースケースのカバレッジ 98%(規約公開閲覧の追加分は別カウント、リポジトリ全体のテスト件数は README/CHANGELOG 参照)。テスト方針は [GUIDES/testing/01-unit-integration.md](../GUIDES/testing/01-unit-integration.md)。
+合計 107 件 GREEN・ドメイン/ユースケースのカバレッジ 98%(規約・ヘルプ記事公開閲覧の追加分は別カウント、リポジトリ全体のテスト件数は README/CHANGELOG 参照)。テスト方針は [GUIDES/testing/01-unit-integration.md](../GUIDES/testing/01-unit-integration.md)。
 
 ## 開発コマンド
 
