@@ -14,7 +14,7 @@ export function Footer() {
 					<Link href="/privacy" className="hover:text-text-muted hover:underline">
 						プライバシーポリシー
 					</Link>
-					<Link href="/help" className="hover:text-text-muted hover:underline">
+					<Link href="/helps" className="hover:text-text-muted hover:underline">
 						ヘルプ
 					</Link>
 				</nav>

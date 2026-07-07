@@ -11,12 +11,7 @@ export interface PolicyDocumentViewProps {
 	readonly basePath: string;
 }
 
-export function PolicyDocumentView({
-	title,
-	policy,
-	versions,
-	basePath
-}: PolicyDocumentViewProps) {
+export function PolicyDocumentView({ title, policy, versions, basePath }: PolicyDocumentViewProps) {
 	const pastVersions = versions.filter((v) => v.version !== policy.version);
 
 	return (

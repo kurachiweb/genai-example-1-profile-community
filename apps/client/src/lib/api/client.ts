@@ -4,6 +4,8 @@ import { graphqlRequest, type RequestOptions } from './graphql';
 import type {
 	ApiKey,
 	CreatedApiKey,
+	HelpArticle,
+	HelpArticleSummary,
 	Me,
 	MyProfile,
 	PolicyDocument,
@@ -227,6 +229,31 @@ export async function getPolicyVersion(
 		{ sessionId: null }
 	);
 	return data.publicPolicyVersion;
+}
+
+// --- ヘルプ記事(公開閲覧、ログイン不要、BR-CONTENT-005) ---
+
+const HELP_ARTICLE_SUMMARY_FIELDS = `title slug category updatedAt`;
+const HELP_ARTICLE_FIELDS = `${HELP_ARTICLE_SUMMARY_FIELDS} bodyMarkdown`;
+
+/** 公開状態の記事一覧を取得する(非公開は含まない)。 */
+export async function listPublishedHelpArticles(): Promise<HelpArticleSummary[]> {
+	const data = await graphqlRequest<{ publicHelpArticles: HelpArticleSummary[] }>(
+		`query{ publicHelpArticles{ ${HELP_ARTICLE_SUMMARY_FIELDS} } }`,
+		{},
+		{ sessionId: null }
+	);
+	return data.publicHelpArticles;
+}
+
+/** スラッグを指定して公開記事を取得する。非公開/不在なら null(呼び出し側で notFound() を呼ぶ)。 */
+export async function getPublishedHelpArticle(slug: string): Promise<HelpArticle | null> {
+	const data = await graphqlRequest<{ publicHelpArticle: HelpArticle | null }>(
+		`query($slug:String!){ publicHelpArticle(slug:$slug){ ${HELP_ARTICLE_FIELDS} } }`,
+		{ slug },
+		{ sessionId: null }
+	);
+	return data.publicHelpArticle;
 }
 
 // --- API キー ---
