@@ -6,6 +6,8 @@ import type {
 	CreatedApiKey,
 	Me,
 	MyProfile,
+	PolicyDocument,
+	PolicyDocumentType,
 	PublicProfile,
 	PublicProfileConnection
 } from './types';
@@ -188,6 +190,43 @@ export async function reportProfile(
 	await graphqlRequest(`mutation($input:ReportProfileInput!){ reportProfile(input:$input) }`, {
 		input: { handle, reasonCategory, detail }
 	});
+}
+
+// --- 規約・プライバシーポリシー(公開閲覧、ログイン不要、BR-CONTENT-010) ---
+
+const POLICY_FIELDS = `type version bodyMarkdown isPublished requiresReconsent effectiveDate`;
+
+/** 発効中(公開中)の版を取得する。未発行なら null(呼び出し側で notFound() を呼ぶ)。 */
+export async function getPublishedPolicy(type: PolicyDocumentType): Promise<PolicyDocument | null> {
+	const data = await graphqlRequest<{ publicPolicy: PolicyDocument | null }>(
+		`query($type:String!){ publicPolicy(type:$type){ ${POLICY_FIELDS} } }`,
+		{ type },
+		{ sessionId: null }
+	);
+	return data.publicPolicy;
+}
+
+/** 過去版を含む全版を版番号の降順で取得する(BR-CONTENT-010: 過去版も参照可能)。 */
+export async function listPolicyVersions(type: PolicyDocumentType): Promise<PolicyDocument[]> {
+	const data = await graphqlRequest<{ publicPolicyVersions: PolicyDocument[] }>(
+		`query($type:String!){ publicPolicyVersions(type:$type){ ${POLICY_FIELDS} } }`,
+		{ type },
+		{ sessionId: null }
+	);
+	return data.publicPolicyVersions;
+}
+
+/** 版番号を指定して特定の版(過去版含む)を取得する。存在しなければ null。 */
+export async function getPolicyVersion(
+	type: PolicyDocumentType,
+	version: number
+): Promise<PolicyDocument | null> {
+	const data = await graphqlRequest<{ publicPolicyVersion: PolicyDocument | null }>(
+		`query($type:String!,$version:Int!){ publicPolicyVersion(type:$type,version:$version){ ${POLICY_FIELDS} } }`,
+		{ type, version },
+		{ sessionId: null }
+	);
+	return data.publicPolicyVersion;
 }
 
 // --- API キー ---
