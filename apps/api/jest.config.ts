@@ -38,6 +38,7 @@ const config: JestConfigWithTsJest = {
 		'!src/application/admin/content-gateways.ts',
 		'!src/application/admin/content-models.ts',
 		// テスト用のインメモリ・フェイク(本番ロジックではない)は計測対象外。
+		'!src/application/fakes.ts',
 		'!src/application/admin/fakes.ts',
 		'!src/application/admin/content-fakes.ts'
 	],

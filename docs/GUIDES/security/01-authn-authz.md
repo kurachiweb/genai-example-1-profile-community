@@ -49,7 +49,8 @@ flowchart LR
 - Cookie には `Secure` / `HttpOnly` / `SameSite=Lax` を付与し、可能な環境では `__Host-` プレフィックスを用いる（`BR-COMMON-001`）。
 - **全セッション無効化**（パスワード変更/リセット時、`BR-ACCT-005`/`006`）は `users.session_epoch`（トークン世代）のインクリメントで実現し、旧セッションを検証時に失効させる（[infra/01-network-architecture.md](../infra/01-network-architecture.md) §4）。
 - KV・トークンに秘匿値（パスワード・キー秘匿値・Cookie 値）を平文で保存しない（`BR-COMMON-014`）。
-- **失効セッションの回収（BFF ルートガード）**: client / admin のルートガード（`middleware.ts` / `proxy.ts`）は UX 補助として Cookie の**有無**だけで遷移を決める（実認可は api が強制）。そのため api 側でセッションが消えた（例: 開発環境で api を再起動しインプロセスセッションが揮発）状態で Cookie が残ると、ガードと `requireUser`/`requireAdmin` の間で相互リダイレクト（admin は `/` ⇄ `/login` の `ERR_TOO_MANY_REDIRECTS`、client はログイン画面に到達できないロックアウト）に陥る。各 BFF は `UNAUTHORIZED` 時に Route Handler の `/logout` へ送り、そこで失効 Cookie を破棄してから `/login` へ抜けることでこれを断つ（Cookie の変更は Route Handler でのみ可能で、RSC レンダリング中は不可）。
+- **失効セッションの回収（BFF ルートガード）**: client / admin のルートガード（`middleware.ts` / `proxy.ts`）は UX 補助として Cookie の**有無**だけで遷移を決める（実認可は api が強制）。api 側でセッションが消えた（通常の TTL 失効・`session_epoch` 不一致・ストア障害など）状態で Cookie が残ると、ガードと `requireUser`/`requireAdmin` の間で相互リダイレクト（admin は `/` ⇄ `/login` の `ERR_TOO_MANY_REDIRECTS`、client はログイン画面に到達できないロックアウト）に陥る。各 BFF は `UNAUTHORIZED` 時に Route Handler の `/logout` へ送り、そこで失効 Cookie を破棄してから `/login` へ抜けることでこれを断つ（Cookie の変更は Route Handler でのみ可能で、RSC レンダリング中は不可）。
+- **ローカル開発でのセッション永続化**: ローカルの api はセッション・トークンを Valkey（docker compose の `valkey` サービス、KV 互換の RESP プロトコル）に保存する。以前はプロセス内メモリで保持していたため api コンテナの再起動でセッションが揮発し、上記のロックアウトが発生しやすかったが、Valkey に永続化したことで api の再起動をまたいでセッションが維持される（[infra/00-overview.md](../infra/00-overview.md) §5）。
 
 ## 3. 認可モデル（三層）
 

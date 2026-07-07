@@ -24,15 +24,17 @@ flowchart TB
         ADMIN["admin (Next.js)<br/>:48033"]
         PUBAPI["public-api (NestJS/REST)<br/>:48034"]
         MAIL["Mailpit (SES 代替)"]
+        VALKEY["Valkey (KV 代替)<br/>:48036"]
     end
     CLIENT --> API
     ADMIN --> API
     API --> DB
     PUBAPI --> DB
     API --> MAIL
+    API --> VALKEY
 ```
 
-> ポートの正本は [CLAUDE.md](../../../CLAUDE.md)。ローカルでは D1→SQLite、SES→Mailpit、Cloudflare Images→ローカル配信に置き換える（[infra/00-overview.md](../infra/00-overview.md) §5）。
+> ポートの正本は [CLAUDE.md](../../../CLAUDE.md)。ローカルでは D1→SQLite、SES→Mailpit、Cloudflare Images→ローカル配信、KV→Valkey に置き換える（[infra/00-overview.md](../infra/00-overview.md) §5）。
 
 ## 2. ベースイメージ
 
@@ -57,7 +59,7 @@ flowchart TB
 - `node_modules` はホストと混ぜず**アプリごとの名前付きボリューム**に隔離する。pnpm パッケージインストール後のビルド許可は各アプリ直下の `pnpm-workspace.yaml`（§3）で与える。
 - ツールチェーンの `root` サービスのみリポジトリ全体（`.:/workspace`）をマウントする（pnpm ワークスペース全体・Terraform・wrangler のため）。
 - **共通フロントエンド（`apps/frontend-lib`）を `client` / `admin` コンテナ内の `/workspace/lib` にマウント**する。各アプリの `pnpm-workspace.yaml`（`packages: ['.', 'lib']`、[admin](../../../apps/admin/pnpm-workspace.yaml) / [client](../../../apps/client/pnpm-workspace.yaml)）がこの `lib` をワークスペースの一員として取り込み、`@app/frontend-lib`（`workspace:*`）を解決する。狙いは、ホスト側のコード・`tsconfig`・`next.config` を変えずにコンテナ内だけで共通ライブラリを参照できるようにすること。ホストには `lib` を置かないので、ホスト側ではこの `lib` 指定は対象なしとして無視されるだけで問題ない。`node_modules` は専用ボリューム（`frontend_lib_node_modules`）でホスト側と隔離する。
-- **Mailpit** を SES 代替サービスとして compose に含める。SQLite はファイル/ボリュームで永続化する。
+- **Mailpit** を SES 代替サービスとして、**Valkey** を Cloudflare KV 代替サービスとして compose に含める。SQLite・Valkey はいずれも名前付きボリュームで永続化する。
 - **SQLite はファイルベースでネットワークの「接続先サーバー」を持たない**。そのため `db` の SQLite 実体を格納するホスト側ディレクトリ `apps/db/.db-data`（バインドマウント、`.gitignore` 対象）を、`db` / `api` / `public-api` の各コンテナへ**同一パス `/workspace/.db-data` で共有マウント**し、`DATABASE_URL=file:/workspace/.db-data/local.sqlite`（`.env`）で同じ実体を参照する。名前付きボリュームではなくホスト側ディレクトリに直接配置することで、DB データをコンテナのライフサイクルから独立させ、ホストから直接参照・バックアップできるようにする。ディレクトリの所有権は最初に起動するコンテナ（`db`。`api`/`public-api` は `db` の healthy を待つ）の `/workspace/.db-data` から初期化されるため、`db` イメージで同ディレクトリを `node` 所有で用意し、`node` ユーザーの `api`/`public-api` が SQLite を生成・書き込みできるようにする（EACCES 回避）。
 - **コンテナ間の HTTP 接続はサービス名で名前解決する**。compose のデフォルトネットワークでは各コンテナ内の `localhost` はそのコンテナ自身を指すため、`client` / `admin`（Next.js のサーバー側 BFF）から内部 GraphQL API へは `localhost:48031` ではなく **api サービス名で `http://api:48031/graphql`** に接続する。この URL は両サービスの `environment.API_GRAPHQL_URL` で与える（未設定時はホスト直起動向けに `http://localhost:48031/graphql` へフォールバックする）。`<<: *app-defaults` の `environment` は YAML マージキーでは丸ごと上書きされるため、各サービス側で `NODE_ENV` も再掲する。
 - 環境変数は `.env`（リポジトリ管理外）から読み込む。`.env.example` のみコミットし、実値はコミットしない（§6）。
@@ -79,16 +81,16 @@ docker compose build
 # docker compose build --build-arg TERRAFORM_VERSION=1.15.6 --build-arg PNPM_VERSION=11.8 root
 
 # 全サービスを起動（バックグラウンド）
-# db:48030 / api:48031 / client:48032 / admin:48033 / public-api:48034 / Mailpit Web UI:48035
+# db:48030 / api:48031 / client:48032 / admin:48033 / public-api:48034 / Mailpit Web UI:48035 / Valkey:48036
 docker compose up -d
 
 # 特定サービスのみ起動（依存も解決される。例: api と db のみ）
 docker compose up -d api
 
-# 停止（コンテナ削除。名前付きボリューム=DB/メールは保持）
+# 停止（コンテナ削除。名前付きボリューム=DB/メール/Valkey は保持）
 docker compose down
 
-# 停止＋ボリュームも削除（ローカル SQLite・Mailpit のデータを破棄）
+# 停止＋ボリュームも削除（ローカル SQLite・Mailpit・Valkey のデータを破棄）
 docker compose down -v
 ```
 

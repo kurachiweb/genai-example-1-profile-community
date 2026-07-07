@@ -1,35 +1,26 @@
 // WebauthnChallengeStore(Gateway)の実装。チャレンジは短命・ワンタイム(db §7)。
-// 本番は Cloudflare KV、ローカルはインメモリ(TTL 付き)で実装する。
+// 本番は Cloudflare KV、ローカルは Valkey(docker compose の valkey サービス)で実装する。
+// TTL・ワンタイム消費のいずれも Valkey ネイティブの機能(EX/GETDEL)に委ねる。
 import { Injectable } from '@nestjs/common';
 import { WEBAUTHN_CHALLENGE_TTL_SECONDS } from '../domain/admin-limits';
 import { WebauthnChallengeStore } from '../application/admin/gateways';
-import type { Clock } from '../application/gateways';
+import type { ValkeyClient } from './valkey-client';
 
-interface StoredChallenge {
-	challenge: string;
-	expiresAt: number;
+function keyFor(key: string): string {
+	// db §7 のキー設計(tok:webauthn:...)に合わせる。
+	return `tok:webauthn:${key}`;
 }
 
 @Injectable()
-export class InMemoryWebauthnChallengeStore implements WebauthnChallengeStore {
-	private readonly store = new Map<string, StoredChallenge>();
-
-	constructor(private readonly clock: Clock) {}
+export class ValkeyWebauthnChallengeStore implements WebauthnChallengeStore {
+	constructor(private readonly client: ValkeyClient) {}
 
 	async put(key: string, challenge: string): Promise<void> {
-		this.store.set(key, {
-			challenge,
-			expiresAt: this.clock.now().getTime() + WEBAUTHN_CHALLENGE_TTL_SECONDS * 1000
-		});
+		await this.client.set(keyFor(key), challenge, 'EX', WEBAUTHN_CHALLENGE_TTL_SECONDS);
 	}
 
 	async take(key: string): Promise<string | null> {
-		const stored = this.store.get(key);
-		// ワンタイム: 取得時に必ず破棄する。
-		this.store.delete(key);
-		if (!stored || stored.expiresAt < this.clock.now().getTime()) {
-			return null;
-		}
-		return stored.challenge;
+		// GETDEL で取得と破棄を原子的に行う(ワンタイム)。
+		return this.client.getdel(keyFor(key));
 	}
 }

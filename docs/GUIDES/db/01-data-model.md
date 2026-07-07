@@ -621,8 +621,8 @@ D1 に置かない揮発・バイナリデータの配置。詳細経路は [inf
 
 | データ | 保存先 | キー設計（例） | TTL | 関連 |
 | --- | --- | --- | --- | --- |
-| 利用者セッション | KV（利用者用名前空間） | `sess:client:<sessionId>` | 30 日（スライディング） | `BR-COMMON-001` |
-| 管理者セッション | KV（管理者用名前空間・分離） | `sess:admin:<sessionId>` | 8h / アイドル 30 分 | `BR-COMMON-002` |
+| 利用者セッション | KV（利用者用名前空間） | `sess:client:<hash>`（sessionId を SHA-256 でハッシュ化） | 30 日（スライディング） | `BR-COMMON-001` |
+| 管理者セッション | KV（管理者用名前空間・分離） | `sess:admin:<hash>`（sessionId を SHA-256 でハッシュ化） | 8h / アイドル 30 分 | `BR-COMMON-002` |
 | メール確認トークン | KV | `tok:verify:<hash>` | 24h・ワンタイム | `BR-ACCT-003` |
 | パスワードリセットトークン | KV | `tok:reset:<hash>` | 1h・ワンタイム | `BR-ACCT-006` |
 | メール変更トークン | KV | `tok:email:<hash>`（新メール内包） | 設定値・ワンタイム | `BR-ACCT-007` |
@@ -634,6 +634,7 @@ D1 に置かない揮発・バイナリデータの配置。詳細経路は [inf
 | アイコン原本 | R2 | `icons/<userId>/<imageId>` | — | `BR-PROF-001` |
 | アイコン配信/変換 | Cloudflare Images | 画像 ID（`profiles.icon_image_id`） | — | `BR-PROF-001` |
 
+- **ローカル開発での実体**: ローカルでは上記の KV を Valkey（docker compose の `valkey` サービス、[infra/00-overview.md](../infra/00-overview.md) §5）で代替する。キー設計・TTL は本表と同一とし、本番 KV への切替はストア実装（`apps/api/src/infrastructure/*-store.ts`）の差し替えのみで完結するようにする。
 - **全セッション無効化**は `users.session_epoch` を +1 し、KV のセッション検証時に epoch 不一致を失効扱いにする（`BR-ACCT-005`/`006`）。
 - セッション・トークンは**ハッシュで保存**し、平文 Cookie/トークンは保存しない（`BR-COMMON-014`）。
 - **レート制限カウンタの保存先**: 公開API のキー単位カウンタのみ Durable Objects で厳密にカウントし、認証系・通報系は KV の近似カウントとする。**一般閲覧・検索（未認証）はエッジ WAF のみで制限し、KV カウンタを持たない**。理由・代替案は [ADR 20260604-public-api-rate-limit-durable-objects](../../adr/20260604-public-api-rate-limit-durable-objects.md) を参照。

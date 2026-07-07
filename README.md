@@ -69,6 +69,7 @@
 - **管理者コンソール（`apps/admin`）＋共通フロントエンド（`apps/frontend-lib`）**: 運営チーム向け管理者コンソールを実装済み。認証（メール＋パスワード／WebAuthn パスキー）・RBAC・ユーザー管理・モデレーション（凍結/解除/アイコン削除）・通報審査・API キー運用＋共通レート制限・利用統計・監査ログ・管理者/権限管理、および §08 コンテンツ配信（お知らせ・メール通知・ヘルプ記事・問い合わせ対応・規約版管理）。`apps/api` に管理者向け GraphQL サーフェス（本番水準認証：Argon2id・サーバーセッション・WebAuthn）を追加。構造は[admin コードマップ](./docs/CODEMAPS/admin.md)・[frontend-lib コードマップ](./docs/CODEMAPS/frontend-lib.md)、仕様の正本は[管理者コンソール仕様](./docs/service/features/07-admin-console.md)・[コンテンツ&コミュニケーション](./docs/service/features/08-content-and-comms.md)を参照。
   - 開発: `pnpm --filter @app/admin dev`（`:48033`）／ 初期管理者投入: `pnpm --filter @app/api seed:admin`（既定 `admin@example.com` / `admin-password-12345`）／ カタログ: `pnpm --filter @app/frontend-lib storybook`
   - メール通知はローカルでは Mailpit（`http://localhost:48035`）へ送信され、Web UI で確認できる。
+  - 利用者・管理者のログインセッションおよび各種ワンタイムトークンはローカルでは Valkey（`localhost:48036`、本番の Cloudflare KV 相当）に保存され、`apps/api` コンテナを再起動してもセッションが失われない。
 - ORM は **MikroORM 7**（EntitySchema）。テストは MikroORM 7/kysely が ESM 専用のため jest を ESM モードで実行する（[MikroORM ガイド](./docs/GUIDES/coding/06-mikroorm.md)）。
 - 残りのアプリ（`apps/client`）は順次実装予定。変更履歴は [CHANGELOG.md](./CHANGELOG.md) を参照。
 

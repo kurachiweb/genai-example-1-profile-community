@@ -16,9 +16,13 @@ export interface AppEnv {
 	readonly adminWebauthn: WebauthnEnv;
 	/** 利用者向け Web(client)のオリジン。確認メール等のリンク組み立てに使う。 */
 	readonly clientOrigin: string;
+	/** セッション/ワンタイムトークンの保存先(本番は Cloudflare KV、ローカルは Valkey、db §7)。 */
+	readonly valkeyUrl: string;
 }
 
 const DEFAULT_PORT = 48031;
+// ローカルの Valkey コンテナ(docker compose サービス名、compose.yaml 参照)。
+const DEFAULT_VALKEY_URL = 'redis://valkey:6379';
 // ローカル admin アプリ(:48033)を既定の RP とする。本番は env で上書きする。
 const DEFAULT_ADMIN_ORIGIN = 'http://localhost:48033';
 const DEFAULT_ADMIN_RP_ID = 'localhost';
@@ -49,6 +53,7 @@ export function loadEnv(env: NodeJS.ProcessEnv = process.env): AppEnv {
 			rpId: env.ADMIN_WEBAUTHN_RP_ID ?? DEFAULT_ADMIN_RP_ID,
 			origin: env.ADMIN_WEBAUTHN_ORIGIN ?? DEFAULT_ADMIN_ORIGIN
 		},
-		clientOrigin: env.CLIENT_ORIGIN ?? DEFAULT_CLIENT_ORIGIN
+		clientOrigin: env.CLIENT_ORIGIN ?? DEFAULT_CLIENT_ORIGIN,
+		valkeyUrl: env.VALKEY_URL ?? DEFAULT_VALKEY_URL
 	};
 }

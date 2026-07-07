@@ -1,9 +1,11 @@
 // UserSessionStore(Gateway)の実装。本番は Cloudflare KV(利用者用名前空間・分離)、
-// ローカルはインメモリ(プロセス内・KV 相当)で実装する(db §7・BR-COMMON-001)。
-// 有効 30 日のスライディング方式(BR-COMMON-001)。
+// ローカルは Valkey(docker compose の valkey サービス)で実装する(db §7・BR-COMMON-001)。
+// 有効 30 日のスライディング方式(BR-COMMON-001)。TTL 管理は Valkey の EXPIRE に委ねる。
+// セッション ID はハッシュ化してキーに用いる(平文保存しない、BR-COMMON-014)。
 import { randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
-import type { Clock } from '../application/gateways';
+import { hashToken } from './token-hash';
+import type { ValkeyClient } from './valkey-client';
 
 export const USER_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 日
 
@@ -20,45 +22,41 @@ export interface UserSessionStore {
 	destroy(sessionId: string): Promise<void>;
 }
 
-interface StoredSession {
+interface StoredSessionValue {
 	userId: string;
-	createdAt: Date;
-	lastAccessAt: Date;
 }
 
 function token(): string {
 	return randomBytes(32).toString('base64url');
 }
 
-@Injectable()
-export class InMemoryUserSessionStore implements UserSessionStore {
-	private readonly sessions = new Map<string, StoredSession>();
+function keyFor(sessionId: string): string {
+	// db §7 のキー設計(sess:client:<hash>)に合わせ、管理者セッションと名前空間を分離する。
+	return `sess:client:${hashToken(sessionId)}`;
+}
 
-	constructor(private readonly clock: Clock) {}
+@Injectable()
+export class ValkeyUserSessionStore implements UserSessionStore {
+	constructor(private readonly client: ValkeyClient) {}
 
 	async create(userId: string): Promise<UserSession> {
-		const now = this.clock.now();
 		const sessionId = token();
-		this.sessions.set(sessionId, { userId, createdAt: now, lastAccessAt: now });
+		const value: StoredSessionValue = { userId };
+		await this.client.set(keyFor(sessionId), JSON.stringify(value), 'EX', USER_SESSION_TTL_SECONDS);
 		return { sessionId, userId };
 	}
 
 	async resolve(sessionId: string): Promise<UserSession | null> {
-		const stored = this.sessions.get(sessionId);
-		if (!stored) return null;
+		const raw = await this.client.get(keyFor(sessionId));
+		if (!raw) return null;
 
-		const now = this.clock.now();
-		const ageSeconds = (now.getTime() - stored.createdAt.getTime()) / 1000;
-		if (ageSeconds > USER_SESSION_TTL_SECONDS) {
-			this.sessions.delete(sessionId);
-			return null;
-		}
-		// スライディング更新。
-		stored.lastAccessAt = now;
+		const stored = JSON.parse(raw) as StoredSessionValue;
+		// スライディング更新(TTL を延長する)。
+		await this.client.expire(keyFor(sessionId), USER_SESSION_TTL_SECONDS);
 		return { sessionId, userId: stored.userId };
 	}
 
 	async destroy(sessionId: string): Promise<void> {
-		this.sessions.delete(sessionId);
+		await this.client.del(keyFor(sessionId));
 	}
 }

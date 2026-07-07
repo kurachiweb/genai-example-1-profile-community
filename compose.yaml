@@ -1,6 +1,7 @@
 # ローカル開発用 docker compose 定義。
 # 本番ランタイムは Cloudflare Workers のため、本 compose はローカル開発専用である。
-# ポート割り当ての正本は CLAUDE.md / docs/GUIDES/infra/00-overview.md §2（48030〜48034）。
+# ポート割り当ての正本は CLAUDE.md / docs/GUIDES/infra/00-overview.md §2（アプリ: 48030〜48034、
+# 補助サービス Mailpit: 48035・Valkey: 48036）。
 name: genai-example-1-profile-community
 
 # 各アプリサービスの共通設定（DRY: YAML アンカーで集約。03-docker.md §4）。
@@ -87,6 +88,8 @@ services:
         condition: service_healthy
       mailpit:
         condition: service_started
+      valkey:
+        condition: service_healthy
 
   # ---- 利用者・閲覧者向け Web: Next.js（:48032） ----
   client:
@@ -180,6 +183,21 @@ services:
       MP_MAX_MESSAGES: "500"
       MP_DATABASE: /data/mailpit.db
 
+  # ---- Valkey: Cloudflare KV のローカル代替（利用者/管理者セッション・各種ワンタイムトークンを保持） ----
+  valkey:
+    image: valkey/valkey:8-alpine
+    restart: unless-stopped
+    ports:
+      - "48036:6379"
+    volumes:
+      - valkey_data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
 volumes:
   root_node_modules:
   db_node_modules:
@@ -189,3 +207,4 @@ volumes:
   public_api_node_modules:
   frontend_lib_node_modules:
   mailpit_data:
+  valkey_data:

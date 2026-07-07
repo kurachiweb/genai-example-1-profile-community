@@ -45,9 +45,10 @@ import { UserAdminService } from '../../../application/admin/user-admin.service'
 import { SystemClock } from '../../../infrastructure/clock';
 import { UlidGenerator } from '../../../infrastructure/id-generator';
 import { Argon2idPasswordHasher } from '../../../infrastructure/password-hasher';
-import { InMemoryAdminSessionStore } from '../../../infrastructure/admin-session.store';
-import { InMemoryWebauthnChallengeStore } from '../../../infrastructure/webauthn-challenge.store';
+import { ValkeyAdminSessionStore } from '../../../infrastructure/admin-session.store';
+import { ValkeyWebauthnChallengeStore } from '../../../infrastructure/webauthn-challenge.store';
 import { SimpleWebauthnVerifier } from '../../../infrastructure/webauthn-verifier';
+import { createValkeyClient, ValkeyClient } from '../../../infrastructure/valkey-client';
 import { MikroAdminAccountRepository } from '../../../infrastructure/persistence/admin-account.repository';
 import { MikroAdminUserRepository } from '../../../infrastructure/persistence/admin-user.repository';
 import { MikroAdminWebauthnCredentialRepository } from '../../../infrastructure/persistence/admin-webauthn-credential.repository';
@@ -96,6 +97,8 @@ import { AdminResolver } from './admin.resolver';
 
 const WEBAUTHN_CONFIG = Symbol('WebauthnConfig');
 const MAIL_CONFIG = Symbol('MailConfig');
+// user.module.ts の Valkey クライアントとは別接続にする(モジュール間でプロバイダを共有しない既存方針)。
+const ADMIN_VALKEY_CLIENT = Symbol('AdminValkeyClient');
 
 @Module({
 	providers: [
@@ -149,15 +152,20 @@ const MAIL_CONFIG = Symbol('MailConfig');
 		// 認証・セキュリティのポート実装。
 		Argon2idPasswordHasher,
 		{ provide: PASSWORD_HASHER, useExisting: Argon2idPasswordHasher },
+		// Valkey 接続(管理者セッション・WebAuthn チャレンジの保存先。本番は Cloudflare KV、db §7)。
+		{
+			provide: ADMIN_VALKEY_CLIENT,
+			useFactory: () => createValkeyClient(loadEnv().valkeyUrl)
+		},
 		{
 			provide: ADMIN_SESSION_STORE,
-			inject: [CLOCK],
-			useFactory: (clock: Clock) => new InMemoryAdminSessionStore(clock)
+			inject: [ADMIN_VALKEY_CLIENT, CLOCK],
+			useFactory: (client: ValkeyClient, clock: Clock) => new ValkeyAdminSessionStore(client, clock)
 		},
 		{
 			provide: WEBAUTHN_CHALLENGE_STORE,
-			inject: [CLOCK],
-			useFactory: (clock: Clock) => new InMemoryWebauthnChallengeStore(clock)
+			inject: [ADMIN_VALKEY_CLIENT],
+			useFactory: (client: ValkeyClient) => new ValkeyWebauthnChallengeStore(client)
 		},
 		{ provide: WEBAUTHN_CONFIG, useFactory: () => loadEnv().adminWebauthn },
 		{

@@ -12,20 +12,22 @@ import { PasswordHasher } from '../../application/admin/gateways';
 import { MAIL_SENDER, MailSender } from '../../application/admin/content-gateways';
 import {
 	EmailVerificationTokenStore,
-	InMemoryTokenStore,
 	UserApiKeyRepository,
 	UserService
 } from '../../application/user.service';
 import { loadEnv } from '../../config/env';
 import { SystemClock } from '../../infrastructure/clock';
 import { UlidGenerator } from '../../infrastructure/id-generator';
+import { ValkeyEmailVerificationTokenStore } from '../../infrastructure/email-verification-token.store';
 import { NodemailerMailSender } from '../../infrastructure/mail-sender';
 import { Argon2idPasswordHasher } from '../../infrastructure/password-hasher';
 import { MikroUserRepository } from '../../infrastructure/persistence/user.repository';
 import { MikroUserApiKeyRepository } from '../../infrastructure/persistence/api-key-user.repository';
+import { createValkeyClient, ValkeyClient } from '../../infrastructure/valkey-client';
 import {
-	InMemoryUserSessionStore,
-	USER_SESSION_STORE
+	USER_SESSION_STORE,
+	UserSessionStore,
+	ValkeyUserSessionStore
 } from '../../infrastructure/user-session.store';
 import { ViewerProvider } from './viewer.provider';
 import { UserResolver } from './user.resolver';
@@ -35,6 +37,8 @@ export const USER_TOKEN_STORE = Symbol('UserTokenStore');
 export const USER_API_KEY_REPO = Symbol('UserApiKeyRepo');
 // admin.module.ts の MAIL_CONFIG と同型(モジュール間でプロバイダを共有しない既存方針に倣う)。
 const MAIL_CONFIG = Symbol('UserMailConfig');
+// admin.module.ts の Valkey クライアントとは別接続にする(モジュール間でプロバイダを共有しない既存方針)。
+const USER_VALKEY_CLIENT = Symbol('UserValkeyClient');
 
 @Module({
 	providers: [
@@ -44,19 +48,26 @@ const MAIL_CONFIG = Symbol('UserMailConfig');
 		SystemClock,
 		UlidGenerator,
 		Argon2idPasswordHasher,
-		InMemoryTokenStore,
 		// DI トークン結線。
 		{ provide: USER_REPOSITORY, useExisting: MikroUserRepository },
 		{ provide: CLOCK, useExisting: SystemClock },
 		{ provide: ID_GENERATOR, useExisting: UlidGenerator },
 		{ provide: USER_PASSWORD_HASHER, useExisting: Argon2idPasswordHasher },
-		{ provide: USER_TOKEN_STORE, useExisting: InMemoryTokenStore },
 		{ provide: USER_API_KEY_REPO, useExisting: MikroUserApiKeyRepository },
-		// ユーザーセッションストア(インプロセス KV 相当)。Clock 注入が必要。
+		// Valkey 接続(ユーザーセッション・メール確認トークンの保存先。本番は Cloudflare KV、db §7)。
+		{
+			provide: USER_VALKEY_CLIENT,
+			useFactory: () => createValkeyClient(loadEnv().valkeyUrl)
+		},
 		{
 			provide: USER_SESSION_STORE,
-			inject: [CLOCK],
-			useFactory: (clock: Clock) => new InMemoryUserSessionStore(clock)
+			inject: [USER_VALKEY_CLIENT],
+			useFactory: (client: ValkeyClient) => new ValkeyUserSessionStore(client)
+		},
+		{
+			provide: USER_TOKEN_STORE,
+			inject: [USER_VALKEY_CLIENT],
+			useFactory: (client: ValkeyClient) => new ValkeyEmailVerificationTokenStore(client)
 		},
 		// メール送信(ローカルは Mailpit、本番は SES へ差し替え。admin.module.ts と同型の独立プロバイダ)。
 		{
@@ -89,7 +100,7 @@ const MAIL_CONFIG = Symbol('UserMailConfig');
 			],
 			useFactory: (
 				users: UserRepository,
-				sessions: InMemoryUserSessionStore,
+				sessions: UserSessionStore,
 				passwordHasher: PasswordHasher,
 				clock: Clock,
 				ids: IdGenerator,

@@ -13,6 +13,8 @@ import { ProfileEntity } from '../src/infrastructure/persistence/entities/profil
 import { ReportEntity } from '../src/infrastructure/persistence/entities/report.entity';
 import { UserEntity } from '../src/infrastructure/persistence/entities/user.entity';
 import { buildValidationPipe } from '../src/interface/graphql/validation';
+import { USER_SESSION_STORE } from '../src/infrastructure/user-session.store';
+import { InMemoryUserSessionStore } from '../src/application/fakes';
 
 let app: INestApplication;
 let orm: MikroORM;
@@ -20,7 +22,12 @@ let orm: MikroORM;
 beforeAll(async () => {
 	process.env.DATABASE_URL = ':memory:';
 	process.env.NODE_ENV = 'test';
-	const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+	// セッションストアは Valkey 接続を要するため、統合テストではインメモリ・フェイクへ差し替える
+	// (testing/01 §3「KV / Durable Objects」参照)。
+	const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+		.overrideProvider(USER_SESSION_STORE)
+		.useValue(new InMemoryUserSessionStore({ now: () => new Date() }))
+		.compile();
 	app = moduleRef.createNestApplication();
 	app.useGlobalPipes(buildValidationPipe());
 	await app.init();

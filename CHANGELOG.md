@@ -6,6 +6,7 @@
 
 ### Fixed
 
+- **ローカル開発で `apps/api` を再起動するとログインセッションが失われる不具合を修正**（`apps/api`）。利用者・管理者セッション、メール確認/パスワードリセット/メール変更トークン、WebAuthn チャレンジをインプロセス（`Map`）で保持していたため、api コンテナ再起動のたびに全セッションが揮発していた。ローカル用に Valkey（`compose.yaml`、ポート 48036、Cloudflare KV 相当）を追加し、`ValkeyUserSessionStore`/`ValkeyAdminSessionStore`/`ValkeyWebauthnChallengeStore`/`ValkeyEmailVerificationTokenStore` へ差し替え。キー設計は本番 KV と同一形式（`sess:client:<hash>` 等、`db/01-data-model.md` §7）に揃え、インメモリ実装は完全に削除した。セッション ID・トークンは SHA-256 でハッシュ化してから Valkey キーへ用い、平文で保存しない（`BR-COMMON-014`）。
 - **会員登録（`register`）時にメールアドレス確認メールが送信されない不具合を修正**（`apps/api`）。`UserService.register`/`resendVerificationEmail` が確認トークンを発行するだけで送信処理が未実装だった（`BR-ACCT-003`）ため、既存の `MailSender`（nodemailer→Mailpit）を `UserModule` に配線し、確認メール・既登録案内メール（`BR-ACCT-001`）を実際に送信するよう修正。
 
 ### Added

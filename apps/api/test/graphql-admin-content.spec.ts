@@ -9,6 +9,8 @@ import { AdminRole } from '../src/domain/admin-role';
 import { AppModule } from '../src/app.module';
 import { AdminAccountEntity } from '../src/infrastructure/persistence/entities/admin-account.entity';
 import { InquiryEntity } from '../src/infrastructure/persistence/entities/inquiry.entity';
+import { ADMIN_SESSION_STORE } from '../src/application/admin/gateways';
+import { InMemoryAdminSessionStore } from '../src/application/admin/fakes';
 
 let app: INestApplication;
 let orm: MikroORM;
@@ -16,7 +18,12 @@ let orm: MikroORM;
 beforeAll(async () => {
 	process.env.DATABASE_URL = ':memory:';
 	process.env.NODE_ENV = 'test';
-	const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+	// セッションストアは Valkey 接続を要するため、統合テストではインメモリ・フェイクへ差し替える
+	// (testing/01 §3「KV / Durable Objects」参照)。
+	const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+		.overrideProvider(ADMIN_SESSION_STORE)
+		.useValue(new InMemoryAdminSessionStore({ now: () => new Date() }))
+		.compile();
 	app = moduleRef.createNestApplication();
 	await app.init();
 	orm = app.get(MikroORM);

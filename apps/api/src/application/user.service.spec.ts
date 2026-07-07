@@ -11,14 +11,8 @@ import {
 	UserUpdateInput
 } from './gateways';
 import { ProfileRecord, UserRecord } from './models';
-import {
-	ApiKeyRecord,
-	CreatedApiKey,
-	InMemoryTokenStore,
-	UserApiKeyRepository,
-	UserService
-} from './user.service';
-import { InMemoryUserSessionStore } from '../infrastructure/user-session.store';
+import { ApiKeyRecord, CreatedApiKey, UserApiKeyRepository, UserService } from './user.service';
+import { InMemoryTokenStore, InMemoryUserSessionStore } from './fakes';
 import { MailMessage, MailSender } from './admin/content-gateways';
 
 // --- フェイク実装 ---

@@ -20,4 +20,17 @@ describe('loadEnv(起動時の環境変数検証)', () => {
 	test('不正なポートは起動失敗', () => {
 		expect(() => loadEnv({ DATABASE_URL: 'file:/tmp/x.sqlite', PORT: 'abc' })).toThrow(/PORT/);
 	});
+
+	test('VALKEY_URL 未設定時は docker compose の valkey サービスを既定値とする', () => {
+		const env = loadEnv({ DATABASE_URL: 'file:/tmp/x.sqlite' });
+		expect(env.valkeyUrl).toBe('redis://valkey:6379');
+	});
+
+	test('VALKEY_URL 設定時はその値を優先する', () => {
+		const env = loadEnv({
+			DATABASE_URL: 'file:/tmp/x.sqlite',
+			VALKEY_URL: 'redis://localhost:48036'
+		});
+		expect(env.valkeyUrl).toBe('redis://localhost:48036');
+	});
 });

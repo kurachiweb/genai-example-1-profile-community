@@ -1,7 +1,6 @@
 // ユーザー認証・アカウント管理のユースケース(Interactor)。フレームワーク非依存の純粋オーケストレーション。
 // ビジネスルール(BR-ACCT-*)に基づくバリデーション・状態遷移・セッション管理を担う。
 import { createHash, randomBytes } from 'node:crypto';
-import { Injectable } from '@nestjs/common';
 import { ForbiddenError, UnauthorizedError, ValidationError } from '../domain/errors';
 import { UserStatus } from '../domain/user-status';
 import {
@@ -359,31 +358,5 @@ export class UserService {
 
 	async revokeApiKey(userId: string, keyId: string): Promise<void> {
 		await this.deps.apiKeys.revoke(keyId, userId, this.deps.clock.now());
-	}
-}
-
-/** インメモリ実装のメール確認トークンストア(本番は Cloudflare KV)。 */
-@Injectable()
-export class InMemoryTokenStore implements EmailVerificationTokenStore {
-	private readonly tokens = new Map<
-		string,
-		{ userId: string; type: string; extra?: string; expiresAt: Date }
-	>();
-
-	async create(userId: string, type: string, extra?: string): Promise<string> {
-		const token = randomBytes(32).toString('base64url');
-		const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 時間
-		this.tokens.set(token, { userId, type, extra, expiresAt });
-		return token;
-	}
-
-	async consume(token: string, type: string): Promise<{ userId: string; extra?: string } | null> {
-		const stored = this.tokens.get(token);
-		if (!stored || stored.type !== type || stored.expiresAt < new Date()) {
-			this.tokens.delete(token);
-			return null;
-		}
-		this.tokens.delete(token);
-		return { userId: stored.userId, extra: stored.extra };
 	}
 }

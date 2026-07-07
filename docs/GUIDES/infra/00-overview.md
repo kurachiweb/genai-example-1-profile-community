@@ -115,7 +115,7 @@ flowchart TB
 
 | 環境 | 用途 | DB | ストレージ | デプロイ契機 | AI 操作 |
 | --- | --- | --- | --- | --- | --- |
-| local | 開発者ローカル | SQLite（48030） | ローカル FS / Mailpit | `docker compose` 手動起動 | 可 |
+| local | 開発者ローカル | SQLite（48030） | ローカル FS / Mailpit / Valkey（48036） | `docker compose` 手動起動 | 可 |
 | dev | 結合・検証 | Cloudflare D1（dev） | R2/Images/KV（dev） | **main への push で自動** | 可 |
 | prod | 本番 | Cloudflare D1（prod） | R2/Images/KV（prod） | **`git tag` で発火** | **禁止** |
 
@@ -130,9 +130,9 @@ flowchart LR
 
 ## 5. ローカル開発環境
 
-- コンテナは Docker（`node:26.3-trixie-slim` ベース）。ルート `compose.yaml` でツールチェーン（pnpm/Terraform/wrangler/git）・各アプリのコンテナ（db/api/client/admin/public-api）・ポート・Mailpit を定義する。各アプリの `Dockerfile` は `apps/<app>/Dockerfile` に置き、`build.dockerfile` で参照する。
+- コンテナは Docker（`node:26.3-trixie-slim` ベース）。ルート `compose.yaml` でツールチェーン（pnpm/Terraform/wrangler/git）・各アプリのコンテナ（db/api/client/admin/public-api）・ポート・Mailpit・Valkey を定義する。各アプリの `Dockerfile` は `apps/<app>/Dockerfile` に置き、`build.dockerfile` で参照する。
 - パッケージマネージャは pnpm（`pnpm-workspace.yaml` でワークスペース管理）。
-- ローカルでは D1 の代わりに SQLite、SES の代わりに Mailpit、Cloudflare Images の代わりにローカル配信を用い、本番と同等のドメインロジックを再現する。
+- ローカルでは D1 の代わりに SQLite、SES の代わりに Mailpit、Cloudflare Images の代わりにローカル配信、**KV の代わりに Valkey**（`valkey/valkey` イメージ、docker compose サービス名 `valkey`、ホスト公開ポート 48036）を用い、本番と同等のドメインロジックを再現する。api はセッション・各種ワンタイムトークン（メール確認・パスワードリセット・メール変更・WebAuthn チャレンジ）を Valkey に保存し、キー設計は本番 KV と同じ形式（`sess:client:<sessionId>` 等、[db/01-data-model.md](../db/01-data-model.md) §7）に揃える。
 - 環境構築の手順は [docs/onboardings/README.md](../../onboardings/README.md) を参照。
 
 ## 6. セキュリティ・ガバナンスの土台（インフラ観点）

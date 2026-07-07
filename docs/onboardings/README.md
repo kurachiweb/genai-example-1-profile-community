@@ -141,8 +141,9 @@ pnpm --filter @app/db migration:up
 | `apps/admin` | 管理者コンソール（Next.js） | 48033 |
 | `apps/public-api` | 公開 API（NestJS / REST） | 48034 |
 | Mailpit | メール確認 Web UI（SES 代替、http://localhost:48035） | 48035 |
+| Valkey | セッション/トークン保存（Cloudflare KV 代替） | 48036 |
 
-- ローカルでは D1 の代わりに SQLite、Amazon SES の代わりに Mailpit を使う。Mailpit の SMTP（1025）はコンテナ間のみで、ホストには Web UI（48035）だけを公開する。
+- ローカルでは D1 の代わりに SQLite、Amazon SES の代わりに Mailpit、Cloudflare KV の代わりに Valkey を使う。Mailpit の SMTP（1025）はコンテナ間のみで、ホストには Web UI（48035）だけを公開する。Valkey はホスト側からのデバッグ用に 48036 を公開する（`redis-cli -p 48036` 等で接続可能）。
 - パッケージマネージャは pnpm、コンテナは Docker（`node@trixie`）。
 
 ## 4. 開発ルールの要点
