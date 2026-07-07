@@ -183,4 +183,20 @@ main へのマージは利用者に確認のうえ実施する。
 - footer.tsx の `/help` → `/helps` リンク修正を含める。
 - TDD（RED→GREEN→REFACTOR）で単体・統合テストを追加し、docs（features/08-content-and-comms.md に一覧画面の受け入れ条件を追記・README）を更新する。
 
+### 補足: 検証作業中の事故と復旧(2 件)
+**Timestamp**: 2026-07-07T03:00:00Z
+**AI Response**: Next.js の `apps/client` を実機起動して確認する過程で、gitignore 対象の `apps/client/lib`（`apps/frontend-lib` のエイリアス）をシンボリックリンクへ置き換えようとして `rm -rf` を実行したところ、実体が同一ストレージを指していたため `apps/frontend-lib` 配下の Git 管理対象ソースファイル一式が削除される事故が発生した。直後に `git checkout -- apps/frontend-lib` で全ファイルを復元し、`git status`/`git fsck` でリポジトリの整合性(データ損失が無いこと)を確認した。
+続けて、その復元コマンドを `rtk proxy`(RTK の生パススルーモード)経由で実行した影響と見られる形で、以降すべての `git` コマンドが `fatal: detected dubious ownership in repository at '/workspace'` により失敗する状態になった(`/workspace/.git` が root 所有・実行ユーザーは `node`)。プロジェクト規約で git config の無断変更を禁止しているため、`git config --global --add safe.directory /workspace` の実行可否を利用者に確認した。
+**User Input**: "safe.directoryを追加してもらってよい(推奨)"
+**AI Response**: 承認を得て `git config --global --add safe.directory /workspace` を実行し、git 操作を復旧。作業内容(未コミットの実装ファイル一式)は無傷であることを確認して実装作業を再開した。
+**Context**: Construction / 予期しない状態からの復旧(安全プロトコル)、利用者承認
+
+### 完了報告
+**Timestamp**: 2026-07-07T04:00:00Z
+**AI Response**: TDD(RED→GREEN)で実装。api: `PublicHelpArticleService`(5 テスト)＋公開GraphQL統合テスト(5 テスト、`test/graphql-public-help-article.spec.ts`)。client: `HelpArticleList`(5 テスト)＋`HelpArticleView`(4 テスト)＋`/helps`・`/helps/[slug]`ページ。api 全体 323 テスト GREEN・client 全体 119 テスト GREEN、api/client とも eslint クリーン・prettier 整形済み。
+api は一時 sqlite ファイル DB(`:memory:` ではなく共有可能なファイル)で `nest start` を実際に起動し、admin 側 `adminUpsertHelpArticle`/`adminSetHelpArticleStatus` で公開・非公開記事を作成したうえで、公開 GraphQL(`publicHelpArticles`/`publicHelpArticle`)を curl で直接叩いて非公開記事の除外・404 相当の `null` 応答を実サーバーで確認した。
+client 側は `next dev` の実機起動を試みたが、ホスト環境固有の `apps/client/lib`(`apps/frontend-lib` のエイリアス)の名前解決問題により、本タスクで変更していない既存ファイル(`header.tsx`/`theme-toggle.tsx` 等)を含めて `(public)` 配下の全ページがモジュール解決エラーで 500 になる状態だった(規約・プライバシーポリシー追補時の tsc エラーと同根、Docker 経由では発生しない想定)ため、ブラウザでの実機確認は環境要因によりブロックされた。React Testing Library による実レンダリング(リンク遷移先・カテゴリグルーピング・MarkdownContent 本文描画・jest-axe によるアクセシビリティ検証を含む)を代替エビデンスとする。
+3 コミットに分割(api → client → docs)。main へのマージは利用者に確認のうえ実施する。
+**Context**: Construction / Build and Test 完了 → マージ可否を利用者に確認予定
+
 ---
