@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | `api-internal-profile` | 内部 GraphQL API のプロフィール共有コアドメイン（User/Profile/SnsLink） | 完了 |
 | `public-api-rest` | 公開 REST API（API キー認証・スコープ・本人フル CRUD・他者公開分 Read・レート制限・OpenAPI） | 完了 |
-| `admin-console` | 管理者コンソール（`apps/frontend-lib` 共通基盤＋`apps/admin` Next.js＋`apps/api` 管理者バックエンド）。範囲は admin 仕様 §2-5 ＋ §08 コンテンツ全部。 | 完了（§2-5＋認証/WebAuthn＋§08 コンテンツ） |
+| `admin-console` | 管理者コンソール（`apps/frontend-lib` 共通基盤＋`apps/admin` Next.js＋`apps/api` 管理者バックエンド）。範囲は admin 仕様 §2-5 ＋ §08 コンテンツ全部。 | 完了（§2-5＋認証/WebAuthn＋§08 コンテンツ管理）。ただし §08 の**公開閲覧**（BR-CONTENT-010）は client 側未実装のギャップが後日判明 → 追補で対応 |
 
 ### ステージ進捗（`admin-console`）
 
@@ -68,6 +68,16 @@
 | CONSTRUCTION | Build and Test | ✅ | — | Jest 単体・統合。TDD（RED→GREEN→REFACTOR） |
 
 > ドメイン層の共有方針: `apps/public-api` 内に複製する（独立アプリ・別 Worker）。経緯は [ADR 20260617-public-api-domain-duplication](../docs/adr/20260617-public-api-domain-duplication.md)。
+
+## 追補（`admin-console` ギャップ対応）: 規約・プライバシーポリシーの公開閲覧
+
+- **契機**: admin で発行した規約・プライバシーポリシーを client の `/terms`・`/privacy` で開くと 404 になる不具合報告。
+- **原因**: BR-CONTENT-010（規約の公開中版はログイン不要で閲覧でき、過去版も参照できる）が admin 側の版管理・発効機能のみ実装され、client 側の公開閲覧面が未実装だった。
+- **対応範囲**: 新規ユニットは起票せず `admin-console` の追補として扱う（brownfield・要件は既存 SSoT を流用、minimal 深度）。
+  - api: 公開 GraphQL（`publicPolicy`/`publicPolicyVersions`、認可不要）
+  - frontend-lib: 自作の安全な Markdown レンダラー（`MarkdownContent`）
+  - client: `/terms`・`/privacy`（現行版）、`/terms/[version]`・`/privacy/[version]`（過去版）
+- 詳細は [audit.md](./audit.md) の「初期リクエスト（規約・プライバシーポリシーの公開閲覧）」を参照。
 
 ## 実行モード
 
