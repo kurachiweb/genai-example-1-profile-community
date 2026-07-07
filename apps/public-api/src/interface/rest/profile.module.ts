@@ -7,6 +7,7 @@ import {
 	CLOCK,
 	ID_GENERATOR,
 	PROFILE_REPOSITORY,
+	SETTINGS_REPOSITORY,
 	SNS_LINK_REPOSITORY,
 	USER_REPOSITORY,
 	type ApiKeyRepository,
@@ -22,6 +23,7 @@ import { SystemClock } from '../../infrastructure/clock';
 import { UlidGenerator } from '../../infrastructure/id-generator';
 import { MikroApiKeyRepository } from '../../infrastructure/persistence/api-key.repository';
 import { MikroProfileRepository } from '../../infrastructure/persistence/profile.repository';
+import { MikroSettingsRepository } from '../../infrastructure/persistence/settings.repository';
 import { MikroSnsLinkRepository } from '../../infrastructure/persistence/sns-link.repository';
 import { MikroUserRepository } from '../../infrastructure/persistence/user.repository';
 import { MeProfileController } from './me-profile.controller';
@@ -32,7 +34,8 @@ import { ApiScopeGuard } from './guards/scope.guard';
 
 @Module({
 	// ThrottlerModule は既定のメモリストレージ(ThrottlerStorage)を提供する。
-	// しきい値はカスタムガードが RATE_LIMIT_OPTIONS(env)から渡すため、ここの値は安全網の既定。
+	// 実際のしきい値はカスタムガードが RATE_LIMIT_OPTIONS/SettingsRepository から解決するため、
+	// ここの値はモジュール自体が使わない安全網の既定(ThrottlerModule 初期化に必須のため設定)。
 	imports: [ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }])],
 	controllers: [MeProfileController, ProfilesController],
 	providers: [
@@ -41,6 +44,7 @@ import { ApiScopeGuard } from './guards/scope.guard';
 		MikroApiKeyRepository,
 		MikroProfileRepository,
 		MikroSnsLinkRepository,
+		MikroSettingsRepository,
 		SystemClock,
 		UlidGenerator,
 		// Gateway(IF)トークン → 実装の束ね。
@@ -48,9 +52,11 @@ import { ApiScopeGuard } from './guards/scope.guard';
 		{ provide: API_KEY_REPOSITORY, useExisting: MikroApiKeyRepository },
 		{ provide: PROFILE_REPOSITORY, useExisting: MikroProfileRepository },
 		{ provide: SNS_LINK_REPOSITORY, useExisting: MikroSnsLinkRepository },
+		{ provide: SETTINGS_REPOSITORY, useExisting: MikroSettingsRepository },
 		{ provide: CLOCK, useExisting: SystemClock },
 		{ provide: ID_GENERATOR, useExisting: UlidGenerator },
-		// レート制限のしきい値・時間窓は env を正本とする(BR-API-008/BR-ADMIN-008)。
+		// 時間窓は env を正本とする(BR-API-008)。上限回数は管理画面が app_settings に書き込む値を
+		// ガードが毎リクエスト参照するため、ここは未設定時のフォールバック既定値(BR-ADMIN-008)。
 		{
 			provide: RATE_LIMIT_OPTIONS,
 			useFactory: () => {

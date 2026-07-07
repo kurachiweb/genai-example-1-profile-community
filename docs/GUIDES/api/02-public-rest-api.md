@@ -72,6 +72,7 @@
 
 - レート制限は `@nestjs/throttler` をアプリ層に、Cloudflare WAF を本番エッジに置く二層構成とする。しきい値・多層図・カウンタ配置の**正本は `BR-COMMON-010`・[infra/01-network-architecture.md](../infra/01-network-architecture.md) §3・[db/01-data-model.md](../db/01-data-model.md) §7**（本ガイドでは値を再掲しない）。
 - キー単位カウンタは Durable Objects で厳密にカウントする。`@nestjs/throttler` の `ThrottlerStorage` を DO バックエンドで実装し、DO キー設計は `rl:apikey:<keyId>:<window>`（db §7・[ADR DO](../../adr/20260604-public-api-rate-limit-durable-objects.md)）に従う。
+- 上限回数（窓あたりリクエスト数）は管理者が全キー共通で変更でき（`BR-ADMIN-008`）、`app_settings`（共有 DB、キー `public_api_rate_limit_per_minute`）に永続化する。ガード（`ApiKeyThrottlerGuard`）はこの値を毎リクエスト参照するため、管理画面での変更は再起動なく即座に反映される。未設定時のみ env（`RATE_LIMIT_PER_WINDOW`）の既定値にフォールバックする。時間窓（`RATE_LIMIT_WINDOW_SECONDS`）は管理画面からは変更できない。
 - 全応答に残量ヘッダ `RateLimit-Limit` / `RateLimit-Remaining` / `RateLimit-Reset` を付与し、超過時は `Retry-After` を添えてレート制限エラーを返す（挙動の正本は `BR-API-008`/`009`）。利用者側の対応は [03-public-api-developer-guide.md](./03-public-api-developer-guide.md) §6。
 
 ## 9. OpenAPI / Swagger UI 公開

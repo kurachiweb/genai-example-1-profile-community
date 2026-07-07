@@ -12,6 +12,7 @@ import { ApiKeyScope, ApiKeyStatus } from '../src/domain/api-key';
 import { AppModule } from '../src/app.module';
 import { hashApiKey } from '../src/infrastructure/hashing';
 import { ApiKeyEntity } from '../src/infrastructure/persistence/entities/api-key.entity';
+import { AppSettingEntity } from '../src/infrastructure/persistence/entities/app-setting.entity';
 import { ProfileEntity } from '../src/infrastructure/persistence/entities/profile.entity';
 import { UserEntity } from '../src/infrastructure/persistence/entities/user.entity';
 import { buildValidationPipe } from '../src/interface/rest/validation';
@@ -294,5 +295,45 @@ describe('レート制限超過(AC-API-014)', () => {
 		expect(blocked.status).toBe(429);
 		expect(blocked.body.error.code).toBe('RATE_LIMITED');
 		expect(blocked.headers).toHaveProperty('retry-after');
+	});
+});
+
+describe('レート制限しきい値の管理画面設定反映(BR-ADMIN-008)', () => {
+	let app: INestApplication;
+	let orm: MikroORM;
+
+	beforeAll(async () => {
+		// env の既定は 1000(緩い)だが、管理画面が app_settings に書き込む値(2)が優先されるべき。
+		({ app, orm } = await buildApp(1000));
+		await orm.schema.refresh();
+		await seed(orm, 'a', 'minato', { rawKey: FULL_KEY });
+		const em = orm.em.fork();
+		em.create(AppSettingEntity, {
+			key: 'public_api_rate_limit_per_minute',
+			value: '2'
+		});
+		await em.flush();
+	});
+
+	afterAll(async () => {
+		await app.close();
+	});
+
+	test('env より app_settings の値が優先され、しきい値 2 で 429 になる', async () => {
+		const server = app.getHttpServer();
+		const ok1 = await request(server)
+			.get(`${BASE}/me/profile`)
+			.set({ Authorization: `Bearer ${FULL_KEY}` });
+		const ok2 = await request(server)
+			.get(`${BASE}/me/profile`)
+			.set({ Authorization: `Bearer ${FULL_KEY}` });
+		const blocked = await request(server)
+			.get(`${BASE}/me/profile`)
+			.set({ Authorization: `Bearer ${FULL_KEY}` });
+		expect(ok1.status).toBe(200);
+		expect(ok1.headers['ratelimit-limit']).toBe('2');
+		expect(ok2.status).toBe(200);
+		expect(blocked.status).toBe(429);
+		expect(blocked.body.error.code).toBe('RATE_LIMITED');
 	});
 });

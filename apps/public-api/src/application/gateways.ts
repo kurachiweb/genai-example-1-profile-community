@@ -59,3 +59,10 @@ export interface IdGenerator {
 	/** ULID(26 文字・生成時刻順)を発行する(db §4)。 */
 	ulid(): string;
 }
+
+export const SETTINGS_REPOSITORY = Symbol('SettingsRepository');
+
+export interface SettingsRepository {
+	/** 管理者が変更した公開 API の共通レート制限しきい値(BR-ADMIN-008)。未設定なら null(呼び出し側が既定値へフォールバック)。 */
+	getApiRateLimitPerMinute(): Promise<number | null>;
+}

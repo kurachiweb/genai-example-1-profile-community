@@ -5,11 +5,12 @@
 import { UnderscoreNamingStrategy } from '@mikro-orm/core';
 import { defineConfig } from '@mikro-orm/sqlite';
 import { apiKeySchema } from './persistence/entities/api-key.entity';
+import { appSettingSchema } from './persistence/entities/app-setting.entity';
 import { profileSchema } from './persistence/entities/profile.entity';
 import { snsLinkSchema } from './persistence/entities/sns-link.entity';
 import { userSchema } from './persistence/entities/user.entity';
 
-export const ENTITIES = [userSchema, profileSchema, snsLinkSchema, apiKeySchema];
+export const ENTITIES = [userSchema, profileSchema, snsLinkSchema, apiKeySchema, appSettingSchema];
 
 /** DATABASE_URL(`file:/path` 形式)または `:memory:` から SQLite のパスを解決する。 */
 export function resolveDbName(databaseUrl?: string): string {
