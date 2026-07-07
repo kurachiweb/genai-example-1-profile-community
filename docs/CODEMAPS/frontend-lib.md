@@ -15,9 +15,11 @@ apps/frontend-lib/
 │   ├── grapheme.ts         # 書記素クラスタ計数(BR-COMMON-008)
 │   ├── display-name.ts     # 表示名の決定論的組み立て(BR-PROF-003/004)・アイコン alt(design/04 §3)
 │   ├── datetime.ts         # 閲覧者ローカルタイム整形・相対表記(BR-COMMON-015)
-│   └── theme.ts            # テーマ解決(light/dark/system)・FOUC 防止スクリプト(design/01 §2.5)
+│   ├── theme.ts            # テーマ解決(light/dark/system)・FOUC 防止スクリプト(design/01 §2.5)
+│   └── markdown.ts         # マークダウン→安全な AST への自作パーサ(dangerouslySetInnerHTML 不使用、AC-CONTENT-002)
 ├── components/
 │   ├── ui/                 # shadcn/ui ベースのプリミティブ(Button/Badge/Card/Input/Label)+ Story
+│   ├── content/            # MarkdownContent(規約・お知らせ等のマークダウン本文描画、utilities/markdown.ts を使用)+ Story
 │   └── theme/              # ThemeProvider / useTheme(低頻度 Context)
 ├── .storybook/             # Storybook(React + Vite + Tailwind4・a11y アドオン)
 ├── index.ts                # 公開エントリ(client/admin は @app/frontend-lib から取り込む)
