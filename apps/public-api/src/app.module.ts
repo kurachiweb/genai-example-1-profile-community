@@ -3,7 +3,12 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { buildMikroOrmConfig, resolveDbName } from './infrastructure/mikro-orm.config';
+import {
+	buildMikroOrmConfig,
+	buildMikroOrmConfigForD1,
+	resolveDbName
+} from './infrastructure/mikro-orm.config';
+import { getD1Database } from './infrastructure/workers-runtime';
 import { DomainExceptionFilter } from './interface/rest/filters/domain-error.filter';
 import { EnvelopeInterceptor } from './interface/rest/interceptors/envelope.interceptor';
 import { ProfileModule } from './interface/rest/profile.module';
@@ -11,7 +16,14 @@ import { ProfileModule } from './interface/rest/profile.module';
 @Module({
 	imports: [
 		MikroOrmModule.forRootAsync({
-			useFactory: () => buildMikroOrmConfig(resolveDbName(process.env.DATABASE_URL))
+			// Cloudflare Workers(worker.ts)では D1 バインディングが登録されるため D1 接続に切り替える。
+			// ローカル/dev(main.ts)・テストでは未登録のため、従来どおり SQLite ファイル接続を使う。
+			useFactory: () => {
+				const d1 = getD1Database();
+				return d1
+					? buildMikroOrmConfigForD1(d1)
+					: buildMikroOrmConfig(resolveDbName(process.env.DATABASE_URL));
+			}
 		}),
 		ProfileModule
 	],

@@ -1,0 +1,9 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		// api配下と異なり、public-apiはioredis等の"node"型を暗黙に引き込む依存を持たないため、
+		// process/Buffer等(nodejs_compatが実行時に提供するグローバル)の型を明示的に含める。
+		"types": ["node", "@cloudflare/workers-types"]
+	},
+	"include": ["src/worker.ts", "src/bootstrap.ts"]
+}

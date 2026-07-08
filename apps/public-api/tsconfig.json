@@ -11,6 +11,9 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    // mikro-orm compile が生成する compiled-functions.js(eval/new Functionを禁止する
+    // Cloudflare Workers 向けの事前コンパイル済み関数、db/02-migrations.md 参照)を import するため。
+    "allowJs": true,
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
@@ -29,9 +32,12 @@
       "@domain/*": ["./src/domain/*"],
       "@application/*": ["./src/application/*"],
       "@infrastructure/*": ["./src/infrastructure/*"],
-      "@interface/*": ["./src/interface/*"]
+      "@interface/*": ["./src/interface/*"],
+      // kysely-d1 は package.json の "exports" に "types" 条件が無く、moduleResolution: "nodenext"
+      // では型解決に失敗する(パッケージ側の既知の不備)。実体の .d.ts へ直接誘導する。
+      "kysely-d1": ["./node_modules/kysely-d1/dist/index.d.ts"]
     }
   },
   "include": ["src/**/*", "test/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "src/worker.ts"]
 }

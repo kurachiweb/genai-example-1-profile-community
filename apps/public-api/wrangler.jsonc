@@ -1,0 +1,60 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "genai-example-1-public-api",
+	"main": "src/worker.ts",
+	// Cloudflare公式のExpress-on-Workersサポート(cloudflare:node の httpServerHandler)が
+	// 有効になる最小日付(2025-08-15より後)。nodejs_compat フラグのみで追加フラグは不要。
+	"compatibility_date": "2025-09-23",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": {
+		"enabled": true
+	},
+	// NestJSコア/@nestjs/swaggerが任意機能(WebSocket/microservices、class-transformerの
+	// バージョン差異吸収)を遅延requireするが、本アプリはExpress+REST(Swagger/OpenAPI)のみを
+	// 使うため未インストール。バンドルエラー回避のためno-opモジュールへ差し替える
+	// (https://developers.cloudflare.com/workers/wrangler/configuration/#bundling-issues)。
+	"alias": {
+		"@nestjs/websockets/socket-module": "./workers-stubs/empty-module.js",
+		"@nestjs/microservices/microservices-module": "./workers-stubs/empty-module.js",
+		"@nestjs/microservices": "./workers-stubs/empty-module.js",
+		// @nestjs/swagger が依存する @nestjs/mapped-types は class-transformer の新旧バージョン差異を
+		// try/require/catch で吸収しているが、esbuild は catch 節内の require も静的解決しようとして
+		// 失敗する(実行時は try 側の class-transformer/cjs/storage が必ず解決に成功し到達しない分岐、
+		// apps/api と同一事情)。
+		"class-transformer/storage": "./workers-stubs/empty-module.js"
+	},
+	"env": {
+		"dev": {
+			"name": "genai-example-1-public-api-dev",
+			"vars": {
+				"NODE_ENV": "production",
+				// D1経路では実際には参照しない(env.DB バインディングを使う)。
+				// loadEnv() の必須チェックを満たすためのプレースホルダ。
+				"DATABASE_URL": "d1"
+			},
+			// api(apps/api)と同一 D1 を参照する(マイグレーションの正本は apps/api、ADR 20260617)。
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "genai-example-1-dev",
+					"database_id": "5f6ace63-753a-48c2-a400-5ca219a8a839"
+				}
+			]
+		},
+		"production": {
+			"name": "genai-example-1-public-api-production",
+			"vars": {
+				"NODE_ENV": "production",
+				"DATABASE_URL": "d1"
+			},
+			// D1のIDはproductionワークスペースのterraform apply後にoutputから設定する(未確定)。
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "genai-example-1-production",
+					"database_id": ""
+				}
+			]
+		}
+	}
+}

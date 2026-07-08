@@ -4,5 +4,12 @@
 		"rootDir": "./src",
 		"tsBuildInfoFile": "./dist/.tsbuildinfo"
 	},
-	"exclude": ["node_modules", "dist", "test", "**/*.spec.ts", "src/infrastructure/seed.ts"]
+	"exclude": [
+		"node_modules",
+		"dist",
+		"test",
+		"**/*.spec.ts",
+		"src/infrastructure/seed.ts",
+		"src/worker.ts"
+	]
 }

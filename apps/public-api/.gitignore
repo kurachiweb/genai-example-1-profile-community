@@ -2,3 +2,6 @@
 dist
 coverage
 *.tsbuildinfo
+
+# wrangler dev のローカル状態(D1のミニフレアシミュレーション等)
+.wrangler
