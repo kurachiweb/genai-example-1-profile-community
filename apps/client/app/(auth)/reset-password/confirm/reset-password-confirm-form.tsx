@@ -3,8 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Label } from '@lib';
-import { resetPassword } from '@/lib/api/client';
-import { ApiError } from '@/lib/api/graphql';
+import { resetPasswordAction } from '@/lib/auth/actions';
 
 interface Props {
 	readonly token: string;
@@ -28,16 +27,12 @@ export function ResetPasswordConfirmForm({ token }: Props) {
 
 		setError(null);
 		startTransition(async () => {
-			try {
-				await resetPassword(token, newPassword);
-				router.replace('/login?reset=1');
-			} catch (err) {
-				const message =
-					err instanceof ApiError
-						? err.message
-						: 'パスワードのリセットに失敗しました。リンクが無効か期限切れの可能性があります。';
-				setError(message);
+			const result = await resetPasswordAction(token, newPassword);
+			if (!result.ok) {
+				setError(result.error ?? 'パスワードのリセットに失敗しました。');
+				return;
 			}
+			router.replace('/login?reset=1');
 		});
 	}
 

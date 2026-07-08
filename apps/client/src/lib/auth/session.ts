@@ -1,12 +1,11 @@
 // 利用者セッション Cookie の操作(BFF)。HttpOnly・SameSite・本番は __Host- + Secure(BR-COMMON-001)。
 // セッション ID はブラウザ JS から読めない(HttpOnly)。CSRF は Server Actions の同一オリジン検証＋ SameSite で防ぐ。
 import { cookies } from 'next/headers';
-import { USER_SESSION_TTL_SECONDS } from './constants';
+import { SESSION_COOKIE, USER_SESSION_TTL_SECONDS } from './constants';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-// 本番は __Host- プレフィックス(Secure・path=/・domain 無し必須)。ローカル(http)は通常名。
-export const SESSION_COOKIE = isProduction ? '__Host-user_session' : 'user_session';
+export { SESSION_COOKIE };
 
 export async function getSessionId(): Promise<string | undefined> {
 	return (await cookies()).get(SESSION_COOKIE)?.value;

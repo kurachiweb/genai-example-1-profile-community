@@ -3,11 +3,10 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Button, Input, Label } from '@lib';
-import { requestPasswordReset } from '@/lib/api/client';
+import { requestPasswordResetAction } from '@/lib/auth/actions';
 
 export function ResetPasswordForm() {
 	const [sent, setSent] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 	const [isPending, startTransition] = useTransition();
 
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -16,14 +15,9 @@ export function ResetPasswordForm() {
 		const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
 		if (!email) return;
 
-		setError(null);
 		startTransition(async () => {
-			try {
-				await requestPasswordReset(email);
-				setSent(true);
-			} catch {
-				setError('送信に失敗しました。時間をおいて再度お試しください。');
-			}
+			await requestPasswordResetAction(email);
+			setSent(true);
 		});
 	}
 
@@ -46,15 +40,6 @@ export function ResetPasswordForm() {
 
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-			{error ? (
-				<p
-					role="alert"
-					className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-(length:--text-meta) text-danger"
-				>
-					{error}
-				</p>
-			) : null}
-
 			<div className="flex flex-col gap-1.5">
 				<Label htmlFor="email" required>
 					メールアドレス

@@ -4,7 +4,8 @@
 
 import { redirect } from 'next/navigation';
 import * as api from '../api/client';
-import { ApiError } from '../api/graphql';
+import { ApiError } from '../api/errors';
+import type { ActionResult } from '../actions';
 import { clearSession, getSessionId, setSession } from './session';
 
 export interface AuthState {
@@ -49,6 +50,33 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
 	}
 	// redirect は例外で制御フローを抜けるため try/catch の外で呼ぶ。
 	redirect(next || '/profile');
+}
+
+export async function requestPasswordResetAction(email: string): Promise<ActionResult> {
+	try {
+		await api.requestPasswordReset(email);
+	} catch {
+		// アカウント存在列挙防止のため、失敗時も成功と同一の応答にする(BR-COMMON-012 相当)。
+	}
+	return { ok: true };
+}
+
+export async function resetPasswordAction(
+	token: string,
+	newPassword: string
+): Promise<ActionResult> {
+	try {
+		await api.resetPassword(token, newPassword);
+		return { ok: true };
+	} catch (error) {
+		if (error instanceof ApiError) {
+			return { ok: false, error: error.message };
+		}
+		return {
+			ok: false,
+			error: 'パスワードのリセットに失敗しました。リンクが無効か期限切れの可能性があります。'
+		};
+	}
 }
 
 export async function logoutAction(): Promise<void> {

@@ -1,20 +1,14 @@
 // 内部 GraphQL(api)へのサーバー側リクエスト(BFF)。Cookie のセッション ID を x-user-session で転送する。
 // ブラウザには api を直接公開せず、Cookie はサーバー側だけが読む(security/01 §1)。
 import { cookies } from 'next/headers';
-import { SESSION_COOKIE } from '../auth/session';
+import { SESSION_COOKIE } from '../auth/constants';
+import { ApiError } from './errors';
 
 const API_GRAPHQL_URL = process.env.API_GRAPHQL_URL ?? 'http://localhost:48031/graphql';
 
-/** api のドメイン例外コード(domain/errors.ts と一致)。 */
-export class ApiError extends Error {
-	constructor(
-		message: string,
-		readonly code?: string
-	) {
-		super(message);
-		this.name = 'ApiError';
-	}
-}
+// Client Component からも参照されるため、既存の import 元(@/lib/api/graphql)との後方互換として
+// 再エクスポートする(型自体の定義は next/headers に依存しない ./errors 側が正本)。
+export { ApiError };
 
 interface GraphQLResponse<T> {
 	data?: T;
