@@ -62,23 +62,6 @@ describe('MikroORM Migrator(migrations/*.ts)', () => {
 		);
 	});
 
-	test('audit_logs は追記専用で UPDATE/DELETE が拒否される(BR-ADMIN-010)', async () => {
-		await orm.migrator.up();
-		const connection = orm.em.getConnection();
-
-		await connection.execute(
-			"insert into audit_logs (id, event_type, actor_type, result, occurred_at) values ('log-1', 'login', 'user', 'success', datetime('now'))"
-		);
-
-		await expect(
-			connection.execute("update audit_logs set result = 'failure' where id = 'log-1'")
-		).rejects.toThrow(/append-only/);
-
-		await expect(connection.execute("delete from audit_logs where id = 'log-1'")).rejects.toThrow(
-			/append-only/
-		);
-	});
-
 	test('TEMP DEBUG: sqlite/trigger diagnostics', async () => {
 		await orm.migrator.up();
 		const connection = orm.em.getConnection();
@@ -114,6 +97,23 @@ describe('MikroORM Migrator(migrations/*.ts)', () => {
 
 		const foreignKeys = await connection.execute('pragma foreign_keys');
 		console.log('DEBUG pragma foreign_keys:', JSON.stringify(foreignKeys));
+	});
+
+	test('audit_logs は追記専用で UPDATE/DELETE が拒否される(BR-ADMIN-010)', async () => {
+		await orm.migrator.up();
+		const connection = orm.em.getConnection();
+
+		await connection.execute(
+			"insert into audit_logs (id, event_type, actor_type, result, occurred_at) values ('log-1', 'login', 'user', 'success', datetime('now'))"
+		);
+
+		await expect(
+			connection.execute("update audit_logs set result = 'failure' where id = 'log-1'")
+		).rejects.toThrow(/append-only/);
+
+		await expect(connection.execute("delete from audit_logs where id = 'log-1'")).rejects.toThrow(
+			/append-only/
+		);
 	});
 
 	test('down() で全テーブルが削除される', async () => {
