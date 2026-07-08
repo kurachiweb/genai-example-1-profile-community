@@ -6,15 +6,16 @@ MikroORM Migrator を主軸とし、生成された SQL を wrangler 経由で C
 
 ## 1. 方針
 
-- **マイグレーションの正本は MikroORM Migrator**。エンティティ定義の変更から差分マイグレーションを生成する。
+- **マイグレーションの正本は MikroORM Migrator**。`apps/api` が完全なエンティティ集合(16 種)を保持するため、`apps/api` を起点にマイグレーションを生成する([ADR 20260617](../../adr/20260617-public-api-domain-duplication.md)。`apps/public-api` は同一テーブルへの部分的な読み書き用エンティティを別途持つが、自らはスキーマを生成しない)。
 - 生成された SQL を **wrangler（`wrangler d1 migrations`）で D1 に適用**する二段構えとする。ローカル SQLite と D1 で同じ SQL を流し、環境差を最小化する。
 - ローカル（SQLite）は MikroORM が直接適用、dev/prod（D1）は CI/リリースパイプラインから wrangler で適用する。
+- `apps/db` は MikroORM 設定を持たず(ローカル用の DB コンテナのプレースホルダ)、`migration:*` スクリプトは `apps/api` への委譲(`pnpm --filter @app/api migration:*`)とする。
 
 ```mermaid
 flowchart LR
-    ENT["エンティティ定義<br/>(apps/db)"] -->|"migration:create"| MIG["MikroORM マイグレーション<br/>(TS + SQL)"]
+    ENT["エンティティ定義<br/>(apps/api)"] -->|"migration:create"| MIG["MikroORM マイグレーション<br/>(apps/api/migrations/*.ts)"]
     MIG -->|local| SQLITE["ローカル SQLite<br/>migration:up"]
-    MIG -->|"SQL 抽出"| WMIG["wrangler migrations ディレクトリ<br/>(.sql)"]
+    MIG -->|"migration:export-wrangler"| WMIG["apps/api/migrations-wrangler/<br/>(.sql)"]
     WMIG -->|"d1 migrations apply --env dev"| D1DEV["D1 (dev)"]
     WMIG -->|"d1 migrations apply --env prod<br/>(人間のみ)"| D1PROD["D1 (prod)"]
 ```
@@ -22,10 +23,10 @@ flowchart LR
 ## 2. 標準フロー（開発者）
 
 ```bash
-# 1) エンティティを編集後、差分マイグレーションを生成
+# 1) エンティティを編集後、差分マイグレーションを生成(apps/db からの委譲、実体は apps/api)
 pnpm --filter @app/db migration:create
 
-# 2) 生成 SQL をレビュー（破壊的変更の有無・後方互換を確認）
+# 2) 生成された apps/api/migrations/*.ts の SQL をレビュー（破壊的変更の有無・後方互換を確認）
 
 # 3) ローカル SQLite に適用して動作確認
 pnpm --filter @app/db migration:up
@@ -33,7 +34,8 @@ pnpm --filter @app/db migration:up
 # 4) ローカルで巻き戻し確認（down が機能するか）
 pnpm --filter @app/db migration:down
 
-# 5) wrangler 用 SQL を migrations ディレクトリへ反映（CI が D1 へ適用）
+# 5) wrangler 用 SQL を apps/api/migrations-wrangler/ へ書き出す(CI が D1 へ適用)
+pnpm --filter @app/api migration:export-wrangler <migrations配下のファイル名>.ts
 ```
 
 - マイグレーションは**タイムスタンプ順の連番**で管理し、適用済み状態は MikroORM のマイグレーションテーブル / wrangler の管理テーブルで追跡する。

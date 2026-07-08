@@ -32,6 +32,6 @@
       "@interface/*": ["./src/interface/*"]
     }
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": ["src/**/*", "test/**/*", "scripts/**/*", "migrations/**/*"],
   "exclude": ["node_modules", "dist"]
 }

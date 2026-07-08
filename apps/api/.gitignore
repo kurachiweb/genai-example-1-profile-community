@@ -2,3 +2,6 @@
 dist
 coverage
 *.tsbuildinfo
+
+# MikroORM Migrator のスキーマスナップショット(snapshot: false のため通常生成されないが念のため除外)
+migrations/.snapshot-*.json

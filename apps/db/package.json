@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "node src/main.js",
-    "test": "node --test"
+    "test": "node --test",
+    "migration:create": "pnpm --filter @app/api migration:create",
+    "migration:up": "pnpm --filter @app/api migration:up",
+    "migration:down": "pnpm --filter @app/api migration:down"
   }
 }

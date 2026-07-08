@@ -2,6 +2,7 @@
 // ドライバ差は本層で吸収し、Entities/Use Cases に持ち込まない(mikroorm §8)。
 // MikroORM 7 は EntitySchema でメタデータを明示するため reflect メタデータプロバイダは不要(ADR 20260617)。
 import { UnderscoreNamingStrategy } from '@mikro-orm/core';
+import { Migrator } from '@mikro-orm/migrations';
 import { defineConfig } from '@mikro-orm/sqlite';
 import { adminAccountSchema } from './persistence/entities/admin-account.entity';
 import { adminWebauthnCredentialSchema } from './persistence/entities/admin-webauthn-credential.entity';
@@ -59,7 +60,20 @@ export function buildMikroOrmConfig(dbName: string) {
 		forceUtcTimezone: true,
 		// 各操作で em.fork() するため、グローバル EM の利用を許容する(リクエスト混線は fork で回避)。
 		allowGlobalContext: true,
-		debug: false
+		debug: false,
+		// マイグレーションの正本は MikroORM Migrator（db/02-migrations.md §1）。
+		// 生成した SQL は scripts/export-wrangler-migration.ts で wrangler d1 migrations 形式へ書き出す。
+		extensions: [Migrator],
+		migrations: {
+			path: './migrations',
+			pathTs: './migrations',
+			tableName: 'mikro_orm_migrations',
+			transactional: true,
+			emit: 'ts',
+			// テスト/コマンド実行のたびに一意な一時DBパスへ接続するため、dbName単位のスナップショット
+			// JSONがmigrationsディレクトリに蓄積してしまう。実DBへの直接イントロスペクションで足りるため無効化する。
+			snapshot: false
+		}
 	});
 }
 
