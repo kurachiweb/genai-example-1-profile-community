@@ -173,6 +173,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # 共有フロントエンド(apps/frontend-lib)を apps/client/lib へ供給する(@lib エイリアスの実体、
+      # ci.yml と同じ理由。ローカルはdocker composeのバインドマウントで供給される)。
+      - name: 共有フロントエンド(lib)をシンボリックリンクで配置
+        run: ln -s "$(pwd)/apps/frontend-lib" apps/client/lib
+
       - name: opennextjs-cloudflare build && deploy
         run: pnpm --filter @app/client deploy:cloudflare
         env:
@@ -197,6 +202,11 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      # 共有フロントエンド(apps/frontend-lib)を apps/admin/lib へ供給する(@lib エイリアスの実体、
+      # ci.yml と同じ理由。ローカルはdocker composeのバインドマウントで供給される)。
+      - name: 共有フロントエンド(lib)をシンボリックリンクで配置
+        run: ln -s "$(pwd)/apps/frontend-lib" apps/admin/lib
 
       - name: opennextjs-cloudflare build && deploy
         run: pnpm --filter @app/admin deploy:cloudflare
