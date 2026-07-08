@@ -5,5 +5,9 @@ coverage
 next-env.d.ts
 *.tsbuildinfo
 
+# OpenNext(Cloudflare)ビルド成果物・wrangler devのローカル状態
+.open-next
+.wrangler
+
 # コンテナ内でのみ使えるライブラリ用ディレクトリ(ルート直下の lib/ のみ対象)
 /lib

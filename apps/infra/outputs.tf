@@ -22,3 +22,11 @@ output "kv_namespace_app_id" {
 output "r2_bucket_icons_name" {
   value = cloudflare_r2_bucket.icons.name
 }
+
+output "r2_bucket_client_cache_name" {
+  value = cloudflare_r2_bucket.client_cache.name
+}
+
+output "r2_bucket_admin_cache_name" {
+  value = cloudflare_r2_bucket.admin_cache.name
+}

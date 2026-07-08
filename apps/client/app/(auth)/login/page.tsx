@@ -1,13 +1,15 @@
 // ログインページ。Bento タイル風レイアウト（ブランドタイル＋フォームタイル）。
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { redirectIfAuthenticated } from '@/lib/auth/route-guards';
 import { LoginForm } from './login-form';
 
 export const metadata: Metadata = {
 	title: 'ログイン'
 };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+	await redirectIfAuthenticated();
 	return (
 		<div className="grid w-full max-w-3xl gap-3 md:grid-cols-2">
 			{/* ブランドタイル */}

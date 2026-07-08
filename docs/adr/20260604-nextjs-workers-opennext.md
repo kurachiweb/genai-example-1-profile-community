@@ -1,6 +1,6 @@
 # ADR: Next.js（client/admin）の Workers 配信アダプタ — `@opennextjs/cloudflare`（OpenNext）を採用
 
-- **ステータス**: 承認済み（Accepted）
+- **ステータス**: 承認済み（Accepted。ただし ISR/Data Cache のバックエンドに関する部分は [20260708-nextjs-opennext-cache-backend-r2.md](./20260708-nextjs-opennext-cache-backend-r2.md) により KV → R2 へ更新済み）
 - **日付**: 2026-06-04
 - **対象**: `apps/client`・`apps/admin`（Next.js, App Router）の Cloudflare Workers へのデプロイ方式 / `docs/GUIDES/infra/00-overview.md` §2・§8
 

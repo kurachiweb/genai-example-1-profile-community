@@ -1,13 +1,15 @@
 // 新規登録ページ。
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { redirectIfAuthenticated } from '@/lib/auth/route-guards';
 import { RegisterForm } from './register-form';
 
 export const metadata: Metadata = {
 	title: '新規登録'
 };
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+	await redirectIfAuthenticated();
 	return (
 		<div className="grid w-full max-w-3xl gap-3 md:grid-cols-2">
 			{/* ブランドタイル */}

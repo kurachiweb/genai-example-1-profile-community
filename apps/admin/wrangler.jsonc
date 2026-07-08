@@ -1,0 +1,49 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "genai-example-1-admin",
+	// OpenNextビルド成果物のエントリポイント(`pnpm build:cloudflare`で生成、コミットしない)。
+	"main": ".open-next/worker.js",
+	// @opennextjs/cloudflareが要求する最小日付。global_fetch_strictly_publicは
+	// 内部fetch(自己参照サービスバインディング経由のISR再検証等)専用の制約を有効化する。
+	"compatibility_date": "2025-09-23",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"env": {
+		"dev": {
+			"name": "genai-example-1-admin-dev",
+			"vars": {
+				"NODE_ENV": "production",
+				// apps/api(dev)のデプロイ先URL確定後に設定する(Unit7、現時点ではプレースホルダ)。
+				"API_GRAPHQL_URL": ""
+			},
+			// ISRのオンデマンド再検証(内部fetch)に必要な自己参照(ADR 20260708)。
+			"services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "genai-example-1-admin-dev" }],
+			// ISR/Data Cache バックエンド(ADR 20260708)。apps/infra/r2.tf で管理。
+			"r2_buckets": [
+				{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "genai-example-1-admin-cache-dev" }
+			]
+		},
+		"production": {
+			"name": "genai-example-1-admin-production",
+			"vars": {
+				"NODE_ENV": "production",
+				"API_GRAPHQL_URL": ""
+			},
+			"services": [
+				{ "binding": "WORKER_SELF_REFERENCE", "service": "genai-example-1-admin-production" }
+			],
+			"r2_buckets": [
+				{
+					"binding": "NEXT_INC_CACHE_R2_BUCKET",
+					"bucket_name": "genai-example-1-admin-cache-production"
+				}
+			]
+		}
+	}
+}

@@ -1,8 +1,10 @@
 // ログイン画面(Bento タイル風)。ブランドタイル＋フォームタイルで構成する(ユーザー選択のレイアウト)。
 // 独立ページ(サイドバー無し)。温かみのある Bento・コーラル差し色(design/00・01)。
+import { redirectIfAuthenticated } from '@/lib/auth/route-guards';
 import { LoginForm } from './login-form';
 
-export default function LoginPage() {
+export default async function LoginPage() {
+	await redirectIfAuthenticated();
 	return (
 		<main className="grid min-h-dvh place-items-center p-4">
 			<div className="grid w-full max-w-3xl gap-3 md:grid-cols-2">

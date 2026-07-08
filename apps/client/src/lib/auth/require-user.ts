@@ -9,8 +9,9 @@ export async function requireUser(): Promise<Me> {
 		return await getMe();
 	} catch (error) {
 		if (error instanceof ApiError && error.code === 'UNAUTHORIZED') {
-			// /login へ直行すると、失効した Cookie が残ったまま middleware が / へ戻し、
-			// ログイン画面に到達できず再ログイン不能になる(api 再起動でインプロセスセッションが揮発した場合など)。
+			// /login へ直行すると、失効した Cookie が残ったまま login/page.tsx の
+			// redirectIfAuthenticated()(route-guards.ts)が / へ戻し、ログイン画面に到達できず
+			// 再ログイン不能になる(api 再起動でインプロセスセッションが揮発した場合など)。
 			// Cookie を破棄するルートを挟んでロックアウトを防ぐ。
 			redirect('/logout');
 		}

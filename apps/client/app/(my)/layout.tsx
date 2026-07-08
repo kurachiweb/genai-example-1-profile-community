@@ -1,9 +1,11 @@
 // 認証必須ページのレイアウト。ヘッダー・フッター・サイドナビを含む。
-// 実際の認可確認は各ページの requireUser() で行う。
+// セッション Cookie が無ければ /login へ即リダイレクトする(旧 proxy.ts の UX 補助を移設)。
+// 実際の認可確認は各ページの requireUser() で行う(本チェックは早期リダイレクトのみが目的)。
 import Link from 'next/link';
 import { KeyRound, Settings, User } from 'lucide-react';
 import { Header } from '@/components/shell/header';
 import { Footer } from '@/components/shell/footer';
+import { requireSessionCookie } from '@/lib/auth/route-guards';
 
 const NAV_ITEMS = [
 	{ href: '/profile', icon: User, label: 'プロフィール編集' },
@@ -11,7 +13,8 @@ const NAV_ITEMS = [
 	{ href: '/api-keys', icon: KeyRound, label: 'API キー' }
 ];
 
-export default function MyLayout({ children }: { children: React.ReactNode }) {
+export default async function MyLayout({ children }: { children: React.ReactNode }) {
+	await requireSessionCookie();
 	return (
 		<div className="flex min-h-dvh flex-col">
 			<Header />

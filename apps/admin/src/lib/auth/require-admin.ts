@@ -9,7 +9,8 @@ export async function requireAdmin(): Promise<AdminMe> {
 		return await getMe();
 	} catch (error) {
 		if (error instanceof ApiError && error.code === 'UNAUTHORIZED') {
-			// /login へ直行すると、失効した Cookie が残ったまま proxy が / へ戻し ERR_TOO_MANY_REDIRECTS になる
+			// /login へ直行すると、失効した Cookie が残ったまま login/page.tsx の
+			// redirectIfAuthenticated()(route-guards.ts)が / へ戻し ERR_TOO_MANY_REDIRECTS になる
 			// (api 再起動でインメモリセッションが消えた場合など)。Cookie を破棄するルートを挟んでループを断つ。
 			redirect('/logout');
 		}
