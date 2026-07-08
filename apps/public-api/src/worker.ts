@@ -32,7 +32,9 @@ async function bootstrap(): Promise<void> {
 	// wrangler.jsonc の env.dev/env.production 双方に必須設定しているため実運用では必ず存在するが、
 	// 生成される Env 型は環境間で異なりうる汎用形(各フィールド任意)になるため明示的に検証する。
 	if (!env.DB || !env.API_KEY_RATE_LIMITER) {
-		throw new Error('D1/Durable Objects のバインディングが未設定です(wrangler.jsonc を確認してください)。');
+		throw new Error(
+			'D1/Durable Objects のバインディングが未設定です(wrangler.jsonc を確認してください)。'
+		);
 	}
 	// AppModule/ProfileModuleの各forRootAsync/useFactoryがこの登録を見て
 	// D1接続・DOバックエンドのレート制限に切り替える(ADR 20260604)。

@@ -1,0 +1,201 @@
+name: Deploy (dev)
+
+# main への push で CI(ci.yml)が成功した後、dev 環境へ自動デプロイする
+# (docs/GUIDES/infra/02-deployment.md §2・§3、CLAUDE.md デプロイ方針)。
+# デプロイ方式は Cloudflare Deploy Hook ではなく、本ワークフローから `wrangler deploy` を直接実行する
+# (Deploy Hook は Pages 専用機能のため不採用)。
+# 手動再実行(workflow_dispatch)にも対応する。
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch: {}
+
+# dev デプロイの同時実行は避ける(D1マイグレーション・Terraform apply の競合防止)。
+# 実行中のデプロイを取り消すと中途半端な状態になり得るため cancel-in-progress は無効にする。
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '26'
+  # workflow_run 経由の場合はトリガー元ワークフローが検証した commit を、
+  # workflow_dispatch(手動実行)の場合は現在の main の HEAD をデプロイ対象にする。
+  DEPLOY_REF: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+jobs:
+  guard:
+    name: デプロイ条件確認
+    # workflow_run 経由なら CI 成功時のみ、workflow_dispatch(手動)なら常に進む。
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "CI succeeded (or manual dispatch). Proceeding with dev deploy."
+
+  migrate-d1:
+    name: D1マイグレーション適用(dev)
+    needs: guard
+    runs-on: ubuntu-latest
+    environment: genai-example-1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DEPLOY_REF }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # マイグレーションの正本は apps/api(ADR 20260617)。apps/public-api は同一 D1 を参照するのみ。
+      - name: wrangler d1 migrations apply --remote
+        working-directory: apps/api
+        run: npx wrangler d1 migrations apply DB --env dev --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  terraform-apply:
+    name: Terraform適用(dev)
+    needs: guard
+    runs-on: ubuntu-latest
+    environment: genai-example-1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DEPLOY_REF }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.9.8'
+          terraform_wrapper: false
+
+      # endpoints(ネストしたマップ)は -backend-config="key=value" では渡せないため、
+      # 一時的なバックエンド設定ファイルを生成して渡す(apps/infra/README.md 参照)。
+      - name: terraform init
+        working-directory: apps/infra
+        run: |
+          cat > /tmp/backend.hcl <<EOF
+          access_key = "${{ secrets.CLOUDFLARE_S3_ACCESS_KEY_ID }}"
+          secret_key = "${{ secrets.CLOUDFLARE_S3_SECRET_ACCESS_KEY }}"
+          endpoints = { s3 = "${{ secrets.CLOUDFLARE_S3_API_ENDPOINT }}" }
+          EOF
+          terraform init -backend-config=/tmp/backend.hcl
+          rm -f /tmp/backend.hcl
+
+      - name: terraform workspace select dev
+        working-directory: apps/infra
+        run: terraform workspace select dev
+
+      - name: terraform apply
+        working-directory: apps/infra
+        run: terraform apply -var-file=dev.tfvars -auto-approve
+        env:
+          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+  deploy-api:
+    name: apps/api デプロイ(dev)
+    needs: [migrate-d1, terraform-apply]
+    runs-on: ubuntu-latest
+    environment: genai-example-1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DEPLOY_REF }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: wrangler deploy
+        run: pnpm --filter @app/api deploy:worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  deploy-public-api:
+    name: apps/public-api デプロイ(dev)
+    needs: [migrate-d1, terraform-apply]
+    runs-on: ubuntu-latest
+    environment: genai-example-1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DEPLOY_REF }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: wrangler deploy
+        run: pnpm --filter @app/public-api deploy:worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  deploy-client:
+    name: apps/client デプロイ(dev)
+    # デプロイ順序: マイグレーション → api/public-api → client/admin(infra/02-deployment.md §3)。
+    needs: [deploy-api, deploy-public-api]
+    runs-on: ubuntu-latest
+    environment: genai-example-1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DEPLOY_REF }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: opennextjs-cloudflare build && deploy
+        run: pnpm --filter @app/client deploy:cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  deploy-admin:
+    name: apps/admin デプロイ(dev)
+    needs: [deploy-api, deploy-public-api]
+    runs-on: ubuntu-latest
+    environment: genai-example-1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DEPLOY_REF }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: opennextjs-cloudflare build && deploy
+        run: pnpm --filter @app/admin deploy:cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

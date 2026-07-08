@@ -48,10 +48,15 @@ export async function createApp(): Promise<{ app: INestApplication; env: AppEnv 
 	// UI自体はCDN(jsdelivr)からswagger-ui-distを読み込む自前の最小HTMLで提供する(下記)。
 	SwaggerModule.setup(SWAGGER_PATH, app, document, { swaggerUiEnabled: false });
 	const jsonDocumentUrl = `/${SWAGGER_PATH}-json`;
-	app.getHttpAdapter().get(`/${SWAGGER_PATH}`, (_req: unknown, res: { type: (t: string) => unknown; send: (body: string) => void }) => {
-		res.type('text/html');
-		res.send(buildSwaggerDocsHtml(jsonDocumentUrl));
-	});
+	app
+		.getHttpAdapter()
+		.get(
+			`/${SWAGGER_PATH}`,
+			(_req: unknown, res: { type: (t: string) => unknown; send: (body: string) => void }) => {
+				res.type('text/html');
+				res.send(buildSwaggerDocsHtml(jsonDocumentUrl));
+			}
+		);
 
 	// ローカル/dev はスキーマを自動同期して即起動できるようにする。
 	// 本番(D1)は wrangler マイグレーションで適用し、AI/アプリは実行しない(CLAUDE.md)。
