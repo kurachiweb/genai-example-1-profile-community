@@ -7,7 +7,7 @@ function makePolicy(overrides: Partial<PolicyDocument> = {}): PolicyDocument {
 	return {
 		type: 'terms',
 		version: 2,
-		bodyMarkdown: '# 利用規約\n\n本文です。',
+		bodyMarkdown: '本文です。',
 		isPublished: true,
 		requiresReconsent: false,
 		effectiveDate: '2026-07-01T00:00:00Z',
@@ -27,7 +27,6 @@ describe('PolicyDocumentView', () => {
 		);
 
 		expect(screen.getByRole('heading', { level: 1, name: '利用規約' })).toBeInTheDocument();
-		expect(screen.getByText('利用規約', { selector: 'p' })).toBeInTheDocument();
 		expect(screen.getByText('本文です。')).toBeInTheDocument();
 		expect(screen.getByText(/第 2 版/)).toBeInTheDocument();
 	});

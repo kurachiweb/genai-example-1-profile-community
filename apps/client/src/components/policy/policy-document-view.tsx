@@ -16,12 +16,8 @@ export function PolicyDocumentView({ title, policy, versions, basePath }: Policy
 
 	return (
 		<article className="mx-auto max-w-3xl px-4 py-12">
-			{/* 見出し(h1)は本文マークダウン側が持つ想定(発行した文書をそのまま表示するため)。
-			    ここでは種別・版・発効日のメタ情報のみを補助的に示す。 */}
 			<header className="mb-8 border-b border-border pb-6">
-				<p className="text-(length:--text-caption) font-semibold tracking-wide text-text-subtle uppercase">
-					{title}
-				</p>
+				<h1 className="text-(length:--text-title) font-bold text-text">{title}</h1>
 				<p className="mt-2 text-(length:--text-meta) text-text-muted">
 					第 {policy.version} 版・発効日 {formatDate(policy.effectiveDate)}
 				</p>
