@@ -20,8 +20,8 @@ terraform {
   }
 
   backend "s3" {
-    bucket                      = "terraform-state"
-    key                         = "genai-profile-community/cloudflare.tfstate"
+    bucket                      = "genai-example-1-terraform-state"
+    key                         = "genai-example-1/cloudflare.tfstate"
     region                      = "auto"
     skip_credentials_validation = true
     skip_region_validation      = true

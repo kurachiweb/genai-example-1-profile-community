@@ -4,5 +4,5 @@
 // （docs/GUIDES/db/02-migrations.md）。
 resource "cloudflare_d1_database" "app" {
   account_id = var.cloudflare_account_id
-  name       = "genai-profile-community-${terraform.workspace}"
+  name       = "genai-example-1-${terraform.workspace}"
 }

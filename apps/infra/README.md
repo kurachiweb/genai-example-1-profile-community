@@ -20,7 +20,7 @@
 state を保存する R2 バケット自体は Terraform 管理外で一度だけ作成する（鶏卵問題）。
 
 ```bash
-docker compose exec root wrangler r2 bucket create terraform-state
+docker compose exec root wrangler r2 bucket create genai-example-1-terraform-state
 ```
 
 ## init（初回・バックエンド設定変更時）

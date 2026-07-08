@@ -2,6 +2,6 @@
 // （Cloudflare Images 自体はアカウント側で有効化する製品でありTerraformリソースを持たない）。
 resource "cloudflare_r2_bucket" "icons" {
   account_id = var.cloudflare_account_id
-  name       = "genai-profile-community-icons-${terraform.workspace}"
+  name       = "genai-example-1-icons-${terraform.workspace}"
   location   = var.r2_location
 }

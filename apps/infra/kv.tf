@@ -6,15 +6,15 @@
 //   公開APIのキー単位レート制限カウンタは KV ではなく Durable Objects（Worker 側で宣言）。
 resource "cloudflare_workers_kv_namespace" "session_client" {
   account_id = var.cloudflare_account_id
-  title      = "genai-profile-community-session-client-${terraform.workspace}"
+  title      = "genai-example-1-session-client-${terraform.workspace}"
 }
 
 resource "cloudflare_workers_kv_namespace" "session_admin" {
   account_id = var.cloudflare_account_id
-  title      = "genai-profile-community-session-admin-${terraform.workspace}"
+  title      = "genai-example-1-session-admin-${terraform.workspace}"
 }
 
 resource "cloudflare_workers_kv_namespace" "app" {
   account_id = var.cloudflare_account_id
-  title      = "genai-profile-community-app-${terraform.workspace}"
+  title      = "genai-example-1-app-${terraform.workspace}"
 }
