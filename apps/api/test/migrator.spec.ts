@@ -70,13 +70,26 @@ describe('MikroORM Migrator(migrations/*.ts)', () => {
 			"insert into audit_logs (id, event_type, actor_type, result, occurred_at) values ('log-1', 'login', 'user', 'success', datetime('now'))"
 		);
 
-		await expect(
-			connection.execute("update audit_logs set result = 'failure' where id = 'log-1'")
-		).rejects.toThrow(/append-only/);
+		// expect(promise).rejects.toThrow() は、better-sqlite3(ネイティブアドオン)が投げる
+		// エラーがJestの--experimental-vm-modules(ESM実行、jest.config.ts参照)のVMコンテキスト境界を
+		// 越える際に、Node.jsのパッチバージョンによっては rejection を正しく検知できないことがある
+		// (GitHub Actions実機で確認済み、ローカルでは再現しないため要注意)。
+		// try/catchでの明示的な検証に置き換えて環境差異を避ける。
+		let updateError: unknown;
+		try {
+			await connection.execute("update audit_logs set result = 'failure' where id = 'log-1'");
+		} catch (error) {
+			updateError = error;
+		}
+		expect(String(updateError)).toMatch(/append-only/);
 
-		await expect(connection.execute("delete from audit_logs where id = 'log-1'")).rejects.toThrow(
-			/append-only/
-		);
+		let deleteError: unknown;
+		try {
+			await connection.execute("delete from audit_logs where id = 'log-1'");
+		} catch (error) {
+			deleteError = error;
+		}
+		expect(String(deleteError)).toMatch(/append-only/);
 	});
 
 	test('down() で全テーブルが削除される', async () => {
