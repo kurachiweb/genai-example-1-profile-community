@@ -6,7 +6,13 @@ const config: NextConfig = {
 	// 共有フロントエンド(lib)をパッケージとして取り込み、Next がコンパイルする。
 	transpilePackages: ['@app/frontend-lib'],
 	// 型エラーはビルドを止める(品質ゲート)。lint は専用スクリプト/CI で実行する。
-	typescript: { ignoreBuildErrors: false }
+	typescript: { ignoreBuildErrors: false },
+	// モノレポルート(pnpm-lock.yaml)がapps/admin より上位にあるため、Turbopackの
+	// ワークスペースルート自動推定が誤作動する(CI実機で確認済み、OpenNextビルド時のみ発現)。
+	// 明示的にプロジェクトルートを指定して回避する。
+	turbopack: {
+		root: __dirname
+	}
 };
 
 export default config;

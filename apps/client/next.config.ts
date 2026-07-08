@@ -7,6 +7,12 @@ const config: NextConfig = {
 	transpilePackages: ['@app/frontend-lib'],
 	// 型エラーはビルドを止める(品質ゲート)。lint は専用スクリプト/CI で実行する。
 	typescript: { ignoreBuildErrors: false },
+	// モノレポルート(pnpm-lock.yaml)がapps/client より上位にあるため、Turbopackの
+	// ワークスペースルート自動推定が誤作動する(CI実機で確認済み、OpenNextビルド時のみ発現)。
+	// 明示的にプロジェクトルートを指定して回避する。
+	turbopack: {
+		root: __dirname
+	},
 	images: {
 		// Cloudflare Images のドメインを許可。ローカル開発ではプレースホルダを使う。
 		remotePatterns: [
