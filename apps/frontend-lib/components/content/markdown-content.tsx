@@ -3,11 +3,7 @@
 // ことで XSS を構造的に防止する(AC-CONTENT-002)。状態やイベントを持たないため Server Component として使える。
 import { Fragment } from 'react';
 import { cn } from '../../utilities/cn';
-import {
-	parseMarkdownDocument,
-	type BlockNode,
-	type InlineNode
-} from '../../utilities/markdown';
+import { parseMarkdownDocument, type BlockNode, type InlineNode } from '../../utilities/markdown';
 
 export interface MarkdownContentProps {
 	readonly markdown: string;
@@ -66,7 +62,7 @@ function Block({ node }: { readonly node: BlockNode }) {
 		case 'heading': {
 			const Tag = `h${node.level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 			return (
-				<Tag className={cn('mt-8 mb-3 first:mt-0 text-text', HEADING_CLASSES[node.level])}>
+				<Tag className={cn('mt-8 mb-3 text-text first:mt-0', HEADING_CLASSES[node.level])}>
 					<InlineNodes nodes={node.children} />
 				</Tag>
 			);
@@ -86,7 +82,12 @@ function Block({ node }: { readonly node: BlockNode }) {
 		case 'list': {
 			const ListTag = node.ordered ? 'ol' : 'ul';
 			return (
-				<ListTag className={cn('mt-3 ml-6 space-y-1 text-text-muted', node.ordered ? 'list-decimal' : 'list-disc')}>
+				<ListTag
+					className={cn(
+						'mt-3 ml-6 space-y-1 text-text-muted',
+						node.ordered ? 'list-decimal' : 'list-disc'
+					)}
+				>
 					{node.items.map((item, index) => (
 						<li key={index}>
 							<InlineNodes nodes={item} />

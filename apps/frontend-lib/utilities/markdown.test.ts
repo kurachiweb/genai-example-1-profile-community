@@ -57,9 +57,7 @@ describe('parseMarkdownDocument', () => {
 
 	test('引用(>)を解析する', () => {
 		const blocks = parseMarkdownDocument('> 引用文');
-		expect(blocks).toEqual([
-			{ type: 'blockquote', children: [{ type: 'text', value: '引用文' }] }
-		]);
+		expect(blocks).toEqual([{ type: 'blockquote', children: [{ type: 'text', value: '引用文' }] }]);
 	});
 
 	test('水平線(---)を解析する', () => {
