@@ -31,5 +31,12 @@
 		".next/types/**/*.ts",
 		".next/dev/types/**/*.ts"
 	],
-	"exclude": ["node_modules", ".next", "eslint.config.ts"]
+	"exclude": [
+		"node_modules",
+		".next",
+		"eslint.config.ts",
+		"lib/**/*.stories.tsx",
+		"lib/**/*.test.ts",
+		"lib/**/*.test.tsx"
+	]
 }

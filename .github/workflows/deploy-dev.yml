@@ -178,6 +178,14 @@ jobs:
       - name: 共有フロントエンド(lib)をシンボリックリンクで配置
         run: ln -s "$(pwd)/apps/frontend-lib" apps/client/lib
 
+      # apps/client/pnpm-lock.yaml はコンテナ単体インストール用(docker composeでのローカル開発)。
+      # これが存在するとopennextjs-cloudflareのモノレポルート自動検出がapps/client自身を
+      # ルートと誤認し、モノレポルートにホイストされているnextパッケージを解決できず
+      # Turbopackビルドが失敗する(実機で確認済み)。インストール完了後のこの時点では不要なため、
+      # CIチェックアウト内でのみ削除する(リポジトリの追跡ファイルには影響しない)。
+      - name: apps/client/pnpm-lock.yamlを削除(モノレポルート誤検出の回避)
+        run: rm -f apps/client/pnpm-lock.yaml
+
       - name: opennextjs-cloudflare build && deploy
         run: pnpm --filter @app/client deploy:cloudflare
         env:
@@ -207,6 +215,14 @@ jobs:
       # ci.yml と同じ理由。ローカルはdocker composeのバインドマウントで供給される)。
       - name: 共有フロントエンド(lib)をシンボリックリンクで配置
         run: ln -s "$(pwd)/apps/frontend-lib" apps/admin/lib
+
+      # apps/admin/pnpm-lock.yaml はコンテナ単体インストール用(docker composeでのローカル開発)。
+      # これが存在するとopennextjs-cloudflareのモノレポルート自動検出がapps/admin自身を
+      # ルートと誤認し、モノレポルートにホイストされているnextパッケージを解決できず
+      # Turbopackビルドが失敗する(実機で確認済み)。インストール完了後のこの時点では不要なため、
+      # CIチェックアウト内でのみ削除する(リポジトリの追跡ファイルには影響しない)。
+      - name: apps/admin/pnpm-lock.yamlを削除(モノレポルート誤検出の回避)
+        run: rm -f apps/admin/pnpm-lock.yaml
 
       - name: opennextjs-cloudflare build && deploy
         run: pnpm --filter @app/admin deploy:cloudflare
