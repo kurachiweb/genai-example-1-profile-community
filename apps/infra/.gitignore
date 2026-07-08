@@ -1,0 +1,4 @@
+# プロバイダキャッシュ・ローカル実行時のみ生成される（.terraform.lock.hcl はコミットする）
+.terraform/
+*.tfplan
+crash.log
