@@ -39,5 +39,10 @@
     }
   },
   "include": ["src/**/*", "test/**/*"],
-  "exclude": ["node_modules", "dist", "src/worker.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/worker.ts",
+    "src/infrastructure/rate-limit/api-key-rate-limiter.do.ts"
+  ]
 }

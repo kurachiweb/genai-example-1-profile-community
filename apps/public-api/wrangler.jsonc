@@ -23,6 +23,15 @@
 		// apps/api と同一事情)。
 		"class-transformer/storage": "./workers-stubs/empty-module.js"
 	},
+	// APIキー単位レート制限カウンタ(ADR 20260604)。DOはID(=APIキーID)単位で単一インスタンス・
+	// 単一スレッド・強整合のため、同一キーへの同時リクエストも正確に逐次カウントできる。
+	// 新規DOクラスはSQLiteストレージバックエンド(new_sqlite_classes)で作成する(現在の既定・推奨方式)。
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["ApiKeyRateLimiterDurableObject"]
+		}
+	],
 	"env": {
 		"dev": {
 			"name": "genai-example-1-public-api-dev",
@@ -39,7 +48,12 @@
 					"database_name": "genai-example-1-dev",
 					"database_id": "5f6ace63-753a-48c2-a400-5ca219a8a839"
 				}
-			]
+			],
+			"durable_objects": {
+				"bindings": [
+					{ "name": "API_KEY_RATE_LIMITER", "class_name": "ApiKeyRateLimiterDurableObject" }
+				]
+			}
 		},
 		"production": {
 			"name": "genai-example-1-public-api-production",
@@ -54,7 +68,12 @@
 					"database_name": "genai-example-1-production",
 					"database_id": ""
 				}
-			]
+			],
+			"durable_objects": {
+				"bindings": [
+					{ "name": "API_KEY_RATE_LIMITER", "class_name": "ApiKeyRateLimiterDurableObject" }
+				]
+			}
 		}
 	}
 }

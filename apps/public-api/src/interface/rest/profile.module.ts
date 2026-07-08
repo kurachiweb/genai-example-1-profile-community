@@ -1,7 +1,7 @@
 // 公開プロフィール機能モジュール(coding/04-nestjs.md §1)。Gateway 実装・ユースケース・コントローラ・
 // 横断ガードを束ねる。DI トークンで Gateway(IF)と実装を結びつけ、ユースケースは実装に依存しない。
 import { Module } from '@nestjs/common';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerStorage, ThrottlerStorageService } from '@nestjs/throttler';
 import {
 	API_KEY_REPOSITORY,
 	CLOCK,
@@ -26,6 +26,8 @@ import { MikroProfileRepository } from '../../infrastructure/persistence/profile
 import { MikroSettingsRepository } from '../../infrastructure/persistence/settings.repository';
 import { MikroSnsLinkRepository } from '../../infrastructure/persistence/sns-link.repository';
 import { MikroUserRepository } from '../../infrastructure/persistence/user.repository';
+import { DurableObjectThrottlerStorage } from '../../infrastructure/rate-limit/durable-object-throttler-storage';
+import { getRateLimiterNamespace } from '../../infrastructure/workers-runtime';
 import { MeProfileController } from './me-profile.controller';
 import { ProfilesController } from './profiles.controller';
 import { ApiKeyThrottlerGuard, RATE_LIMIT_OPTIONS } from './guards/api-key-throttler.guard';
@@ -33,10 +35,6 @@ import { ApiKeyAuthGuard } from './guards/api-key.guard';
 import { ApiScopeGuard } from './guards/scope.guard';
 
 @Module({
-	// ThrottlerModule は既定のメモリストレージ(ThrottlerStorage)を提供する。
-	// 実際のしきい値はカスタムガードが RATE_LIMIT_OPTIONS/SettingsRepository から解決するため、
-	// ここの値はモジュール自体が使わない安全網の既定(ThrottlerModule 初期化に必須のため設定)。
-	imports: [ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }])],
 	controllers: [MeProfileController, ProfilesController],
 	providers: [
 		// Gateway 実装(Interface Adapters)。
@@ -62,6 +60,18 @@ import { ApiScopeGuard } from './guards/scope.guard';
 			useFactory: () => {
 				const env = loadEnv();
 				return { windowSeconds: env.rateLimitWindowSeconds, limit: env.rateLimitPerWindow };
+			}
+		},
+		// Cloudflare Workers(worker.ts)ではDOバインディングが登録されるため、キー単位で
+		// 厳密にカウントするDOバックエンドへ切り替える。ローカル/dev(main.ts)・テストでは
+		// 未登録のため、@nestjs/throttler既定のメモリストレージにフォールバックする(ADR 20260604)。
+		{
+			provide: ThrottlerStorage,
+			useFactory: () => {
+				const namespace = getRateLimiterNamespace();
+				return namespace
+					? new DurableObjectThrottlerStorage(namespace)
+					: new ThrottlerStorageService();
 			}
 		},
 		// ユースケース(純粋クラス)を Gateway から組み立てる。

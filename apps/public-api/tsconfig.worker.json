@@ -5,5 +5,14 @@
 		// process/Buffer等(nodejs_compatが実行時に提供するグローバル)の型を明示的に含める。
 		"types": ["node", "@cloudflare/workers-types"]
 	},
-	"include": ["src/worker.ts", "src/bootstrap.ts"]
+	// 基底tsconfig.jsonのexcludeはworker.ts/DOクラスを除外している(通常のtscではcloudflare:*
+	// 仮想モジュールを解決できないため)が、本tsconfig(worker専用)ではWorkers向け型を含むため、
+	// ここでは除外を上書きしてworker.ts/DOクラス自体も型検査の対象にする。
+	"exclude": ["node_modules", "dist"],
+	"include": [
+		"src/worker.ts",
+		"src/bootstrap.ts",
+		"src/infrastructure/rate-limit/api-key-rate-limiter.do.ts",
+		"worker-configuration.d.ts"
+	]
 }
