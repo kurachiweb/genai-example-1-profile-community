@@ -1,0 +1,85 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "genai-example-1-api",
+	"main": "src/worker.ts",
+	// Cloudflare公式のExpress-on-Workersサポート(cloudflare:node の httpServerHandler)が
+	// 有効になる最小日付(2025-08-15より後)。nodejs_compat フラグのみで追加フラグは不要。
+	"compatibility_date": "2025-09-23",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": {
+		"enabled": true
+	},
+	// NestJS/@nestjs-apollo本体が任意機能(WebSocket/microservices/Fastify/Apollo Federation)を
+	// 遅延requireするが、本アプリはExpress+素のApollo Server(GraphQL/HTTP)のみを使うため未インストール。
+	// バンドルエラー回避のためno-opモジュールへ差し替える
+	// (https://developers.cloudflare.com/workers/wrangler/configuration/#bundling-issues)。
+	"alias": {
+		// @nestjs/graphql の package.json "exports" は "browser" 条件が "node" より先に列挙されており、
+		// esbuild(Workers向けバンドル)がブラウザ向けshim(dist/extra/graphql-model-shim.js、
+		// @Query/@Mutation 等のデコレータやドライバ関連クラスを一切含まない簡易版)を誤って解決してしまう
+		// (既知のesbuild/Workers条件解決の問題)。実体(dist/index.js)へ直接誘導して回避する。
+		"@nestjs/graphql": "./node_modules/@nestjs/graphql/dist/index.js",
+		"@nestjs/websockets/socket-module": "./workers-stubs/empty-module.js",
+		"@nestjs/microservices/microservices-module": "./workers-stubs/empty-module.js",
+		"@nestjs/microservices": "./workers-stubs/empty-module.js",
+		"@as-integrations/fastify": "./workers-stubs/empty-module.js",
+		"@apollo/subgraph": "./workers-stubs/empty-module.js",
+		"@apollo/subgraph/package.json": "./workers-stubs/empty-module.js",
+		"@apollo/subgraph/dist/directives": "./workers-stubs/empty-module.js",
+		"@apollo/gateway": "./workers-stubs/empty-module.js",
+		// ts-morph は @nestjs/graphql のスキーマ定義ファイル出力(CLIプラグイン)専用の任意依存で、
+		// code-first運用の本アプリでは未使用・未インストール。
+		"ts-morph": "./workers-stubs/empty-module.js",
+		// @nestjs/mapped-types は class-transformer の新旧バージョン差異を try/require/catch で
+		// 吸収しているが、esbuild は catch 節内の require も静的解決しようとして失敗する
+		// (実行時は try 側の class-transformer/cjs/storage が必ず解決に成功し到達しない分岐)。
+		"class-transformer/storage": "./workers-stubs/empty-module.js"
+	},
+	"env": {
+		"dev": {
+			"name": "genai-example-1-api-dev",
+			"vars": {
+				"NODE_ENV": "production",
+				// D1経路では実際には参照しない(env.DB バインディングを使う)。
+				// loadEnv() の必須チェックを満たすためのプレースホルダ。
+				"DATABASE_URL": "d1"
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "genai-example-1-dev",
+					"database_id": "5f6ace63-753a-48c2-a400-5ca219a8a839",
+					"migrations_dir": "migrations-wrangler"
+				}
+			],
+			"kv_namespaces": [
+				{ "binding": "SESSION_CLIENT_KV", "id": "1bc7ca39a37549d380c0acb002722e02" },
+				{ "binding": "SESSION_ADMIN_KV", "id": "d384cafe8bb74958957d058481498000" },
+				{ "binding": "APP_KV", "id": "82d686182778447e847f729805c9b513" }
+			]
+		},
+		"production": {
+			"name": "genai-example-1-api-production",
+			"vars": {
+				"NODE_ENV": "production",
+				// D1経路では実際には参照しない(env.DB バインディングを使う)。
+				// loadEnv() の必須チェックを満たすためのプレースホルダ。
+				"DATABASE_URL": "d1"
+			},
+			// D1/KVのIDはproductionワークスペースのterraform apply後にoutputから設定する(未確定)。
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "genai-example-1-production",
+					"database_id": "",
+					"migrations_dir": "migrations-wrangler"
+				}
+			],
+			"kv_namespaces": [
+				{ "binding": "SESSION_CLIENT_KV", "id": "" },
+				{ "binding": "SESSION_ADMIN_KV", "id": "" },
+				{ "binding": "APP_KV", "id": "" }
+			]
+		}
+	}
+}

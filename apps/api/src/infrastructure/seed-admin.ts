@@ -2,13 +2,13 @@
 // 仕様上、初期スーパー管理者はプロビジョニング手順で作成する(画面からの自己昇格は不可、BR-ADMIN-001)。
 // 本番(D1)では実行しない。資格情報は環境変数で上書きでき、未指定なら開発用の既定値を用いる。
 import 'reflect-metadata';
-import { hash } from '@node-rs/argon2';
 import { MikroORM } from '@mikro-orm/core';
 import { ulid } from 'ulid';
 import { AdminRole } from '../domain/admin-role';
 import { normalizeEmail } from '../domain/admin-credentials';
 import { loadEnv } from '../config/env';
 import { buildMikroOrmConfig, resolveDbName } from './mikro-orm.config';
+import { hashPassword } from './password-hasher';
 import { AdminAccountEntity } from './persistence/entities/admin-account.entity';
 
 const DEFAULT_EMAIL = 'admin@example.com';
@@ -32,7 +32,7 @@ export async function runAdminSeed(): Promise<void> {
 			id: ulid(),
 			email,
 			emailNormalized: email,
-			passwordHash: await hash(password),
+			passwordHash: await hashPassword(password),
 			role: AdminRole.SUPER_ADMIN,
 			status: 'active'
 		});

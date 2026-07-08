@@ -6,7 +6,12 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ProfileService } from './application/profile.service';
-import { buildMikroOrmConfig, resolveDbName } from './infrastructure/mikro-orm.config';
+import {
+	buildMikroOrmConfig,
+	buildMikroOrmConfigForD1,
+	resolveDbName
+} from './infrastructure/mikro-orm.config';
+import { getD1Database } from './infrastructure/workers-runtime';
 import { AdminModule } from './interface/graphql/admin/admin.module';
 import { DomainErrorFilter } from './interface/graphql/domain-error.filter';
 import { HelpArticleModule } from './interface/graphql/help-article.module';
@@ -20,7 +25,14 @@ const isProduction = process.env.NODE_ENV === 'production';
 @Module({
 	imports: [
 		MikroOrmModule.forRootAsync({
-			useFactory: () => buildMikroOrmConfig(resolveDbName(process.env.DATABASE_URL))
+			// Cloudflare Workers(worker.ts)では D1 バインディングが登録されるため D1 接続に切り替える。
+			// ローカル/dev(main.ts)・テストでは未登録のため、従来どおり SQLite ファイル接続を使う。
+			useFactory: () => {
+				const d1 = getD1Database();
+				return d1
+					? buildMikroOrmConfigForD1(d1)
+					: buildMikroOrmConfig(resolveDbName(process.env.DATABASE_URL));
+			}
 		}),
 		// 利用者向け GraphQL(認証・アカウント管理・API キー)。ProfileModule より先に登録する。
 		UserModule,

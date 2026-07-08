@@ -12,6 +12,7 @@
 		"migrations",
 		"**/*.spec.ts",
 		"src/infrastructure/seed.ts",
-		"src/infrastructure/migration-cli.ts"
+		"src/infrastructure/migration-cli.ts",
+		"src/worker.ts"
 	]
 }

@@ -1,6 +1,6 @@
 // 管理者コンソール GraphQL の統合テスト(Nest Testing + インメモリ SQLite + Supertest)。
 // 認証(セッションヘッダ)・RBAC・監査・状態整合を End-to-End で検証する(testing/01 §2.2)。
-import { hash } from '@node-rs/argon2';
+import { hashPassword } from '../src/infrastructure/password-hasher';
 import { MikroORM } from '@mikro-orm/core';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -47,7 +47,7 @@ async function seedSuperAdmin(): Promise<void> {
 		id: 'admin-super',
 		email: 'super@example.com',
 		emailNormalized: 'super@example.com',
-		passwordHash: await hash(SUPER_PASSWORD),
+		passwordHash: await hashPassword(SUPER_PASSWORD),
 		role: AdminRole.SUPER_ADMIN,
 		status: 'active'
 	});

@@ -49,6 +49,8 @@ import { ValkeyAdminSessionStore } from '../../../infrastructure/admin-session.s
 import { ValkeyWebauthnChallengeStore } from '../../../infrastructure/webauthn-challenge.store';
 import { SimpleWebauthnVerifier } from '../../../infrastructure/webauthn-verifier';
 import { createValkeyClient, ValkeyClient } from '../../../infrastructure/valkey-client';
+import { createKVValkeyClient } from '../../../infrastructure/kv-valkey-client';
+import { getAppKV, getSessionAdminKV } from '../../../infrastructure/workers-runtime';
 import { MikroAdminAccountRepository } from '../../../infrastructure/persistence/admin-account.repository';
 import { MikroAdminUserRepository } from '../../../infrastructure/persistence/admin-user.repository';
 import { MikroAdminWebauthnCredentialRepository } from '../../../infrastructure/persistence/admin-webauthn-credential.repository';
@@ -98,7 +100,10 @@ import { AdminResolver } from './admin.resolver';
 const WEBAUTHN_CONFIG = Symbol('WebauthnConfig');
 const MAIL_CONFIG = Symbol('MailConfig');
 // user.module.ts の Valkey クライアントとは別接続にする(モジュール間でプロバイダを共有しない既存方針)。
-const ADMIN_VALKEY_CLIENT = Symbol('AdminValkeyClient');
+// 本番(Workers)ではセッションとWebAuthnチャレンジで異なるKV名前空間を使うため、
+// ローカル(Valkey)でも用途ごとに接続を分ける(db §7、01-network-architecture.md §4)。
+const ADMIN_SESSION_VALKEY_CLIENT = Symbol('AdminSessionValkeyClient');
+const ADMIN_WEBAUTHN_VALKEY_CLIENT = Symbol('AdminWebauthnValkeyClient');
 
 @Module({
 	providers: [
@@ -152,19 +157,31 @@ const ADMIN_VALKEY_CLIENT = Symbol('AdminValkeyClient');
 		// 認証・セキュリティのポート実装。
 		Argon2idPasswordHasher,
 		{ provide: PASSWORD_HASHER, useExisting: Argon2idPasswordHasher },
-		// Valkey 接続(管理者セッション・WebAuthn チャレンジの保存先。本番は Cloudflare KV、db §7)。
+		// Valkey/KV 接続(管理者セッション・WebAuthn チャレンジの保存先。本番は Cloudflare KV、db §7)。
+		// 本番(Workers)では workers-runtime に登録された KV バインディングを使い、
+		// ローカル/dev(main.ts)では未登録のため Valkey へフォールバックする。
 		{
-			provide: ADMIN_VALKEY_CLIENT,
-			useFactory: () => createValkeyClient(loadEnv().valkeyUrl)
+			provide: ADMIN_SESSION_VALKEY_CLIENT,
+			useFactory: (): ValkeyClient => {
+				const kv = getSessionAdminKV();
+				return kv ? createKVValkeyClient(kv) : createValkeyClient(loadEnv().valkeyUrl);
+			}
+		},
+		{
+			provide: ADMIN_WEBAUTHN_VALKEY_CLIENT,
+			useFactory: (): ValkeyClient => {
+				const kv = getAppKV();
+				return kv ? createKVValkeyClient(kv) : createValkeyClient(loadEnv().valkeyUrl);
+			}
 		},
 		{
 			provide: ADMIN_SESSION_STORE,
-			inject: [ADMIN_VALKEY_CLIENT, CLOCK],
+			inject: [ADMIN_SESSION_VALKEY_CLIENT, CLOCK],
 			useFactory: (client: ValkeyClient, clock: Clock) => new ValkeyAdminSessionStore(client, clock)
 		},
 		{
 			provide: WEBAUTHN_CHALLENGE_STORE,
-			inject: [ADMIN_VALKEY_CLIENT],
+			inject: [ADMIN_WEBAUTHN_VALKEY_CLIENT],
 			useFactory: (client: ValkeyClient) => new ValkeyWebauthnChallengeStore(client)
 		},
 		{ provide: WEBAUTHN_CONFIG, useFactory: () => loadEnv().adminWebauthn },

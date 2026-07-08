@@ -26,13 +26,19 @@ docker compose exec root wrangler r2 bucket create genai-example-1-terraform-sta
 ## init（初回・バックエンド設定変更時）
 
 アカウント固有の値（認証情報・エンドポイント）は `-backend-config` で分離して渡す（`main.tf` にはハードコードしない）。
+`endpoints`(ネストしたマップ)は `-backend-config="key=value"` の単純な形式では渡せないため、
+一時的なバックエンド設定ファイルを生成して渡す（値に秘匿情報を含むためコミットしない・使用後に削除する）。
 
 ```bash
 docker compose exec root sh -c '
-  cd apps/infra && terraform init \
-    -backend-config="access_key=$CLOUDFLARE_S3_ACCESS_KEY_ID" \
-    -backend-config="secret_key=$CLOUDFLARE_S3_SECRET_ACCESS_KEY" \
-    -backend-config="endpoints={s3=\"$CLOUDFLARE_S3_API_ENDPOINT\"}"
+  cd apps/infra
+  cat > /tmp/backend.hcl <<EOF
+access_key = "$CLOUDFLARE_S3_ACCESS_KEY_ID"
+secret_key = "$CLOUDFLARE_S3_SECRET_ACCESS_KEY"
+endpoints = { s3 = "$CLOUDFLARE_S3_API_ENDPOINT" }
+EOF
+  terraform init -backend-config=/tmp/backend.hcl
+  rm -f /tmp/backend.hcl
 '
 ```
 

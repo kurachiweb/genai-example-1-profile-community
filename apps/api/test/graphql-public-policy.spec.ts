@@ -1,6 +1,6 @@
 // 規約・プライバシーポリシーの公開閲覧 GraphQL の統合テスト(BR-CONTENT-010)。
 // admin 側で発行した版が、未ログイン(セッションなし)で取得できることを検証する。
-import { hash } from '@node-rs/argon2';
+import { hashPassword } from '../src/infrastructure/password-hasher';
 import { MikroORM } from '@mikro-orm/core';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -46,7 +46,7 @@ async function seedSuperAdmin(): Promise<void> {
 		id: 'admin-super',
 		email: 'super@example.com',
 		emailNormalized: 'super@example.com',
-		passwordHash: await hash(PASSWORD),
+		passwordHash: await hashPassword(PASSWORD),
 		role: AdminRole.SUPER_ADMIN,
 		status: 'active'
 	});

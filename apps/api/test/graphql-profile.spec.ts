@@ -1,6 +1,6 @@
 // 内部 GraphQL API の統合テスト(Nest Testing + インメモリ SQLite + Supertest)。
 // 認可・実効公開ゲート・エラー表現(extensions.code)・カーソル接続・DataLoader を検証する(testing/01 §2.2)。
-import { hash } from '@node-rs/argon2';
+import { hashPassword } from '../src/infrastructure/password-hasher';
 import { MikroORM } from '@mikro-orm/core';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -57,7 +57,7 @@ async function seed(id: string, handle: string, options: SeedOptions = {}): Prom
 		id: `user-${id}`,
 		email: `${id}@example.com`,
 		emailNormalized: `${id}@example.com`,
-		passwordHash: await hash(TEST_PASSWORD),
+		passwordHash: await hashPassword(TEST_PASSWORD),
 		status: options.status ?? UserStatus.ACTIVE
 	});
 	em.create(ProfileEntity, {

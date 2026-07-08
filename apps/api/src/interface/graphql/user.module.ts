@@ -24,6 +24,8 @@ import { Argon2idPasswordHasher } from '../../infrastructure/password-hasher';
 import { MikroUserRepository } from '../../infrastructure/persistence/user.repository';
 import { MikroUserApiKeyRepository } from '../../infrastructure/persistence/api-key-user.repository';
 import { createValkeyClient, ValkeyClient } from '../../infrastructure/valkey-client';
+import { createKVValkeyClient } from '../../infrastructure/kv-valkey-client';
+import { getAppKV, getSessionClientKV } from '../../infrastructure/workers-runtime';
 import {
 	USER_SESSION_STORE,
 	UserSessionStore,
@@ -38,7 +40,10 @@ export const USER_API_KEY_REPO = Symbol('UserApiKeyRepo');
 // admin.module.ts の MAIL_CONFIG と同型(モジュール間でプロバイダを共有しない既存方針に倣う)。
 const MAIL_CONFIG = Symbol('UserMailConfig');
 // admin.module.ts の Valkey クライアントとは別接続にする(モジュール間でプロバイダを共有しない既存方針)。
-const USER_VALKEY_CLIENT = Symbol('UserValkeyClient');
+// 本番(Workers)ではセッションとトークンで異なる KV 名前空間を使うため、ローカル(Valkey)でも
+// 用途ごとに接続を分ける(db §7、01-network-architecture.md §4)。
+const USER_SESSION_VALKEY_CLIENT = Symbol('UserSessionValkeyClient');
+const USER_TOKEN_VALKEY_CLIENT = Symbol('UserTokenValkeyClient');
 
 @Module({
 	providers: [
@@ -54,19 +59,31 @@ const USER_VALKEY_CLIENT = Symbol('UserValkeyClient');
 		{ provide: ID_GENERATOR, useExisting: UlidGenerator },
 		{ provide: USER_PASSWORD_HASHER, useExisting: Argon2idPasswordHasher },
 		{ provide: USER_API_KEY_REPO, useExisting: MikroUserApiKeyRepository },
-		// Valkey 接続(ユーザーセッション・メール確認トークンの保存先。本番は Cloudflare KV、db §7)。
+		// Valkey/KV 接続(ユーザーセッション・メール確認トークンの保存先。本番は Cloudflare KV、db §7)。
+		// 本番(Workers)では workers-runtime に登録された KV バインディングを使い、
+		// ローカル/dev(main.ts)では未登録のため Valkey へフォールバックする。
 		{
-			provide: USER_VALKEY_CLIENT,
-			useFactory: () => createValkeyClient(loadEnv().valkeyUrl)
+			provide: USER_SESSION_VALKEY_CLIENT,
+			useFactory: (): ValkeyClient => {
+				const kv = getSessionClientKV();
+				return kv ? createKVValkeyClient(kv) : createValkeyClient(loadEnv().valkeyUrl);
+			}
+		},
+		{
+			provide: USER_TOKEN_VALKEY_CLIENT,
+			useFactory: (): ValkeyClient => {
+				const kv = getAppKV();
+				return kv ? createKVValkeyClient(kv) : createValkeyClient(loadEnv().valkeyUrl);
+			}
 		},
 		{
 			provide: USER_SESSION_STORE,
-			inject: [USER_VALKEY_CLIENT],
+			inject: [USER_SESSION_VALKEY_CLIENT],
 			useFactory: (client: ValkeyClient) => new ValkeyUserSessionStore(client)
 		},
 		{
 			provide: USER_TOKEN_STORE,
-			inject: [USER_VALKEY_CLIENT],
+			inject: [USER_TOKEN_VALKEY_CLIENT],
 			useFactory: (client: ValkeyClient) => new ValkeyEmailVerificationTokenStore(client)
 		},
 		// メール送信(ローカルは Mailpit、本番は SES へ差し替え。admin.module.ts と同型の独立プロバイダ)。

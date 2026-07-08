@@ -3,5 +3,8 @@ dist
 coverage
 *.tsbuildinfo
 
+# wrangler dev のローカル状態(D1/KVのミニフレアシミュレーション等)
+.wrangler
+
 # MikroORM Migrator のスキーマスナップショット(snapshot: false のため通常生成されないが念のため除外)
 migrations/.snapshot-*.json

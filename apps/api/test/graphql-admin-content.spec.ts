@@ -1,6 +1,6 @@
 // §08 コンテンツ系 GraphQL の統合テスト(Nest Testing + インメモリ SQLite + Supertest)。
 // メール配信(SMTP)は外部依存のため統合テストでは扱わず、ユースケース単体で検証済み。
-import { hash } from '@node-rs/argon2';
+import { hashPassword } from '../src/infrastructure/password-hasher';
 import { MikroORM } from '@mikro-orm/core';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -46,7 +46,7 @@ async function seedSuperAdmin(): Promise<void> {
 		id: 'admin-super',
 		email: 'super@example.com',
 		emailNormalized: 'super@example.com',
-		passwordHash: await hash(PASSWORD),
+		passwordHash: await hashPassword(PASSWORD),
 		role: AdminRole.SUPER_ADMIN,
 		status: 'active'
 	});
