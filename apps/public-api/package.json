@@ -12,7 +12,7 @@
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
 		"test:cov": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.worker.json",
+		"typecheck": "tsc --noEmit && pnpm build && tsc --noEmit -p tsconfig.worker.json",
 		"dev:worker": "pnpm build && wrangler dev --env dev",
 		"deploy:worker": "pnpm build && wrangler deploy --env dev",
 		"lint": "eslint \"{src,test}/**/*.ts\"",

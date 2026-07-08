@@ -49,6 +49,13 @@ jobs:
       # ワークスペースリンク(workspace:*)を正しく解決するため、対象アプリのみの部分インストールは行わない。
       - run: pnpm install --frozen-lockfile
 
+      # client/admin はローカル開発時、共有フロントエンド(apps/frontend-lib)を
+      # docker compose のバインドマウントで apps/{client,admin}/lib に供給する(@lib エイリアスの実体)。
+      # CI にはこのマウントが無いため、同名のシンボリックリンクを用意して同じ解決結果にする。
+      - name: 共有フロントエンド(lib)をシンボリックリンクで配置
+        if: matrix.app == 'client' || matrix.app == 'admin'
+        run: ln -s "$(pwd)/apps/frontend-lib" "apps/${{ matrix.app }}/lib"
+
       - name: format:check
         run: pnpm --filter @app/${{ matrix.app }} format:check
 
