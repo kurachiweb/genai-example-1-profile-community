@@ -51,7 +51,12 @@ describe('PublicPolicyService', () => {
 		const policies = new InMemoryPolicyRepository([
 			record({ id: 'v1', version: 1, isPublished: false }),
 			record({ id: 'v2', version: 2, isPublished: true }),
-			record({ id: 'v3', version: 3, isPublished: false, effectiveDate: new Date('2026-09-01T00:00:00Z') })
+			record({
+				id: 'v3',
+				version: 3,
+				isPublished: false,
+				effectiveDate: new Date('2026-09-01T00:00:00Z')
+			})
 		]);
 		const service = new PublicPolicyService({ policies });
 

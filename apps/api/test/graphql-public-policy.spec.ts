@@ -135,8 +135,16 @@ describe('規約・プライバシーポリシーの公開閲覧 GraphQL(BR-CONT
 			).body.data.adminCreatePolicyVersion;
 		const v1 = await mk('# v1');
 		const v2 = await mk('# v2');
-		await adminGql(`mutation($id:String!){ adminPublishPolicy(id:$id){ id } }`, { id: v1.id }, sessionId);
-		await adminGql(`mutation($id:String!){ adminPublishPolicy(id:$id){ id } }`, { id: v2.id }, sessionId);
+		await adminGql(
+			`mutation($id:String!){ adminPublishPolicy(id:$id){ id } }`,
+			{ id: v1.id },
+			sessionId
+		);
+		await adminGql(
+			`mutation($id:String!){ adminPublishPolicy(id:$id){ id } }`,
+			{ id: v2.id },
+			sessionId
+		);
 
 		const versions = await publicGql(
 			`query{ publicPolicyVersions(type:"privacy"){ version isPublished } }`,
