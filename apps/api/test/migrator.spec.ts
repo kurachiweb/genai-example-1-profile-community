@@ -79,6 +79,43 @@ describe('MikroORM Migrator(migrations/*.ts)', () => {
 		);
 	});
 
+	test('TEMP DEBUG: sqlite/trigger diagnostics', async () => {
+		await orm.migrator.up();
+		const connection = orm.em.getConnection();
+
+		const version = await connection.execute<Array<{ v: string }>>('select sqlite_version() as v');
+		console.log('DEBUG sqlite_version:', JSON.stringify(version));
+
+		const triggers = await connection.execute<Array<{ name: string; sql: string }>>(
+			"select name, sql from sqlite_master where type = 'trigger'"
+		);
+		console.log('DEBUG triggers:', JSON.stringify(triggers, null, 2));
+
+		await connection.execute(
+			"insert into audit_logs (id, event_type, actor_type, result, occurred_at) values ('log-1', 'login', 'user', 'success', datetime('now'))"
+		);
+
+		try {
+			const res = await connection.execute(
+				"update audit_logs set result = 'failure' where id = 'log-1'"
+			);
+			console.log('DEBUG update did NOT throw, result:', JSON.stringify(res));
+		} catch (error) {
+			console.log('DEBUG update threw:', String(error));
+		}
+
+		const rows = await connection.execute<Array<{ result: string }>>(
+			"select result from audit_logs where id = 'log-1'"
+		);
+		console.log('DEBUG row after update attempt:', JSON.stringify(rows));
+
+		const pragmaOptions = await connection.execute('pragma compile_options');
+		console.log('DEBUG pragma compile_options:', JSON.stringify(pragmaOptions));
+
+		const foreignKeys = await connection.execute('pragma foreign_keys');
+		console.log('DEBUG pragma foreign_keys:', JSON.stringify(foreignKeys));
+	});
+
 	test('down() で全テーブルが削除される', async () => {
 		await orm.migrator.up();
 		await orm.migrator.down();
