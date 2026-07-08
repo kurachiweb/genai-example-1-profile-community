@@ -17,7 +17,7 @@ allowBuilds:
   sharp: true
   sqlite3: true
   unrs-resolver: true
-  # apps/client・apps/admin: wrangler(@opennextjs/cloudflareの前提)が使うworkerdランタイムバイナリ。
+  # apps/*: wrangler(client/adminは@opennextjs/cloudflareの前提)が使うworkerdランタイムバイナリ。
   workerd: true
 # パッケージの公開から3日以上経過したもののみをインストールする
 minimumReleaseAge: 4320
