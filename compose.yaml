@@ -1,12 +1,9 @@
-# ローカル開発用 docker compose 定義。
 # 本番ランタイムは Cloudflare Workers のため、本 compose はローカル開発専用である。
-# ポート割り当ての正本は CLAUDE.md / docs/GUIDES/infra/00-overview.md §2（アプリ: 48030〜48034、
-# 補助サービス Mailpit: 48035・Valkey: 48036）。
+# ポート割り当ての正本は CLAUDE.md / docs/GUIDES/infra/00-overview.md §2（アプリ: 48030〜48034、補助サービス Mailpit: 48035・Valkey: 48036）。
 name: genai-example-1-profile-community
 
 # 各アプリサービスの共通設定（DRY: YAML アンカーで集約。03-docker.md §4）。
 # volumes はサービスごとにマウント構成が異なるため共通化せず、各サービスで個別に定義する。
-# node_modules はホストと混ぜず名前付きボリュームでコンテナ側に隔離する。
 x-app-defaults: &app-defaults
   restart: unless-stopped
   init: true
@@ -20,11 +17,11 @@ services:
   # ---- ツールチェーン: pnpm / Terraform / wrangler を備えた常駐コンテナ ----
   # 使い方: docker compose exec root pnpm <...> / terraform <...> / wrangler <...>
   root:
+    <<: *app-defaults
     build:
       context: .
       dockerfile: Dockerfile
     image: genai-example-1-profile-community/root
-    restart: unless-stopped
     working_dir: /workspace
     volumes:
       - .:/workspace
@@ -32,9 +29,6 @@ services:
       - ./apps/frontend-lib:/workspace/apps/client/lib
       - ./apps/frontend-lib:/workspace/apps/admin/lib
       - frontend_lib_node_modules:/workspace/lib/node_modules
-    env_file:
-      - path: .env
-        required: false
 
   # ---- DB: スキーマ定義・マイグレーション（SQLite / MikroORM, :48030） ----
   db:
@@ -198,6 +192,7 @@ services:
       retries: 10
       start_period: 10s
 
+# node_modules はホストと混ぜず名前付きボリュームでコンテナ側に隔離する。
 volumes:
   root_node_modules:
   db_node_modules:
