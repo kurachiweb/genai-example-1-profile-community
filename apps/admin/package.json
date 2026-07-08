@@ -5,7 +5,7 @@
   "description": "管理者コンソール Web（Next.js / App Router・BFF）。内部 GraphQL(api)をサーバー側で呼ぶ。",
   "scripts": {
     "dev": "next dev -p 48033",
-    "build": "next build",
+    "build": "NODE_ENV=production next build",
     "start": "next start -p 48033",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"{src,app}/**/*.{ts,tsx}\"",
@@ -21,7 +21,7 @@
     "@hookform/resolvers": "^5.4.0",
     "@simplewebauthn/browser": "^13.3.0",
     "lucide-react": "^1.18.0",
-    "next": "^16.2.9",
+    "next": "^16.2.10",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.79.0",
