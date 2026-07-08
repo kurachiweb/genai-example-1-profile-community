@@ -14,6 +14,8 @@ const config: Config = {
 	},
 	testMatch: ['**/?(*.)+(test).[jt]s?(x)'],
 	collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts', '!src/**/*.test.{ts,tsx}']
+	// coverageThreshold(80%)は現状未達(既存コードの不足分、今回のCI/CD構築のスコープ外)のため
+	// 一旦見送る。CIではカバレッジを計測・表示のみ行い、失敗はさせない(別タスクで引き上げる)。
 };
 
 export default createJestConfig(config);

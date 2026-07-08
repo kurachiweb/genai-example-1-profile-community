@@ -1,0 +1,88 @@
+name: CI
+
+# main への push と PR で lint/型チェック/テスト/機密情報スキャンを実行する
+# (docs/GUIDES/infra/02-deployment.md §2)。デプロイ(dev/prod)は別ワークフローが担う。
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '26'
+
+jobs:
+  secret-scan:
+    name: 機密情報スキャン(TruffleHog)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --results=verified,unknown
+
+  lint-test-build:
+    name: ${{ matrix.app }}
+    needs: secret-scan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [frontend-lib, client, admin, api, public-api]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # モノレポ全体を一括インストールする(pnpm-workspace.yaml の packages: apps/* に従う)。
+      # ワークスペースリンク(workspace:*)を正しく解決するため、対象アプリのみの部分インストールは行わない。
+      - run: pnpm install --frozen-lockfile
+
+      - name: format:check
+        run: pnpm --filter @app/${{ matrix.app }} format:check
+
+      - name: lint
+        run: pnpm --filter @app/${{ matrix.app }} lint
+
+      - name: typecheck
+        run: pnpm --filter @app/${{ matrix.app }} typecheck
+
+      - name: test:cov
+        run: pnpm --filter @app/${{ matrix.app }} test:cov
+
+      # frontend-lib はコンポーネントカタログ(Storybook)であり、単独の本番ビルド成果物を持たない。
+      - name: build
+        if: matrix.app != 'frontend-lib'
+        run: pnpm --filter @app/${{ matrix.app }} build
+
+  dependency-audit:
+    name: 依存パッケージ脆弱性スキャン(pnpm audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # 補助スキャン(正本は GitHub Dependabot、ecc-common/security.md・infra/02-deployment.md)。
+      # 既知の未対応脆弱性で CI 全体を止めないよう、結果は警告として残しつつ処理は継続する。
+      - name: pnpm audit
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
