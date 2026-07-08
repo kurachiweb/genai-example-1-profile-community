@@ -1,4 +1,4 @@
-// ヘルプ記事詳細のビュー(BR-CONTENT-005)。見出し(h1)は本文マークダウン側が持つ想定。
+// ヘルプ記事詳細のビュー(BR-CONTENT-005)。
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Badge, formatDate, MarkdownContent } from '@lib';
@@ -11,11 +11,14 @@ interface Props {
 export function HelpArticleView({ article }: Props) {
 	return (
 		<article className="mx-auto max-w-3xl px-4 py-12">
-			<header className="mb-8 flex items-center gap-3 border-b border-border pb-6">
-				{article.category ? <Badge tone="accent">{article.category}</Badge> : null}
-				<p className="text-(length:--text-meta) text-text-muted">
-					更新日 {formatDate(article.updatedAt)}
-				</p>
+			<header className="mb-8 border-b border-border pb-6">
+				<h1 className="mb-3 text-(length:--text-title) font-bold text-text">{article.title}</h1>
+				<div className="flex items-center gap-3">
+					{article.category ? <Badge tone="accent">{article.category}</Badge> : null}
+					<p className="text-(length:--text-meta) text-text-muted">
+						更新日 {formatDate(article.updatedAt)}
+					</p>
+				</div>
 			</header>
 
 			<MarkdownContent markdown={article.bodyMarkdown} />

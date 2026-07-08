@@ -8,7 +8,7 @@ function makeArticle(overrides: Partial<HelpArticle> = {}): HelpArticle {
 		title: 'プロフィールの編集方法',
 		slug: 'edit-profile',
 		category: 'アカウント',
-		bodyMarkdown: '# プロフィールの編集方法\n\n本文です。',
+		bodyMarkdown: '本文です。',
 		updatedAt: '2026-06-19T00:00:00Z',
 		...overrides
 	};
