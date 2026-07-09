@@ -4,6 +4,6 @@
 // 実行時にも同じ差し替えを適用してしまい、node_modules 配下の .d.ts を直接 require しようとして
 // 失敗する(Node の型ストリッピングは node_modules 配下非対応)ため、ambient 宣言のみで補う。
 declare module 'kysely-d1' {
-  export type { D1DialectConfig } from '../../node_modules/kysely-d1/dist/index';
-  export { D1Dialect } from '../../node_modules/kysely-d1/dist/index';
+	export type { D1DialectConfig } from '../../node_modules/kysely-d1/dist/index';
+	export { D1Dialect } from '../../node_modules/kysely-d1/dist/index';
 }
