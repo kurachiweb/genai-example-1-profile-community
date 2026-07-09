@@ -19,8 +19,7 @@
 			"name": "genai-example-1-client-dev",
 			"vars": {
 				"NODE_ENV": "production",
-				// apps/api(dev)のデプロイ先URL確定後に設定する(Unit7、現時点ではプレースホルダ)。
-				"API_GRAPHQL_URL": "",
+				"API_GRAPHQL_URL": "https://genai-example-1-api-dev.sukuratti3408.workers.dev/graphql",
 				"NEXT_TELEMETRY_DISABLED": "1"
 			},
 			// ISRのオンデマンド再検証(内部fetch)に必要な自己参照(ADR 20260708)。
