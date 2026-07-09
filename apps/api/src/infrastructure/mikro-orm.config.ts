@@ -1,6 +1,9 @@
 // MikroORM 設定(Frameworks & Drivers)。ローカルは SQLite、本番は D1(SQLite 互換・同一スキーマ)。
 // ドライバ差は本層で吸収し、Entities/Use Cases に持ち込まない(mikroorm §8)。
 // MikroORM 7 は EntitySchema でメタデータを明示するため reflect メタデータプロバイダは不要(ADR 20260617)。
+// ts-node はエントリーポイントから辿れるファイルのみ型検査に含めるため、kysely-d1 の
+// ambient 宣言(型解決専用、下記参照)を明示的に取り込む。
+/// <reference path="./kysely-d1.d.ts" />
 import type { D1Database } from '@cloudflare/workers-types';
 import { UnderscoreNamingStrategy } from '@mikro-orm/core';
 import { Migrator } from '@mikro-orm/migrations';
