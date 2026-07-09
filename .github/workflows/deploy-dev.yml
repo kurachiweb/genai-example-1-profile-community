@@ -122,6 +122,18 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # PBKDF2 のイテレーション数上限(100,000)を補うペッパー。GitHub Actions Secrets の
+      # 固定値をそのまま設定するだけで、CI 実行のたびに値を生成し直すことは絶対にしない
+      # (ペッパーが変わると既存の全パスワードハッシュが検証不能になり、全ユーザーがログイン不能になる)。
+      # loadEnv() は起動時に PASSWORD_PEPPER 必須で例外を投げるため、deploy より先に設定する。
+      - name: PASSWORD_PEPPER 設定(dev)
+        working-directory: apps/api
+        run: echo "$PASSWORD_PEPPER_VALUE" | pnpm exec wrangler secret put PASSWORD_PEPPER --env dev
+        env:
+          PASSWORD_PEPPER_VALUE: ${{ secrets.PASSWORD_PEPPER }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: wrangler deploy
         run: pnpm --filter @app/api deploy:worker
         env:

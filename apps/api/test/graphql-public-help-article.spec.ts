@@ -15,9 +15,14 @@ import { buildValidationPipe } from '../src/interface/graphql/validation';
 let app: INestApplication;
 let orm: MikroORM;
 
+// テスト用ペッパー(32文字以上の最小要件を満たす固定値、env.ts の PASSWORD_PEPPER_MIN_LENGTH 参照)。
+const TEST_PEPPER = 'integration-test-pepper-aaaaaaaaaaaaaaaaaaaaaaaa';
+
 beforeAll(async () => {
 	process.env.DATABASE_URL = ':memory:';
 	process.env.NODE_ENV = 'test';
+	// PBKDF2 のイテレーション数上限を補うペッパー(password-hasher.ts §HMAC事前処理)。
+	process.env.PASSWORD_PEPPER = TEST_PEPPER;
 	const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
 		.overrideProvider(ADMIN_SESSION_STORE)
 		.useValue(new InMemoryAdminSessionStore({ now: () => new Date() }))
@@ -45,7 +50,7 @@ async function seedSuperAdmin(): Promise<void> {
 		id: 'admin-super',
 		email: 'super@example.com',
 		emailNormalized: 'super@example.com',
-		passwordHash: await hashPassword(PASSWORD),
+		passwordHash: await hashPassword(PASSWORD, TEST_PEPPER),
 		role: AdminRole.SUPER_ADMIN,
 		status: 'active'
 	});

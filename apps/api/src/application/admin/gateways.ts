@@ -116,6 +116,10 @@ export interface PasswordHasher {
 	verify(hash: string, plain: string): Promise<boolean>;
 }
 
+// PBKDF2 のイテレーション数上限(100,000、password-hasher.ts 参照)を補うためのペッパー。
+// DB とは独立した Cloudflare Workers Secrets(env.PASSWORD_PEPPER)から供給する。
+export const PASSWORD_PEPPER = Symbol('PasswordPepper');
+
 export const ADMIN_SESSION_STORE = Symbol('AdminSessionStore');
 
 export interface AdminSession {

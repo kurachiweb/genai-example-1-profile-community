@@ -32,7 +32,7 @@ export async function runAdminSeed(): Promise<void> {
 			id: ulid(),
 			email,
 			emailNormalized: email,
-			passwordHash: await hashPassword(password),
+			passwordHash: await hashPassword(password, env.passwordPepper),
 			role: AdminRole.SUPER_ADMIN,
 			status: 'active'
 		});

@@ -17,6 +17,7 @@ import {
 	AUDIT_LOG_REPOSITORY,
 	AuditLogRepository,
 	PASSWORD_HASHER,
+	PASSWORD_PEPPER,
 	PasswordHasher,
 	REPORT_REPOSITORY,
 	ReportRepository,
@@ -157,6 +158,8 @@ const ADMIN_WEBAUTHN_VALKEY_CLIENT = Symbol('AdminWebauthnValkeyClient');
 		// 認証・セキュリティのポート実装。
 		Pbkdf2PasswordHasher,
 		{ provide: PASSWORD_HASHER, useExisting: Pbkdf2PasswordHasher },
+		// PBKDF2 のイテレーション数上限(100,000)を補うペッパー(password-hasher.ts §HMAC事前処理)。
+		{ provide: PASSWORD_PEPPER, useFactory: () => loadEnv().passwordPepper },
 		// Valkey/KV 接続(管理者セッション・WebAuthn チャレンジの保存先。本番は Cloudflare KV、db §7)。
 		// 本番(Workers)では workers-runtime に登録された KV バインディングを使い、
 		// ローカル/dev(main.ts)では未登録のため Valkey へフォールバックする。

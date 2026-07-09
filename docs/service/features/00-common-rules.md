@@ -26,6 +26,7 @@
 - パスワードは平文保存しない。**PBKDF2-HMAC-SHA256**（イテレーション数 100,000）でハッシュ化して保存する。
   - 当初は Argon2id（hash-wasm）を採用していたが、hash-wasm は埋め込み WASM バイナリを実行時に `WebAssembly.compile()` するため、Cloudflare Workers の実行時コード生成禁止制約に抵触し、常にハッシュ検証が失敗する不具合が判明した（実機で `CompileError: Wasm code generation disallowed by embedder` を確認）。Web Crypto API（`crypto.subtle`）はネイティブ実装でこの制約を受けないため、PBKDF2 へ切り替えた。
   - イテレーション数は OWASP 推奨値（600,000）ではなく 100,000 とした。Cloudflare Workers の `crypto.subtle` は PBKDF2 のイテレーション数上限を 100,000 に制限しており、超過すると `NotSupportedError` で例外となる（実機で確認済み。ローカルの `wrangler dev --local` シミュレータではこの上限が再現されないため要注意）。
+  - イテレーション数を引き上げられない代わりに、**ペッパー（サーバー側秘密鍵）**を PBKDF2 の前段に HMAC-SHA256 として適用する。ペッパーは DB とは独立した Cloudflare Workers Secrets（`PASSWORD_PEPPER`）で保管するため、DB（ソルト＋ハッシュ）のみが漏洩してもペッパーを知らない攻撃者はオフラインの総当たり/辞書攻撃を一切開始できない。これはイテレーション数の多寡に依存しない防御であり、100,000 という上限があっても実質的な安全性を確保できる（[docs/GUIDES/security/01-authn-authz.md](../../GUIDES/security/01-authn-authz.md) §2.1、[docs/GUIDES/infra/02-deployment.md](../../GUIDES/infra/02-deployment.md) §6）。
 - パスワードポリシーは [01-user-account.md](./01-user-account.md) の `BR-ACCT-002` を正本とする。
 
 ### BR-COMMON-004 CSRF・セキュリティヘッダ

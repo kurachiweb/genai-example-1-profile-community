@@ -16,9 +16,14 @@ import { InMemoryAdminSessionStore } from '../src/application/admin/fakes';
 let app: INestApplication;
 let orm: MikroORM;
 
+// テスト用ペッパー(32文字以上の最小要件を満たす固定値、env.ts の PASSWORD_PEPPER_MIN_LENGTH 参照)。
+const TEST_PEPPER = 'integration-test-pepper-aaaaaaaaaaaaaaaaaaaaaaaa';
+
 beforeAll(async () => {
 	process.env.DATABASE_URL = ':memory:';
 	process.env.NODE_ENV = 'test';
+	// PBKDF2 のイテレーション数上限を補うペッパー(password-hasher.ts §HMAC事前処理)。
+	process.env.PASSWORD_PEPPER = TEST_PEPPER;
 	// セッションストアは Valkey 接続を要するため、統合テストではインメモリ・フェイクへ差し替える
 	// (testing/01 §3「KV / Durable Objects」参照)。
 	const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
@@ -47,7 +52,7 @@ async function seedSuperAdmin(): Promise<void> {
 		id: 'admin-super',
 		email: 'super@example.com',
 		emailNormalized: 'super@example.com',
-		passwordHash: await hashPassword(SUPER_PASSWORD),
+		passwordHash: await hashPassword(SUPER_PASSWORD, TEST_PEPPER),
 		role: AdminRole.SUPER_ADMIN,
 		status: 'active'
 	});

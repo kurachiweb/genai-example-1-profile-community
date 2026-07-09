@@ -8,7 +8,7 @@ import {
 	USER_REPOSITORY,
 	UserRepository
 } from '../../application/gateways';
-import { PasswordHasher } from '../../application/admin/gateways';
+import { PasswordHasher, PASSWORD_PEPPER } from '../../application/admin/gateways';
 import { MAIL_SENDER, MailSender } from '../../application/admin/content-gateways';
 import {
 	EmailVerificationTokenStore,
@@ -53,6 +53,8 @@ const USER_TOKEN_VALKEY_CLIENT = Symbol('UserTokenValkeyClient');
 		SystemClock,
 		UlidGenerator,
 		Pbkdf2PasswordHasher,
+		// PBKDF2 のイテレーション数上限(100,000)を補うペッパー(password-hasher.ts §HMAC事前処理)。
+		{ provide: PASSWORD_PEPPER, useFactory: () => loadEnv().passwordPepper },
 		// DI トークン結線。
 		{ provide: USER_REPOSITORY, useExisting: MikroUserRepository },
 		{ provide: CLOCK, useExisting: SystemClock },

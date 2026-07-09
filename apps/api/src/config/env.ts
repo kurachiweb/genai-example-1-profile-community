@@ -18,9 +18,17 @@ export interface AppEnv {
 	readonly clientOrigin: string;
 	/** セッション/ワンタイムトークンの保存先(本番は Cloudflare KV、ローカルは Valkey、db §7)。 */
 	readonly valkeyUrl: string;
+	/**
+	 * パスワードハッシュ化(PBKDF2)のペッパー。Cloudflare Workers の crypto.subtle が課す
+	 * イテレーション数上限(100,000、BR-COMMON-003)を補うための、DB とは独立した秘密鍵
+	 * (password-hasher.ts §HMAC事前処理)。本番/dev は Wrangler Secrets で供給する。
+	 */
+	readonly passwordPepper: string;
 }
 
 const DEFAULT_PORT = 48031;
+// password-hasher.ts の PEPPER_MIN_LENGTH と同じ基準(256bit相当のランダム値を要求)。
+const PASSWORD_PEPPER_MIN_LENGTH = 32;
 // ローカルの Valkey コンテナ(docker compose サービス名、compose.yaml 参照)。
 const DEFAULT_VALKEY_URL = 'redis://valkey:6379';
 // ローカル admin アプリ(:48033)を既定の RP とする。本番は env で上書きする。
@@ -42,6 +50,13 @@ export function loadEnv(env: NodeJS.ProcessEnv = process.env): AppEnv {
 		throw new Error(`環境変数 API_DEV_PORT/PORT が不正です: ${String(rawPort)}`);
 	}
 
+	const passwordPepper = env.PASSWORD_PEPPER;
+	if (!passwordPepper || passwordPepper.length < PASSWORD_PEPPER_MIN_LENGTH) {
+		throw new Error(
+			`環境変数 PASSWORD_PEPPER が未設定、または短すぎます(${PASSWORD_PEPPER_MIN_LENGTH}文字以上が必要)。`
+		);
+	}
+
 	const nodeEnv = env.NODE_ENV ?? 'development';
 	return {
 		nodeEnv,
@@ -54,6 +69,7 @@ export function loadEnv(env: NodeJS.ProcessEnv = process.env): AppEnv {
 			origin: env.ADMIN_WEBAUTHN_ORIGIN ?? DEFAULT_ADMIN_ORIGIN
 		},
 		clientOrigin: env.CLIENT_ORIGIN ?? DEFAULT_CLIENT_ORIGIN,
-		valkeyUrl: env.VALKEY_URL ?? DEFAULT_VALKEY_URL
+		valkeyUrl: env.VALKEY_URL ?? DEFAULT_VALKEY_URL,
+		passwordPepper
 	};
 }
