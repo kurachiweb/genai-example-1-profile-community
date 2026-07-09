@@ -13,7 +13,7 @@
 | --- | --- | --- | --- |
 | id | 識別子 | 不変・非公開 | 内部主キー |
 | email | 文字列 | 必須・一意（大文字小文字を区別しない）・最大 254 文字 | ログイン識別子 |
-| passwordHash | 文字列 | 必須 | Argon2id（`BR-COMMON-003`） |
+| passwordHash | 文字列 | 必須 | PBKDF2（`BR-COMMON-003`） |
 | status | 列挙 | `UNVERIFIED` / `ACTIVE` / `FROZEN` / `WITHDRAWN` | `00-common-rules` `COMMON-2` |
 | emailVerifiedAt | 日時 | 任意 | 確認完了時刻 |
 | createdAt / updatedAt | 日時 | 必須 | 監査用 |

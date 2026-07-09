@@ -23,7 +23,8 @@
 
 ### BR-COMMON-003 パスワード保管
 
-- パスワードは平文保存しない。**Argon2id** でハッシュ化して保存する。
+- パスワードは平文保存しない。**PBKDF2-HMAC-SHA256**（イテレーション数 600,000、OWASP 推奨値）でハッシュ化して保存する。
+  - 当初は Argon2id（hash-wasm）を採用していたが、hash-wasm は埋め込み WASM バイナリを実行時に `WebAssembly.compile()` するため、Cloudflare Workers の実行時コード生成禁止制約に抵触し、常にハッシュ検証が失敗する不具合が判明した（実機で `CompileError: Wasm code generation disallowed by embedder` を確認）。Web Crypto API（`crypto.subtle`）はネイティブ実装でこの制約を受けないため、PBKDF2 へ切り替えた。
 - パスワードポリシーは [01-user-account.md](./01-user-account.md) の `BR-ACCT-002` を正本とする。
 
 ### BR-COMMON-004 CSRF・セキュリティヘッダ

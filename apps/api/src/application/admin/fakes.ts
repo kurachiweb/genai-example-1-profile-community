@@ -55,7 +55,7 @@ export class FakeIdGenerator implements IdGenerator {
 	}
 }
 
-/** プレーン値を「hash:<plain>」として扱う単純なフェイク(Argon2id の代替、決定論的)。 */
+/** プレーン値を「hash:<plain>」として扱う単純なフェイク(PBKDF2 実装の代替、決定論的)。 */
 export class FakePasswordHasher implements PasswordHasher {
 	async hash(plain: string): Promise<string> {
 		return `hash:${plain}`;

@@ -1,5 +1,5 @@
 // 管理者ユースケースが宣言する Gateway(データアクセス・外部依存のインターフェース)。
-// 実装は Interface Adapters/Frameworks 側(MikroORM リポジトリ・Argon2id・セッションストア・WebAuthn 検証)。
+// 実装は Interface Adapters/Frameworks 側(MikroORM リポジトリ・PBKDF2・セッションストア・WebAuthn 検証)。
 // 本番は Cloudflare D1/KV、ローカルは SQLite/インプロセスへ DI トークンで差し替える(clean-architecture)。
 import { AdminRole } from '../../domain/admin-role';
 import { AuditLogRecord } from '../../domain/audit-event';

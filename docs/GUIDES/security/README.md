@@ -11,7 +11,7 @@
 | ファイル | 内容 | 主な読者 |
 | --- | --- | --- |
 | [00-overview.md](./00-overview.md) | セキュリティ方針・脅威モデル・多層防御の全体像・SSoT 参照マップ・operations/infra との責務分担 | 全員（まず最初に） |
-| [01-authn-authz.md](./01-authn-authz.md) | 認証認可設計。三系統の認証分離・Argon2id/WebAuthn・セッション・RBAC・所有権ベース・実効公開ゲート・API キー認証 | バックエンド・SRE |
+| [01-authn-authz.md](./01-authn-authz.md) | 認証認可設計。三系統の認証分離・PBKDF2/WebAuthn・セッション・RBAC・所有権ベース・実効公開ゲート・API キー認証 | バックエンド・SRE |
 | [02-application-security.md](./02-application-security.md) | アプリ層の防御。セキュリティヘッダ/CSP・XSS/サニタイズ・CSRF・入力検証/正規化・アップロード安全性・CORS・シークレット | 全エンジニア |
 | [03-monitoring-and-response.md](./03-monitoring-and-response.md) | セキュリティ監視・濫用検知・依存脆弱性管理（Dependabot + pnpm audit）・シークレットローテーション・セキュリティインシデント対応 | バックエンド・運用 |
 

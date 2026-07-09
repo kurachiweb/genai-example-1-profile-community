@@ -44,7 +44,7 @@ import { StatsService } from '../../../application/admin/stats.service';
 import { UserAdminService } from '../../../application/admin/user-admin.service';
 import { SystemClock } from '../../../infrastructure/clock';
 import { UlidGenerator } from '../../../infrastructure/id-generator';
-import { Argon2idPasswordHasher } from '../../../infrastructure/password-hasher';
+import { Pbkdf2PasswordHasher } from '../../../infrastructure/password-hasher';
 import { ValkeyAdminSessionStore } from '../../../infrastructure/admin-session.store';
 import { ValkeyWebauthnChallengeStore } from '../../../infrastructure/webauthn-challenge.store';
 import { SimpleWebauthnVerifier } from '../../../infrastructure/webauthn-verifier';
@@ -155,8 +155,8 @@ const ADMIN_WEBAUTHN_VALKEY_CLIENT = Symbol('AdminWebauthnValkeyClient');
 		{ provide: STATS_REPOSITORY, useExisting: MikroStatsRepository },
 
 		// 認証・セキュリティのポート実装。
-		Argon2idPasswordHasher,
-		{ provide: PASSWORD_HASHER, useExisting: Argon2idPasswordHasher },
+		Pbkdf2PasswordHasher,
+		{ provide: PASSWORD_HASHER, useExisting: Pbkdf2PasswordHasher },
 		// Valkey/KV 接続(管理者セッション・WebAuthn チャレンジの保存先。本番は Cloudflare KV、db §7)。
 		// 本番(Workers)では workers-runtime に登録された KV バインディングを使い、
 		// ローカル/dev(main.ts)では未登録のため Valkey へフォールバックする。

@@ -60,7 +60,7 @@ apps/api/src/
 ├── application/admin/              # ユースケース: auth/webauthn/admin-account/user-admin/moderation/
 │                                   #   api-key-admin/stats/audit-log + §08(announcement/help-article/
 │                                   #   policy/inquiry/email-notification) + gateways + audit-recorder + fakes
-├── infrastructure/                 # Argon2id(password-hasher)・セッション/チャレンジストア(KV相当)・
+├── infrastructure/                 # PBKDF2(password-hasher)・セッション/チャレンジストア(KV相当)・
 │   │                               #   WebAuthn 検証(@simplewebauthn)・mail-sender(nodemailer→Mailpit)・
 │   │                               #   各 MikroORM リポジトリ・seed-admin
 │   └── persistence/entities/       # admin_accounts/admin_webauthn_credentials/audit_logs/suspensions/
@@ -72,7 +72,7 @@ apps/api/src/
 
 - **認可の集約**: RBAC（`assertCan`）・ロックアウト防止・状態遷移整合はユースケース/ドメインに集約し、UI 非表示だけに頼らず api で 403/422 を返す（`AC-ADMIN-001`）。
 - **監査**: すべての変更操作は `AuditRecorder` を通して追記（秘匿値除去済み、`BR-COMMON-013/014`）。
-- **本番との差**: セッション/チャレンジはローカルでインプロセス（KV 相当）。本番は Cloudflare KV 実装へ Gateway で差し替える。Argon2id（`@node-rs/argon2`）は Workers では WASM/WebCrypto 実装へ差し替える。
+- **本番との差**: セッション/チャレンジはローカルでインプロセス（KV 相当）。本番は Cloudflare KV 実装へ Gateway で差し替える。パスワードハッシュは PBKDF2-HMAC-SHA256（Web Crypto API）を local/dev/Workers 全環境で共通利用する（Argon2id・hash-wasm は Cloudflare Workers の実行時 WASM コンパイル禁止制約に抵触するため不採用）。
 
 ## 初期化・テスト
 
@@ -83,5 +83,4 @@ apps/api/src/
 
 - セッション/WebAuthn チャレンジ/レート制限カウンタを Cloudflare KV/DO 実装へ（現在はインプロセス）。
 - `MailSender` を Amazon SES＋MJML（`@faire/mjml-react`）へ（現在は nodemailer→Mailpit、簡易 HTML）。
-- Argon2id を Workers 互換実装（WASM/WebCrypto）へ。
 - マークダウン本文の公開面サニタイズ（client 側レンダリング、`AC-CONTENT-002`）。問い合わせ送信フォーム（client・ハニーポット/レート制限、`BR-CONTENT-006`）。

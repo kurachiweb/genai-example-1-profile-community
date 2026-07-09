@@ -46,7 +46,7 @@ erDiagram
         string id PK "ULID"
         string email "原文"
         string email_normalized "小文字化・一意"
-        string password_hash "Argon2id"
+        string password_hash "PBKDF2"
         string status "UNVERIFIED/ACTIVE/FROZEN/WITHDRAWN"
         datetime email_verified_at "nullable"
         int session_epoch "全セッション無効化用"
@@ -186,7 +186,7 @@ erDiagram
     admin_accounts {
         string id PK "ULID"
         string email "一意"
-        string password_hash "Argon2id"
+        string password_hash "PBKDF2"
         string role "super_admin/moderator/support/viewer"
         string status "active/disabled"
         datetime created_at
@@ -289,7 +289,7 @@ erDiagram
 | `id` | TEXT(ULID) | PK | 内部主キー・不変・非公開 |
 | `email` | TEXT | NN | 表示用の原文（最大 254） |
 | `email_normalized` | TEXT | NN, UNIQUE | 小文字化・トリム済み。一意判定はこちら（`BR-ACCT-001`） |
-| `password_hash` | TEXT | NN | Argon2id（`BR-COMMON-003`） |
+| `password_hash` | TEXT | NN | PBKDF2（`BR-COMMON-003`） |
 | `status` | TEXT(enum) | NN, CHECK | `UNVERIFIED`/`ACTIVE`/`FROZEN`/`WITHDRAWN`（`COMMON-2`） |
 | `email_verified_at` | datetime | nullable | 確認完了時刻（`BR-ACCT-003`） |
 | `session_epoch` | INTEGER | NN, 既定 0 | 全セッション無効化用の世代。変更/リセットで +1（`BR-ACCT-005`/`006`） |
@@ -435,7 +435,7 @@ erDiagram
 | --- | --- | --- | --- |
 | `id` | TEXT(ULID) | PK | 利用者とは別ストア（`BR-ADMIN-001`） |
 | `email` | TEXT | NN, UNIQUE | |
-| `password_hash` | TEXT | NN | Argon2id |
+| `password_hash` | TEXT | NN | PBKDF2 |
 | `role` | TEXT(enum) | NN, CHECK | `super_admin`/`moderator`/`support`/`viewer`（`BR-ADMIN-002`） |
 | `status` | TEXT(enum) | NN, CHECK | `active`/`disabled` |
 | `created_at` | datetime | NN | |

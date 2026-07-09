@@ -20,7 +20,7 @@ import { SystemClock } from '../../infrastructure/clock';
 import { UlidGenerator } from '../../infrastructure/id-generator';
 import { ValkeyEmailVerificationTokenStore } from '../../infrastructure/email-verification-token.store';
 import { NodemailerMailSender } from '../../infrastructure/mail-sender';
-import { Argon2idPasswordHasher } from '../../infrastructure/password-hasher';
+import { Pbkdf2PasswordHasher } from '../../infrastructure/password-hasher';
 import { MikroUserRepository } from '../../infrastructure/persistence/user.repository';
 import { MikroUserApiKeyRepository } from '../../infrastructure/persistence/api-key-user.repository';
 import { createValkeyClient, ValkeyClient } from '../../infrastructure/valkey-client';
@@ -52,12 +52,12 @@ const USER_TOKEN_VALKEY_CLIENT = Symbol('UserTokenValkeyClient');
 		MikroUserApiKeyRepository,
 		SystemClock,
 		UlidGenerator,
-		Argon2idPasswordHasher,
+		Pbkdf2PasswordHasher,
 		// DI トークン結線。
 		{ provide: USER_REPOSITORY, useExisting: MikroUserRepository },
 		{ provide: CLOCK, useExisting: SystemClock },
 		{ provide: ID_GENERATOR, useExisting: UlidGenerator },
-		{ provide: USER_PASSWORD_HASHER, useExisting: Argon2idPasswordHasher },
+		{ provide: USER_PASSWORD_HASHER, useExisting: Pbkdf2PasswordHasher },
 		{ provide: USER_API_KEY_REPO, useExisting: MikroUserApiKeyRepository },
 		// Valkey/KV 接続(ユーザーセッション・メール確認トークンの保存先。本番は Cloudflare KV、db §7)。
 		// 本番(Workers)では workers-runtime に登録された KV バインディングを使い、

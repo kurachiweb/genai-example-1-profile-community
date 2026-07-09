@@ -83,7 +83,7 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | ドキュメント | 内容 |
 | --- | --- |
 | [security/00-overview.md](../GUIDES/security/00-overview.md) | セキュリティ方針・脅威モデル・多層防御・SSoT 参照マップ・operations/infra との責務分担 |
-| [security/01-authn-authz.md](../GUIDES/security/01-authn-authz.md) | 認証認可設計。三系統の認証分離・Argon2id/WebAuthn・セッション・RBAC・所有権ベース・実効公開ゲート・API キー認証 |
+| [security/01-authn-authz.md](../GUIDES/security/01-authn-authz.md) | 認証認可設計。三系統の認証分離・PBKDF2/WebAuthn・セッション・RBAC・所有権ベース・実効公開ゲート・API キー認証 |
 | [security/02-application-security.md](../GUIDES/security/02-application-security.md) | セキュリティヘッダ/CSP・XSS/サニタイズ・CSRF・入力検証/正規化・アップロード安全性・CORS・シークレット管理 |
 | [security/03-monitoring-and-response.md](../GUIDES/security/03-monitoring-and-response.md) | セキュリティ監視・濫用検知・依存脆弱性管理（Dependabot + pnpm audit）・シークレットローテーション・セキュリティインシデント対応 |
 
