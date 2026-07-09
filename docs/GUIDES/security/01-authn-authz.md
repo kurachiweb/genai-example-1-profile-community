@@ -31,7 +31,7 @@ flowchart LR
 
 ### 2.1 パスワード認証（基盤）
 
-- パスワードは平文保存せず **PBKDF2-HMAC-SHA256**（Web Crypto API、イテレーション数 600,000）でハッシュ化する（`BR-COMMON-003`）。Cloudflare Workers は実行時 WASM コンパイルを禁止するため、Argon2id（hash-wasm）は不採用。ポリシー（長さ・流出ブロックリスト等）の正本は `BR-ACCT-002`。
+- パスワードは平文保存せず **PBKDF2-HMAC-SHA256**（Web Crypto API、イテレーション数 100,000）でハッシュ化する（`BR-COMMON-003`）。Cloudflare Workers は実行時 WASM コンパイルを禁止するため、Argon2id（hash-wasm）は不採用。イテレーション数は Cloudflare Workers の `crypto.subtle` が課す上限（100,000、超過時 `NotSupportedError`）に合わせている。ポリシー（長さ・流出ブロックリスト等）の正本は `BR-ACCT-002`。
 - ログイン失敗メッセージは識別子を漏らさない統一文面（`BR-COMMON-012`）。連続失敗はレート制限＋バックオフの対象とし、監査ログに記録する（`BR-COMMON-010`/`013`、`BR-ACCT-004`）。
 
 ### 2.2 WebAuthn（パスキー）認証（任意・推奨）

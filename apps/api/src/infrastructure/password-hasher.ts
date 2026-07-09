@@ -8,8 +8,12 @@
 import { Injectable } from '@nestjs/common';
 import { PasswordHasher } from '../application/admin/gateways';
 
-// OWASP Password Storage Cheat Sheet(PBKDF2-HMAC-SHA256)の推奨値。
-const PBKDF2_ITERATIONS = 600_000;
+// Cloudflare Workers の crypto.subtle は PBKDF2 のイテレーション数上限が 100,000 に
+// 制限されている(実機で "NotSupportedError: Pbkdf2 failed: iteration counts above 100000
+// are not supported" を確認済み。`wrangler dev --local` のシミュレータではこの上限が
+// 再現されず、実機デプロイまで気づけなかった)。OWASP 推奨値(600,000)は使えないため、
+// Workers が許容する上限値を採用する。
+const PBKDF2_ITERATIONS = 100_000;
 const PBKDF2_HASH_ALGORITHM = 'SHA-256';
 const PBKDF2_KEY_LENGTH_BITS = 256;
 const PBKDF2_SALT_LENGTH_BYTES = 16;
