@@ -2,7 +2,9 @@
 // ドライバ差は本層で吸収し、Entities/Use Cases に持ち込まない(mikroorm §8)。
 // MikroORM 7 は EntitySchema でメタデータを明示するため reflect メタデータプロバイダは不要(ADR 20260617)。
 // ts-node はエントリーポイントから辿れるファイルのみ型検査に含めるため、kysely-d1 の
-// ambient 宣言(型解決専用、下記参照)を明示的に取り込む。
+// ambient 宣言(型解決専用、下記参照)を明示的に取り込む。import 形式では ambient 宣言を
+// 取り込めないため triple-slash reference が必須(この用途に限り lint ルールを無効化)。
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./kysely-d1.d.ts" />
 import type { D1Database } from '@cloudflare/workers-types';
 import { UnderscoreNamingStrategy } from '@mikro-orm/core';
