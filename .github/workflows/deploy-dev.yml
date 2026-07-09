@@ -37,7 +37,7 @@ jobs:
     name: D1マイグレーション適用(dev)
     needs: guard
     runs-on: ubuntu-latest
-    environment: genai-example-1
+    environment: genai-example-1-dev
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,7 +68,7 @@ jobs:
     name: Terraform適用(dev)
     needs: guard
     runs-on: ubuntu-latest
-    environment: genai-example-1
+    environment: genai-example-1-dev
     steps:
       - uses: actions/checkout@v4
         with:
@@ -107,7 +107,7 @@ jobs:
     name: apps/api デプロイ(dev)
     needs: [migrate-d1, terraform-apply]
     runs-on: ubuntu-latest
-    environment: genai-example-1
+    environment: genai-example-1-dev
     steps:
       - uses: actions/checkout@v4
         with:
@@ -144,7 +144,7 @@ jobs:
     name: apps/public-api デプロイ(dev)
     needs: [migrate-d1, terraform-apply]
     runs-on: ubuntu-latest
-    environment: genai-example-1
+    environment: genai-example-1-dev
     steps:
       - uses: actions/checkout@v4
         with:
@@ -170,7 +170,7 @@ jobs:
     # デプロイ順序: マイグレーション → api/public-api → client/admin(infra/02-deployment.md §3)。
     needs: [deploy-api, deploy-public-api]
     runs-on: ubuntu-latest
-    environment: genai-example-1
+    environment: genai-example-1-dev
     steps:
       - uses: actions/checkout@v4
         with:
@@ -208,7 +208,7 @@ jobs:
     name: apps/admin デプロイ(dev)
     needs: [deploy-api, deploy-public-api]
     runs-on: ubuntu-latest
-    environment: genai-example-1
+    environment: genai-example-1-dev
     steps:
       - uses: actions/checkout@v4
         with:
