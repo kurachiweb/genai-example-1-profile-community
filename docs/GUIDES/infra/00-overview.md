@@ -104,7 +104,7 @@ flowchart TB
 
 | サービス | 用途 | ローカル代替 |
 | --- | --- | --- |
-| Amazon SES（`@aws-sdk/client-ses`） | トランザクション/お知らせメールの送信 | Mailpit |
+| Amazon SES（`aws4fetch` で署名呼び出し、SESv2 REST API。[ADR](../../adr/20260710-ses-mail-aws4fetch.md)） | トランザクション/お知らせメールの送信 | Mailpit |
 | Amazon Rekognition（`aws4fetch` で署名呼び出し） | アイコンの NSFW 自動判定（カテゴリ別スコア×しきい値、`BR-SAFE-001`。[ADR](../../adr/20260603-nsfw-moderation-rekognition.md)） | 決定論的スタブ |
 | MJML（`faire/mjml-react`） | メールテンプレートの作成（ビルド時に HTML 化） | 同左 |
 | Sentry | フロントエンド・バックエンドのエラートラッキング | 無効化（dev/local では任意） |

@@ -235,3 +235,13 @@ main へのマージは利用者に確認のうえ実施する。
 **Context**: Construction / Build and Test 完了 → マージ可否を利用者に確認予定
 
 ---
+
+### 追補の追補: `@aws-sdk/client-ses` が Workers ランタイムで起動不能と判明、`aws4fetch` へ差し替え
+**Timestamp**: 2026-07-10T03:40:00Z
+**User Input**: "apiアプリケーションをCloudflare Workersにデプロイできましたが、apps/clientディレクトリ内のNext.jsアプリで新規登録画面(/register)からアカウント作成しようとすると「登録に失敗しました。時間をおいて再度お試しください。」というエラーが出てしまいます。Workersの「genai-example-1-api-dev」サービスのログを確認したところ以下のエラーメッセージが出力されていました。SESでのメール送信段階で失敗しており、DBにユーザー情報は作成されていないようです。原因を特定して修正して。"(ログ: `TypeError: emitWarningIfUnsupportedVersion$1 is not a function at getRuntimeConfig ... at new SESClient ... at createClient ... at new SesMailSender`)
+**AI Response**: `emitWarningIfUnsupportedVersion` は `@aws-sdk/core` の Node.js 専用ランタイム検知コード(バージョンに応じた非推奨警告用)で、esbuild(Wrangler バンドラ)が Workers 向けにバンドルする際に依存解決が壊れ未定義関数呼び出しになっていた(`wrangler deploy --dry-run` はバンドルの構文的成立のみを検証するため、この種のランタイム専有コードの実行時失敗は検出できなかった)。既存の `docs/adr/20260603-nsfw-moderation-rekognition.md`(Rekognition を `aws4fetch` で呼ぶ決定)と同一パターンを適用し、`SesMailSender` を `aws4fetch` の `AwsClient` による SESv2 REST API(`POST /v2/email/outbound-emails`)直接呼び出しに書き換えた。`@aws-sdk/client-ses`・`@smithy/fetch-http-handler` は依存から削除。
+TDD(RED→GREEN、`AwsClient` をフェイク化)で再検証、実際に `aws4fetch` 経由で AWS SES へテストメールを送信し `MessageId` 取得を確認、`wrangler deploy --dry-run` のバンドル出力に `emitWarningIfUnsupportedVersion` が含まれないことも確認した(Total Upload は 12938→11863 KiB に軽量化)。ルート・`apps/api` 両方の `pnpm-lock.yaml` を同期。
+本決定を [ADR 20260710-ses-mail-aws4fetch](../docs/adr/20260710-ses-mail-aws4fetch.md) として記録し、CLAUDE.md・`docs/GUIDES/infra/00-overview.md`・`CHANGELOG.md` の `@aws-sdk/client-ses` 記述を `aws4fetch` へ更新した。
+**Context**: Construction / 実機デプロイ後の不具合修正(TDD・実疎通確認・ADR記録)
+
+---

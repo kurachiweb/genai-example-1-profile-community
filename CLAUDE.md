@@ -153,7 +153,8 @@ LogTape
 #### メール送信
 
 MJML (faire/mjml-reactを使用)
-Amazon SES (@aws-sdk/client-sesを使用、ローカル環境ではMailpit)
+Amazon SES (aws4fetchによるSigV4署名fetchでSESv2 REST APIを呼び出し、ローカル環境ではMailpit)
+※ @aws-sdk/client-sesはCloudflare WorkersランタイムでSESClient構築時に例外(emitWarningIfUnsupportedVersion is not a function)が発生し起動不能なため不採用。詳細は[ADR](./docs/adr/20260710-ses-mail-aws4fetch.md)を参照。
 
 #### モニタリング
 

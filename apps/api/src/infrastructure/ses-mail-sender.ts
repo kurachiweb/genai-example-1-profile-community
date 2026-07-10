@@ -1,10 +1,11 @@
-// MailSender(Gateway)の実装。本番/dev(Cloudflare Workers)は Amazon SES(SendEmail API)へ送る。
+// MailSender(Gateway)の実装。本番/dev(Cloudflare Workers)は Amazon SES(SESv2 REST API)へ送る。
 // ローカル/dev(main.ts)は引き続き mail-sender.ts の NodemailerMailSender(Mailpit)を使う。
-// Workers はデフォルトの認証情報プロバイダチェーン(~/.aws/credentials 等のファイル探索)を実行できず、
-// Node ネイティブの http/https エージェントも持たないため、region/credentials を明示指定し、
-// requestHandler も fetch ベースの FetchHttpHandler へ差し替える(Workers 互換)。
-import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses';
-import { FetchHttpHandler } from '@smithy/fetch-http-handler';
+// @aws-sdk/client-ses(Node ランタイム向け)は Workers 実行時に
+// `TypeError: emitWarningIfUnsupportedVersion$1 is not a function`(実機で確認済み、
+// Node 専用のランタイム検知コードが esbuild バンドル後に解決できない)で起動時に落ちるため使わない。
+// 代わりに Amazon Rekognition(00-overview.md §3)と同型の aws4fetch(fetch ベースの
+// 軽量 SigV4 署名ライブラリ、Node 固有コード無し)で SESv2 の REST API を直接呼ぶ。
+import { AwsClient } from 'aws4fetch';
 import { Injectable } from '@nestjs/common';
 import { MailMessage, MailSender } from '../application/admin/content-gateways';
 
@@ -15,40 +16,46 @@ export interface SesMailConfig {
 	readonly secretAccessKey: string;
 }
 
-const CHARSET = 'UTF-8';
-
-function createClient(config: SesMailConfig): SESClient {
-	return new SESClient({
-		region: config.region,
-		credentials: {
-			accessKeyId: config.accessKeyId,
-			secretAccessKey: config.secretAccessKey
-		},
-		requestHandler: new FetchHttpHandler()
-	});
-}
-
 @Injectable()
 export class SesMailSender implements MailSender {
-	private readonly client: SESClient;
+	private readonly client: AwsClient;
 
 	constructor(
 		private readonly config: SesMailConfig,
-		client: SESClient = createClient(config)
+		client?: AwsClient
 	) {
-		this.client = client;
+		this.client =
+			client ??
+			new AwsClient({
+				accessKeyId: config.accessKeyId,
+				secretAccessKey: config.secretAccessKey,
+				region: config.region,
+				service: 'ses'
+			});
 	}
 
 	async send(message: MailMessage): Promise<void> {
-		await this.client.send(
-			new SendEmailCommand({
-				Source: this.config.from,
-				Destination: { ToAddresses: [message.to] },
-				Message: {
-					Subject: { Data: message.subject, Charset: CHARSET },
-					Body: { Html: { Data: message.html, Charset: CHARSET } }
-				}
-			})
+		const response = await this.client.fetch(
+			`https://email.${this.config.region}.amazonaws.com/v2/email/outbound-emails`,
+			{
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					FromEmailAddress: this.config.from,
+					Destination: { ToAddresses: [message.to] },
+					Content: {
+						Simple: {
+							Subject: { Data: message.subject, Charset: 'UTF-8' },
+							Body: { Html: { Data: message.html, Charset: 'UTF-8' } }
+						}
+					}
+				})
+			}
 		);
+
+		if (!response.ok) {
+			const body = await response.text();
+			throw new Error(`SES送信に失敗しました(status=${response.status}): ${body}`);
+		}
 	}
 }

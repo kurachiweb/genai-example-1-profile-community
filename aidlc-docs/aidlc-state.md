@@ -99,7 +99,7 @@
   - api: `SesMailSender`（`@aws-sdk/client-ses` + `FetchHttpHandler`、Workers 互換）を追加。`getD1Database()` による既存の Workers 判定パターンを再利用し、Workers 実行時は SES・ローカルは従来通り Mailpit に切り替える（`user.module.ts`・`admin.module.ts` 対称更新）。
   - CI: `deploy-dev.yml` の `deploy-api` に `PASSWORD_PEPPER` と同型の `wrangler secret put` ステップを追加（`MAIL_FROM`/`AWS_DEFAULT_REGION`/`AWS_SES_ACCESS_KEY_ID`/`AWS_SES_SECRET_ACCESS_KEY`）。
 - 詳細は [audit.md](./audit.md) の「追補（本番化差し替え）: メール送信基盤を Amazon SES へ差し替え」を参照。
-- **状態**: 実装・テスト（TDD）・実 AWS SES への疎通確認・docs/CHANGELOG 更新まで完了。`wrangler deploy --dry-run` で esbuild バンドルも検証済み（alias 回避策は不要だった）。ブランチ未分割（作業用ブランチ運用の指示なし）。main へのマージは利用者確認待ち。
+- **状態**: main へマージ・push・CI GREEN・dev デプロイ済み。ただし実機デプロイ後、`@aws-sdk/client-ses` が Workers ランタイムで `TypeError: emitWarningIfUnsupportedVersion$1 is not a function`(Node 専用ランタイム検知コードの esbuild バンドル不整合)により起動不能と判明したため、Rekognition と同型の `aws4fetch`(SESv2 REST API 直接呼び出し)へ差し替えて解消（[ADR 20260710-ses-mail-aws4fetch](../docs/adr/20260710-ses-mail-aws4fetch.md)）。修正後、実 AWS SES への疎通・`wrangler deploy --dry-run` バンドル検証とも完了。この差し替え分の main マージ・push は利用者確認待ち。
 
 ## 実行モード
 
