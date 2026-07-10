@@ -29,7 +29,7 @@
 	"dependencies": {
 		"@apollo/server": "^5.5.1",
 		"@as-integrations/express5": "^1.1.2",
-		"@aws-sdk/client-ses": "^3.1083.0",
+		"@aws-sdk/client-ses": "^3.1080.0",
 		"@mikro-orm/core": "^7.1.5",
 		"@mikro-orm/migrations": "^7.1.5",
 		"@mikro-orm/nestjs": "^7.0.2",
@@ -41,7 +41,7 @@
 		"@nestjs/graphql": "^13.4.2",
 		"@nestjs/platform-express": "^11.1.27",
 		"@simplewebauthn/server": "^13.3.1",
-		"@smithy/fetch-http-handler": "^5.6.4",
+		"@smithy/fetch-http-handler": "^5.6.3",
 		"@types/express": "^5.0.6",
 		"class-transformer": "^0.5.1",
 		"class-validator": "^0.15.1",
