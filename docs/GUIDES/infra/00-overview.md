@@ -5,7 +5,7 @@
 
 > **位置づけ**: 本書は [CLAUDE.md](../../../CLAUDE.md) の技術選定・デプロイ方針を、インフラ観点で具体化したものである。
 > ビジネスルール（公開ゲート・レート制限のしきい値・セッション仕様など）の正本（SSoT）は [docs/service/features/](../../service/features/) であり、矛盾した場合は features/ を優先する。
-> **現状フェーズ**: `apps/infra`（Terraform）・CI/CD（`.github/workflows/ci.yml`・`deploy-dev.yml`・`deploy-prod.yml`）を含め、本書が定義するインフラ構成は実装済みである。dev 環境は稼働確認済み、prod 環境は `deploy-prod.yml` の実行（`git tag` push）を待つ状態（Terraform の `production` ワークスペースは初回 apply 未実行）。差異が生じたら本書を更新すること。
+> **現状フェーズ**: `apps/infra`（Terraform）・CI/CD（`.github/workflows/ci.yml`・`deploy-dev.yml`・`deploy-prod.yml`）を含め、本書が定義するインフラ構成は実装済みである。dev 環境は稼働確認済み、prod 環境は `deploy-prod.yml` の実行（`git tag` push）を待つ状態（Terraform の `prod` ワークスペースは初回 apply 未実行）。差異が生じたら本書を更新すること。
 
 ## 1. 全体像
 

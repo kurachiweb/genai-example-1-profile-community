@@ -39,7 +39,7 @@
   - テスト: Jest 単体・統合 107 件（TDD）。ドメイン/ユースケースのカバレッジ 98%。
 - AI-DLC の inception/construction 成果物を `aidlc-docs/` に追加。
 - **Cloudflare Workers への実デプロイ基盤（Terraform・CI/CD・OpenNext・Durable Objects）を実装**。
-  - **`apps/infra`（Terraform）**: D1・KV（用途別3系統）・R2（アイコン原本・client/admin の ISR/Data Cache）を管理。環境分離は Terraform workspace（`dev`/`production`）。state バックエンドは R2（S3 互換）。
+  - **`apps/infra`（Terraform）**: D1・KV（用途別3系統）・R2（アイコン原本・client/admin の ISR/Data Cache）を管理。環境分離は Terraform workspace（`dev`/`prod`）。state バックエンドは R2（S3 互換）。
   - **`apps/api`・`apps/public-api` の Workers 実行**: NestJS を `@nestjs/platform-express` のまま、Cloudflare 公式 Express-on-Workers サポート（`cloudflare:node` の `httpServerHandler`）で動かす。当初計画していた Hono アダプタは、実装時の実機検証を経て不採用とした（[ADR 20260709](./docs/adr/20260709-nestjs-workers-express-adapter.md)）。
   - **MikroORM マイグレーション基盤**: `apps/api` にマイグレーション生成・wrangler 形式への書き出し（`migration:export-wrangler`）・D1 への適用（`migration:apply-remote`）を追加。`wrangler d1 migrations apply --remote` の既知の不具合（`CREATE TRIGGER` を含む SQL で失敗）を回避する自前スクリプトを使用（[db/02-migrations.md](./docs/GUIDES/db/02-migrations.md) §1）。
   - **公開 API のキー単位レート制限**: Durable Objects（SQLite ストレージバックエンド）で厳密カウントを実装（[ADR 20260604](./docs/adr/20260604-public-api-rate-limit-durable-objects.md)）。
@@ -55,4 +55,4 @@
 
 ### Notes
 
-- prod 環境（Terraform `production` ワークスペース）は初回 `terraform apply` が未実行。`deploy-prod.yml`（`git tag` push）の実行を待つ状態（人間のみが実行、[infra/02-deployment.md](./docs/GUIDES/infra/02-deployment.md) §4.3）。
+- prod 環境（Terraform `prod` ワークスペース）は初回 `terraform apply` が未実行。`deploy-prod.yml`（`git tag` push）の実行を待つ状態（人間のみが実行、[infra/02-deployment.md](./docs/GUIDES/infra/02-deployment.md) §4.3）。

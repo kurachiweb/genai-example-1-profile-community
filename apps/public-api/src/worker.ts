@@ -29,7 +29,7 @@ async function bootstrap(): Promise<void> {
 	const { setD1Database, setRateLimiterNamespace } =
 		(await import('../dist/infrastructure/workers-runtime.js')) as typeof import('./infrastructure/workers-runtime');
 	// env(D1・DOバインディング)はリクエストハンドラの引数から取得する。
-	// wrangler.jsonc の env.dev/env.production 双方に必須設定しているため実運用では必ず存在するが、
+	// wrangler.jsonc の env.dev/env.prod 双方に必須設定しているため実運用では必ず存在するが、
 	// 生成される Env 型は環境間で異なりうる汎用形(各フィールド任意)になるため明示的に検証する。
 	if (!env.DB || !env.API_KEY_RATE_LIMITER) {
 		throw new Error(

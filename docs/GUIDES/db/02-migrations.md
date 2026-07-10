@@ -18,7 +18,7 @@ flowchart LR
     MIG -->|local| SQLITE["ローカル SQLite<br/>migration:up"]
     MIG -->|"migration:export-wrangler"| WMIG["apps/api/migrations-wrangler/<br/>(.sql)"]
     WMIG -->|"migration:apply-remote ... dev"| D1DEV["D1 (dev)"]
-    WMIG -->|"migration:apply-remote ... production<br/>(人間のみ)"| D1PROD["D1 (production)"]
+    WMIG -->|"migration:apply-remote ... prod<br/>(人間のみ)"| D1PROD["D1 (prod)"]
 ```
 
 ## 2. 標準フロー（開発者）
@@ -48,7 +48,7 @@ pnpm --filter @app/api migration:export-wrangler <migrations配下のファイ�
 | --- | --- | --- |
 | local | `pnpm --filter @app/db migration:up`（SQLite） | 開発者 |
 | dev | CI（`deploy-dev.yml`）で `pnpm migration:apply-remote genai-example-1-dev dev` | GitHub Actions（main push） |
-| production | リリースパイプライン（`deploy-prod.yml`）で `pnpm migration:apply-remote genai-example-1-production production` | **人間のみ**（`git tag` 起点） |
+| prod | リリースパイプライン（`deploy-prod.yml`）で `pnpm migration:apply-remote genai-example-1-prod prod` | **人間のみ**（`git tag` 起点） |
 
 > ⚠️ **AI エージェントは prod へのマイグレーション適用・デプロイを行わない**（[CLAUDE.md](../../../CLAUDE.md)）。
 

@@ -44,11 +44,11 @@ EOF
 
 ## 環境切り替え（workspace）
 
-環境分離は Terraform workspace（`dev` / `production`）を用いる。wrangler 側の `--env dev` / `--env production` と名称を揃えている。
+環境分離は Terraform workspace（`dev` / `prod`）を用いる。wrangler 側の `--env dev` / `--env prod` と名称を揃えている。
 
 ```bash
 docker compose exec root sh -c 'cd apps/infra && terraform workspace new dev'
-docker compose exec root sh -c 'cd apps/infra && terraform workspace new production'
+docker compose exec root sh -c 'cd apps/infra && terraform workspace new prod'
 
 # 切り替え
 docker compose exec root sh -c 'cd apps/infra && terraform workspace select dev'
@@ -68,7 +68,7 @@ docker compose exec root sh -c '
 '
 ```
 
-`production` ワークスペースへの apply は、GitHub Actions の prod デプロイワークフロー内で
+`prod` ワークスペースへの apply は、GitHub Actions の prod デプロイワークフロー内で
 Required reviewers による人間の承認を経てから実行する運用とする（AI エージェントは prod への
 apply を実行しない）。
 

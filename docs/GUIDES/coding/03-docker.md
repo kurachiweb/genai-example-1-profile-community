@@ -62,7 +62,7 @@ flowchart TB
 - **Mailpit** を SES 代替サービスとして、**Valkey** を Cloudflare KV 代替サービスとして compose に含める。SQLite・Valkey はいずれも名前付きボリュームで永続化する。
 - **SQLite はファイルベースでネットワークの「接続先サーバー」を持たない**。そのため `db` の SQLite 実体を格納するホスト側ディレクトリ `apps/db/.db-data`（バインドマウント、`.gitignore` 対象）を、`db` / `api` / `public-api` の各コンテナへ**同一パス `/workspace/.db-data` で共有マウント**し、`DATABASE_URL=file:/workspace/.db-data/local.sqlite`（`.env`）で同じ実体を参照する。名前付きボリュームではなくホスト側ディレクトリに直接配置することで、DB データをコンテナのライフサイクルから独立させ、ホストから直接参照・バックアップできるようにする。ディレクトリの所有権は最初に起動するコンテナ（`db`。`api`/`public-api` は `db` の healthy を待つ）の `/workspace/.db-data` から初期化されるため、`db` イメージで同ディレクトリを `node` 所有で用意し、`node` ユーザーの `api`/`public-api` が SQLite を生成・書き込みできるようにする（EACCES 回避）。
 - **コンテナ間の HTTP 接続はサービス名で名前解決する**。compose のデフォルトネットワークでは各コンテナ内の `localhost` はそのコンテナ自身を指すため、`client` / `admin`（Next.js のサーバー側 BFF）から内部 GraphQL API へは `localhost:48031` ではなく **api サービス名で `http://api:48031/graphql`** に接続する。この URL は両サービスの `environment.API_GRAPHQL_URL` で与える（未設定時はホスト直起動向けに `http://localhost:48031/graphql` へフォールバックする）。`<<: *app-defaults` の `environment` は YAML マージキーでは丸ごと上書きされるため、各サービス側で `NODE_ENV` も再掲する。
-- **`client` / `admin` の Next.js テレメトリは収集不要**なため、両サービスの `environment.NEXT_TELEMETRY_DISABLED: "1"` で無効化する。デプロイ先（Cloudflare Workers）でも同様に、各アプリの `wrangler.jsonc` の `env.dev.vars` / `env.production.vars` に同じ値を設定する。
+- **`client` / `admin` の Next.js テレメトリは収集不要**なため、両サービスの `environment.NEXT_TELEMETRY_DISABLED: "1"` で無効化する。デプロイ先（Cloudflare Workers）でも同様に、各アプリの `wrangler.jsonc` の `env.dev.vars` / `env.prod.vars` に同じ値を設定する。
 - 環境変数は `.env`（リポジトリ管理外）から読み込む。`.env.example` のみコミットし、実値はコミットしない（§6）。
 - ポート・依存などの共通部分は重複を避け、YAML アンカー等で集約する（DRY、[00-overview.md](./00-overview.md) §2）。`volumes` はサービスごとにマウント構成が異なるため共通化せず、各サービスで個別に定義する。
 

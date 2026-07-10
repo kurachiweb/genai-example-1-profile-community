@@ -3,7 +3,7 @@
 // `wrangler deploy` で直接デプロイする（同一リソースを Terraform と wrangler の双方で
 // 管理すると "409 Conflict on worker deployment" が発生するため）。
 //
-// 環境分離は Terraform workspace（dev / production）を用いる。
+// 環境分離は Terraform workspace（dev / prod）を用いる。
 // `terraform workspace select dev` などで切り替えたうえで plan/apply する。
 //
 // state バックエンド（R2, S3 互換）は account_id 等の環境固有値を含むため、

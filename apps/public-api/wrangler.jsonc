@@ -55,17 +55,17 @@
 				]
 			}
 		},
-		"production": {
-			"name": "genai-example-1-public-api-production",
+		"prod": {
+			"name": "genai-example-1-public-api-prod",
 			"vars": {
 				"NODE_ENV": "production",
 				"DATABASE_URL": "d1"
 			},
-			// D1のIDはproductionワークスペースのterraform apply後にoutputから設定する(未確定)。
+			// D1のIDはprodワークスペースのterraform apply後にoutputから設定する(未確定)。
 			"d1_databases": [
 				{
 					"binding": "DB",
-					"database_name": "genai-example-1-production",
+					"database_name": "genai-example-1-prod",
 					"database_id": ""
 				}
 			],
