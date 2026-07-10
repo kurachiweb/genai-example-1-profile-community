@@ -70,7 +70,13 @@
 				"NODE_ENV": "production",
 				// D1経路では実際には参照しない(env.DB バインディングを使う)。
 				// loadEnv() の必須チェックを満たすためのプレースホルダ。
-				"DATABASE_URL": "d1"
+				"DATABASE_URL": "d1",
+				// 管理者 WebAuthn(パスキー)の RP 設定。
+				"ADMIN_WEBAUTHN_RP_NAME": "genai-example-1-admin-production",
+				"ADMIN_WEBAUTHN_RP_ID": "genai-example-1-admin-production.shortbook.workers.dev",
+				"ADMIN_WEBAUTHN_ORIGIN": "https://genai-example-1-admin-production.shortbook.workers.dev",
+				// 利用者向け Web(client)のオリジン。
+				"CLIENT_ORIGIN": "https://genai-example-1-client-production.shortbook.workers.dev"
 			},
 			// D1/KVのIDはproductionワークスペースのterraform apply後にoutputから設定する(未確定)。
 			"d1_databases": [

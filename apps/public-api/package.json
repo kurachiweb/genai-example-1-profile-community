@@ -15,6 +15,7 @@
 		"typecheck": "tsc --noEmit && pnpm build && tsc --noEmit -p tsconfig.worker.json",
 		"dev:worker": "pnpm build && wrangler dev --env dev",
 		"deploy:worker": "pnpm build && wrangler deploy --env dev",
+		"deploy:worker:production": "pnpm build && wrangler deploy --env production",
 		"lint": "eslint \"{src,test}/**/*.ts\"",
 		"lint:fix": "eslint \"{src,test}/**/*.ts\" --fix",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
