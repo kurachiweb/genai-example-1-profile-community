@@ -119,6 +119,16 @@ flowchart LR
 - いずれもリポジトリ・ログ・エラー出力に**含めない**（`BR-COMMON-014`、TruffleHog/Gitleaks で多重防御）。
 - 露出が疑われるシークレットは即時ローテーションする（[ecc-common/security.md](../../../.claude/rules/ecc-common/security.md)）。
 
+### 6.1 非シークレットの設定値（`wrangler.jsonc` の `vars`）
+
+- 秘匿不要な設定値（オリジン URL・RP 表示名など）は Wrangler Secrets を使わず、`apps/api/wrangler.jsonc` の `env.<env>.vars` に**環境ごとに直接記述**する（`NODE_ENV`/`API_GRAPHQL_URL` と同様）。GitHub Actions Secrets 経由の流し込みは行わない。
+- `apps/api`（`env.ts` の `AppEnv.adminWebauthn`/`clientOrigin`、`loadEnv()`）:
+  - `ADMIN_WEBAUTHN_RP_NAME` / `ADMIN_WEBAUTHN_RP_ID` / `ADMIN_WEBAUTHN_ORIGIN`: 管理者 WebAuthn（パスキー）の RP 設定。`rpId`/`origin` は admin Worker の実オリジンに**完全一致**させる（WebAuthn の仕様上、origin はブラウザの `Origin` ヘッダーと一致必須）。`*.workers.dev` は Public Suffix List に登録済みのため、`rpId` は worker 名を含むホスト名全体を指定する（`shortbook.workers.dev` まで短縮すると、同一 Cloudflare アカウント配下の他 Worker と RP のスコープが意図せず共有され得る）。
+    - dev: `ADMIN_WEBAUTHN_RP_ID` = `genai-example-1-admin-dev.shortbook.workers.dev`、`ADMIN_WEBAUTHN_ORIGIN` = `https://genai-example-1-admin-dev.shortbook.workers.dev`
+  - `CLIENT_ORIGIN`: 利用者向け Web（client）のオリジン。確認メール等のリンク組み立てに使用する。
+    - dev: `https://genai-example-1-client-dev.shortbook.workers.dev`
+  - `VALKEY_URL`: **Workers 環境では設定不要**。`SESSION_CLIENT_KV`/`SESSION_ADMIN_KV`/`APP_KV` の KV バインディングが存在する場合は常に KV 経由（`createKVValkeyClient`）が使われ、`VALKEY_URL` は参照されない。ローカル Docker Compose（Valkey コンテナ）専用のフォールバック値。
+
 ## 7. ロールバック
 
 | 対象 | 手段 |
