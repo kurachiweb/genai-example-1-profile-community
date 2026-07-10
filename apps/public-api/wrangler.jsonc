@@ -61,12 +61,11 @@
 				"NODE_ENV": "production",
 				"DATABASE_URL": "d1"
 			},
-			// D1のIDはprodワークスペースのterraform apply後にoutputから設定する(未確定)。
 			"d1_databases": [
 				{
 					"binding": "DB",
 					"database_name": "genai-example-1-prod",
-					"database_id": ""
+					"database_id": "0801c39e-b79d-4db7-a750-c6422e2fe25c"
 				}
 			],
 			"durable_objects": {

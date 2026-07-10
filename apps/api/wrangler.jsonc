@@ -78,19 +78,18 @@
 				// 利用者向け Web(client)のオリジン。
 				"CLIENT_ORIGIN": "https://genai-example-1-client.shortbook.workers.dev"
 			},
-			// D1/KVのIDはprodワークスペースのterraform apply後にoutputから設定する(未確定)。
 			"d1_databases": [
 				{
 					"binding": "DB",
 					"database_name": "genai-example-1-prod",
-					"database_id": "",
+					"database_id": "0801c39e-b79d-4db7-a750-c6422e2fe25c",
 					"migrations_dir": "migrations-wrangler"
 				}
 			],
 			"kv_namespaces": [
-				{ "binding": "SESSION_CLIENT_KV", "id": "" },
-				{ "binding": "SESSION_ADMIN_KV", "id": "" },
-				{ "binding": "APP_KV", "id": "" }
+				{ "binding": "SESSION_CLIENT_KV", "id": "956a69bf659249fe9d47522a18f51300" },
+				{ "binding": "SESSION_ADMIN_KV", "id": "654eac4c2575438e90e41d178166340c" },
+				{ "binding": "APP_KV", "id": "ee99d24c07504ecba1e9070ee10c2f46" }
 			]
 		}
 	}
