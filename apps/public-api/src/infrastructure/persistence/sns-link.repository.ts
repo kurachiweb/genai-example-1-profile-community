@@ -26,23 +26,23 @@ export class MikroSnsLinkRepository implements SnsLinkRepository {
 
 	async replaceForProfile(profileId: string, links: readonly SnsLinkRecord[]): Promise<void> {
 		const em = this.em.fork();
-		// 全置換は単一トランザクションで原子的に行う(削除 → 追加、mikroorm §4)。
-		await em.transactional(async (tx) => {
-			await tx.nativeDelete(SnsLinkEntity, { profile: profileId });
-			const profileRef = tx.getReference(ProfileEntity, profileId);
-			for (const link of links) {
-				tx.persist(
-					tx.create(SnsLinkEntity, {
-						id: link.id,
-						profile: profileRef,
-						platform: link.platform,
-						url: link.url,
-						label: link.label,
-						sortOrder: link.sortOrder,
-						createdAt: link.createdAt
-					})
-				);
-			}
-		});
+		// D1 は明示的なトランザクション(BEGIN/COMMIT)をサポートしないため、
+		// em.transactional() は使わず削除 → 追加を素の操作として順に行う(mikro-orm.config.ts 参照)。
+		await em.nativeDelete(SnsLinkEntity, { profile: profileId });
+		const profileRef = em.getReference(ProfileEntity, profileId);
+		for (const link of links) {
+			em.persist(
+				em.create(SnsLinkEntity, {
+					id: link.id,
+					profile: profileRef,
+					platform: link.platform,
+					url: link.url,
+					label: link.label,
+					sortOrder: link.sortOrder,
+					createdAt: link.createdAt
+				})
+			);
+		}
+		await em.flush();
 	}
 }

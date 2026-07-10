@@ -42,9 +42,10 @@ flowchart LR
 
 ## 4. トランザクション
 
-- 複数テーブルにまたがる不可分な更新は **`em.transactional()`** でアトミックに行う。例: 凍結＝`suspensions` 追加 ＋ `api_keys` 失効 ＋ `audit_logs` 追記（[db/01-data-model.md](../db/01-data-model.md) §8、`BR-SAFE-006`）。
-- トランザクション境界は **Use Case 層**に置く（Interface Adapters/Entities に散らさない、[01-architecture.md](./01-architecture.md) §2.1）。
-- 退会（`WITHDRAWN`）の匿名化・ハンドル予約・キー失効・パスキー削除も単一トランザクションで整合させる（[db/01-data-model.md](../db/01-data-model.md) §8、`BR-ACCT-009`）。
+- **D1 は明示的なトランザクション（`BEGIN`/`COMMIT`）をサポートしない**（Kysely `D1Dialect` の `beginTransaction()` が未実装エラーを送出する）。ローカル SQLite ドライバでは `em.transactional()` が正常に動くため、**ローカルの単体テストだけでは D1 環境での失敗を検知できない**点に注意する。`mikro-orm.config.ts` の D1 向け設定で `implicitTransactions: false` としているのもこの制約に合わせたものだが、`em.transactional()` の**明示呼び出し**はこのフラグでは防げないため、リポジトリ層で使用しないこと。
+- 複数テーブル／複数行にまたがる更新は、`em.transactional()` を使わず**逐次の素の操作**（`em.nativeDelete()` → `em.persist().flush()` 等）として実装する。例: `MikroSnsLinkRepository.replaceForProfile`（`apps/api` と `apps/public-api` の両方、[sns-link.repository.ts](../../../apps/api/src/infrastructure/persistence/sns-link.repository.ts)）は SNS リンクの全置換を削除 → 追加の順に非トランザクションで行う。凍結（`suspensions` 追加 ＋ `api_keys` 失効 ＋ `audit_logs` 追記、[db/01-data-model.md](../db/01-data-model.md) §8、`BR-SAFE-006`）や退会時の匿名化・ハンドル予約・キー失効・パスキー削除（`BR-ACCT-009`）も同様に、各ステップを独立した非トランザクション操作として順に実行する（`ModerationService.freezeUser` 等）。
+- そのため各ステップは**べき等・部分失敗を許容できる順序**で設計する（例: 先に不可逆でない操作を行い、最後に確定的な状態遷移を置く）。途中失敗時の不整合検知・リカバリが必要な場合は監査ログ（`audit_logs`）やバッチ処理での整合性チェックで補う。
+- 処理のオーケストレーション（どのリポジトリ呼び出しをどの順で行うか）は **Use Case 層**に置く（Interface Adapters/Entities に散らさない、[01-architecture.md](./01-architecture.md) §2.1）。
 
 ## 5. クエリと N+1
 
