@@ -107,7 +107,7 @@ Zod
 #### フレームワーク
 
 NestJS (クリーンアーキテクチャ)
-Hono (Cloudflare Workers向け設定)
+Cloudflare Workers向けにはCloudflare公式のExpress-on-Workersサポート(`cloudflare:node`のhttpServerHandler)を使用し、`@nestjs/platform-express`をそのまま動かす(ADR 20260709)
 Apollo Server (NestJSと統合)
 TypeScript
 

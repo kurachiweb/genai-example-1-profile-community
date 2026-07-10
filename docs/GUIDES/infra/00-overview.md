@@ -5,7 +5,7 @@
 
 > **位置づけ**: 本書は [CLAUDE.md](../../../CLAUDE.md) の技術選定・デプロイ方針を、インフラ観点で具体化したものである。
 > ビジネスルール（公開ゲート・レート制限のしきい値・セッション仕様など）の正本（SSoT）は [docs/service/features/](../../service/features/) であり、矛盾した場合は features/ を優先する。
-> **現状フェーズ**: `apps/` 配下は未実装で、本書は実装に先行する設計仕様である。実装時は本書を起点とし、差異が生じたら本書を更新すること。
+> **現状フェーズ**: `apps/infra`（Terraform）・CI/CD（`.github/workflows/ci.yml`・`deploy-dev.yml`・`deploy-prod.yml`）を含め、本書が定義するインフラ構成は実装済みである。dev 環境は稼働確認済み、prod 環境は `deploy-prod.yml` の実行（`git tag` push）を待つ状態（Terraform の `production` ワークスペースは初回 apply 未実行）。差異が生じたら本書を更新すること。
 
 ## 1. 全体像
 
@@ -28,8 +28,8 @@ flowchart TB
     subgraph workers["Cloudflare Workers (アプリ層)"]
         CLIENT["client<br/>Next.js (利用者側)"]
         ADMIN["admin<br/>Next.js (管理者側)"]
-        API["api<br/>NestJS + Hono / GraphQL"]
-        PUBAPI["public-api<br/>NestJS + Hono / REST"]
+        API["api<br/>NestJS / GraphQL"]
+        PUBAPI["public-api<br/>NestJS / REST"]
     end
 
     subgraph data["Cloudflare データ・ストレージ"]
@@ -74,10 +74,10 @@ flowchart TB
 | --- | --- | --- | --- | --- |
 | `apps/infra` | インフラ構成定義（IaC） | Terraform | — | Cloudflare（API 経由） |
 | `apps/db` | DB スキーマ定義・マイグレーション | SQLite / MikroORM | 48030 | Cloudflare D1 |
-| `apps/api` | 利用者・管理者向け内部 API | NestJS（クリーン）+ Hono + Apollo Server（GraphQL） | 48031 | Cloudflare Workers |
+| `apps/api` | 利用者・管理者向け内部 API | NestJS（クリーン）+ Apollo Server（GraphQL） | 48031 | Cloudflare Workers |
 | `apps/client` | 利用者・閲覧者向け Web | Next.js（App Router） | 48032 | Cloudflare Workers |
 | `apps/admin` | 管理者コンソール Web | Next.js（App Router） | 48033 | Cloudflare Workers |
-| `apps/public-api` | 公開 API（開発者向け） | NestJS（クリーン）+ Hono | 48034 | Cloudflare Workers |
+| `apps/public-api` | 公開 API（開発者向け） | NestJS（クリーン） | 48034 | Cloudflare Workers |
 
 - **internal API（api）と公開 API（public-api）は別アプリ・別 Worker** に分離する。前者は GraphQL（Apollo）で `client`/`admin` に提供し、後者は REST（OpenAPI/Swagger UI）で外部開発者に提供する（[05-public-api.md](../../service/features/05-public-api.md)）。
 - **client と admin は別アプリ・別ドメイン・別セッション**に分離する（`BR-COMMON-002`、[00-common-rules.md](../../service/features/00-common-rules.md)）。
@@ -90,7 +90,7 @@ flowchart TB
 | リソース | 用途 | 関連ビジネスルール |
 | --- | --- | --- |
 | Workers | 全アプリ（client/admin/api/public-api）の実行環境 | — |
-| Workers Builds | main への push をトリガーとする CI/CD ビルド・デプロイ | [CLAUDE.md](../../../CLAUDE.md) |
+| GitHub Actions（`wrangler deploy`） | main への push（dev）・`git tag`（prod）をトリガーとする CI/CD ビルド・デプロイ。Cloudflare Deploy Hook（Pages 専用機能）は使わず、ワークフローから直接 `wrangler deploy`/`opennextjs-cloudflare deploy` を実行する | [CLAUDE.md](../../../CLAUDE.md)、[02-deployment.md](./02-deployment.md) |
 | D1 | リレーショナル DB（SQLite 互換）。永続的なドメインデータの正本 | [db ガイド](../db/) |
 | R2 | アイコン画像の**原本**・その他ファイルの永続ストレージ | `BR-PROF-001` |
 | Cloudflare Images | アイコンの正規化（512px 正方形）・配信・変換 | `BR-PROF-001` |

@@ -92,7 +92,10 @@ git tag v1.2.0
 git push origin v1.2.0
 ```
 
-- タグ push をトリガーにリリースパイプラインが起動し、prod の D1 へマイグレーション適用 → 各 Worker をデプロイする。
+- タグ push（`v*` パターン）が `.github/workflows/deploy-prod.yml` をトリガーし、リリースパイプラインが起動する。
+- **人間の承認ゲート**: 各ジョブは GitHub Environment `genai-example-1-production` を参照する。このリポジトリで Environment の **Required reviewers** を有効化しておくことで、ジョブ実行前に人間の承認を挟む（GitHub 側の Environment protection rule。ワークフローファイル自体はゲートを実装しない）。未設定の場合、タグ push 直後にジョブが承認なしで実行されてしまうため、**運用開始前に必ずリポジトリ設定で有効化すること**（Settings → Environments → `genai-example-1-production` → Required reviewers）。
+- ジョブの実行順序: `terraform-apply`（production ワークスペース。初回はリソースが新規作成される） → `migrate-d1`（production の D1 へマイグレーション適用） → `deploy-api`/`deploy-public-api` → `deploy-client`/`deploy-admin`（dev と同じ §3 の順序）。
+- **D1/KV の ID 注入**: production の D1・KV は初回 `terraform apply` まで存在しないため、`apps/api`/`apps/public-api` の `wrangler.jsonc` の `env.production` ブロックは ID を空文字のままコミットしている。`terraform-apply` ジョブの `terraform output` の値を、後続ジョブが `wrangler deploy` 直前にチェックアウト内の `wrangler.jsonc` へ書き込む（コミットには影響しない、[apps/infra/README.md](../../../apps/infra/README.md) §出力の使い方）。
 - 影響の大きい変更（破壊的スキーマ変更・WAF しきい値変更）は、リリース前に確認ステップ（承認）を設ける。
 
 ## 5. インフラのコード管理（Terraform）
@@ -112,8 +115,8 @@ flowchart LR
 
 - ランタイムシークレット（SES 認証情報・Sentry DSN・内部署名鍵・`PASSWORD_PEPPER`（パスワードハッシュ化のペッパー、`BR-COMMON-003`）など）は **Wrangler Secrets**（`wrangler secret put`）で各 Worker に設定する。
   - `PASSWORD_PEPPER`（dev）: `deploy-dev.yml` の `deploy-api` ジョブで `wrangler deploy` の**直前**に自動設定する（`loadEnv()` が起動時に必須検証するため、未設定のまま deploy すると Worker が起動時例外でクラッシュする）。値は GitHub Actions Secrets の `PASSWORD_PEPPER`（固定値）をそのまま流し込むだけで、**CI 実行のたびに値を生成し直さない**（値が変わると既存の全パスワードハッシュが検証不能になり、全ユーザーがログイン不能になる）。初回の値の生成・GitHub Actions Secrets への登録は人間の作業者が行う（`openssl rand -base64 32` 等、32文字以上）。
-  - `PASSWORD_PEPPER`（production）: 本書執筆時点では prod 用デプロイワークフローが未実装のため、当面は人間の作業者が `wrangler secret put PASSWORD_PEPPER --env production` を手動実行する。prod パイプラインを構築する際に dev と同様の自動設定ステップへの統合を検討する。
-  - `MAIL_FROM`/`AWS_DEFAULT_REGION`/`AWS_SES_ACCESS_KEY_ID`/`AWS_SES_SECRET_ACCESS_KEY`（dev、メール送信 `SesMailSender`、`apps/api/src/infrastructure/ses-mail-sender.ts`）: `PASSWORD_PEPPER` と同型で、`deploy-dev.yml` の `deploy-api` ジョブで `wrangler deploy` の直前に GitHub Actions Secrets の値をそのまま流し込む。未設定のまま deploy すると、Workers 実行時（`isWorkersRuntime()` が true の分岐）に SES 呼び出しが認証エラーで失敗する。値の初回登録（AWS IAM の SES 送信用アクセスキー発行・GitHub Actions Secrets への登録）は人間の作業者が行う。
+  - `PASSWORD_PEPPER`（production）: `deploy-prod.yml` の `deploy-api` ジョブで、dev と同型の自動設定ステップにより `wrangler deploy` の直前に設定する。値は GitHub Environment `genai-example-1-production` の Secrets（`PASSWORD_PEPPER`）に**dev とは異なる値**を登録する（環境ごとに独立したペッパーとし、一方の漏洩がもう一方に波及しないようにする）。初回の値の生成・登録は人間の作業者が行う。
+  - `MAIL_FROM`/`AWS_DEFAULT_REGION`/`AWS_SES_ACCESS_KEY_ID`/`AWS_SES_SECRET_ACCESS_KEY`（メール送信 `SesMailSender`、`apps/api/src/infrastructure/ses-mail-sender.ts`）: `PASSWORD_PEPPER` と同型で、`deploy-dev.yml`/`deploy-prod.yml` それぞれの `deploy-api` ジョブで `wrangler deploy` の直前に GitHub Environment Secrets の値をそのまま流し込む。未設定のまま deploy すると、Workers 実行時（`isWorkersRuntime()` が true の分岐）に SES 呼び出しが認証エラーで失敗する。値の初回登録（AWS IAM の SES 送信用アクセスキー発行・GitHub Environment Secrets への登録）は人間の作業者が行う。dev/production で同一の AWS SES 認証情報を使い回してもよいが、`MAIL_FROM` は環境ごとに送信元アドレスを分けることを推奨する。
   - それ以外のランタイムシークレット（Sentry DSN 等）は引き続き人間の作業者が手動設定する。
 - CI 用シークレットは **GitHub Actions Secrets** で管理する。
 - いずれもリポジトリ・ログ・エラー出力に**含めない**（`BR-COMMON-014`、TruffleHog/Gitleaks で多重防御）。

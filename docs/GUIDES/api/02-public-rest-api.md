@@ -4,7 +4,7 @@
 
 > **位置づけ・境界宣言（重要）**: 公開 API の**業務仕様**——エンドポイント一覧・キースコープ（`read`/`full`）の定義・エラーコードの HTTP 対応・レート制限のしきい値・受け入れ条件——は [05-public-api.md](../../service/features/05-public-api.md)（SSoT）が正本である。本ガイドはそれらの**値を複製せず**、REST としての設計（URL 規約・冪等性・エンベロープ実装・例外写像・ガード構造・OpenAPI 生成）に限定する。
 > 入力検証の値は [02-profile.md](../../service/features/02-profile.md) / [03-profile-sharing.md](../../service/features/03-profile-sharing.md)、共通規約は [00-common-rules.md](../../service/features/00-common-rules.md) が正本。
-> **現状フェーズ**: `apps/public-api`（ユニット `public-api-rest`）を本規約に沿って実装済み（[CODEMAPS/public-api.md](../../CODEMAPS/public-api.md)）。ローカルは `@nestjs/platform-express` + メモリ ThrottlerStorage、本番の Hono/Workers アダプタと DO カウンタは後続ユニット。
+> **現状フェーズ**: `apps/public-api`（ユニット `public-api-rest`）を本規約に沿って実装済み（[CODEMAPS/public-api.md](../../CODEMAPS/public-api.md)）。ローカル/Workers 双方とも `@nestjs/platform-express`（[coding/04-nestjs.md](../coding/04-nestjs.md) §7）。本番のキー単位レート制限カウンタは Durable Objects で実装済み（[ADR 20260604](../../adr/20260604-public-api-rate-limit-durable-objects.md)）。
 
 ## 1. 位置づけと責務
 

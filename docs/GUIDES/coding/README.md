@@ -16,7 +16,7 @@
 | [01-architecture.md](./01-architecture.md) | アーキテクチャ設計。モノレポ・バックエンドのクリーンアーキテクチャ・フロントエンドの責務分割と状態管理・境界とアプリ分離 | 全員 |
 | [02-lint-format-commit.md](./02-lint-format-commit.md) | 静的解析・整形・コミット規約。ESLint(Flat Config)/Prettier/eslint-config-prettier・Husky + lint-staged・Commitlint・Gitleaks/TruffleHog・CI 品質ゲート | 全員 |
 | [03-docker.md](./03-docker.md) | Docker 構成規約。ローカル開発専用・`node@trixie`・Dockerfile/`docker-compose.yaml`・ポート・Mailpit・秘匿 | 全員 |
-| [04-nestjs.md](./04-nestjs.md) | NestJS 実装規約（`api`/`public-api`）。モジュール/DI・リクエストパイプライン（ガード/パイプ/インターセプタ/フィルタ）・Throttler・Hono | バックエンド |
+| [04-nestjs.md](./04-nestjs.md) | NestJS 実装規約（`api`/`public-api`）。モジュール/DI・リクエストパイプライン（ガード/パイプ/インターセプタ/フィルタ）・Throttler・Workers ランタイム(§7) | バックエンド |
 | [05-tailwind.md](./05-tailwind.md) | Tailwind CSS 規約（`client`/`admin`）。デザイントークン・ユーティリティ抽象化・レスポンシブ・モーション・shadcn/ui・アンチテンプレート | フロントエンド |
 | [06-mikroorm.md](./06-mikroorm.md) | MikroORM 実装規約。エンティティ/命名戦略・EntityManager(fork)・トランザクション・N+1/カーソル・マイグレーション | バックエンド |
 

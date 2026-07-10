@@ -3,9 +3,9 @@
 バックエンド（`apps/api`＝内部 GraphQL、`apps/public-api`＝公開 REST）の NestJS 実装規約を定義する。
 原則は [00-overview.md](./00-overview.md)、層構造は [01-architecture.md](./01-architecture.md) §2、API 設計規約は [docs/GUIDES/api/](../api/) を参照。
 
-> **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（NestJS クリーンアーキテクチャ・Hono アダプタ・Apollo Server・class-validator/transformer・@nestjs/throttler・DataLoader）と [01-architecture.md](./01-architecture.md) §2 を、NestJS の実装観点へ具体化したものである。クリーンアーキテクチャの概念・層・依存性ルール・実装パターンは [`clean-architecture` スキル](../../../.claude/skills/clean-architecture/SKILL.md) を正本とし、本ガイドでは再掲しない。
+> **位置づけ**: 本ガイドは [CLAUDE.md](../../../CLAUDE.md)（NestJS クリーンアーキテクチャ・Apollo Server・class-validator/transformer・@nestjs/throttler・DataLoader）と [01-architecture.md](./01-architecture.md) §2 を、NestJS の実装観点へ具体化したものである。Workers ランタイムアダプタは Hono ではなく Cloudflare 公式 Express-on-Workers サポートを採用している（§7、[ADR 20260709](../../adr/20260709-nestjs-workers-express-adapter.md)）。クリーンアーキテクチャの概念・層・依存性ルール・実装パターンは [`clean-architecture` スキル](../../../.claude/skills/clean-architecture/SKILL.md) を正本とし、本ガイドでは再掲しない。
 > エラーコード・スコープ・しきい値・文字数などの**業務具体値は features/ が正本**であり、本ガイドは値を持たず参照する。API の設計規約は [api/01-graphql-internal.md](../api/01-graphql-internal.md)・[api/02-public-rest-api.md](../api/02-public-rest-api.md) が担う。
-> **現状フェーズ**: `apps/api`（ユニット `api-internal-profile`、[CODEMAPS/api.md](../../CODEMAPS/api.md)）・`apps/public-api`（ユニット `public-api-rest`、[CODEMAPS/public-api.md](../../CODEMAPS/public-api.md)）を本規約に沿って実装済み。`apps/api` の他ドメインは未実装で、本ガイドの該当箇所は実装に先行する規約である。ORM は MikroORM 7（EntitySchema、デコレータ API 廃止、[ADR 20260617](../../adr/20260617-public-api-domain-duplication.md) / [06-mikroorm.md](./06-mikroorm.md)）。
+> **現状フェーズ**: `apps/api`（ユニット `api-internal-profile`・`admin-console`、[CODEMAPS/api.md](../../CODEMAPS/api.md)・[CODEMAPS/admin.md](../../CODEMAPS/admin.md)）・`apps/public-api`（ユニット `public-api-rest`、[CODEMAPS/public-api.md](../../CODEMAPS/public-api.md)）を本規約に沿って実装済み。Cloudflare Workers への実デプロイ（§7、dev 環境で稼働確認済み）も完了している。ORM は MikroORM 7（EntitySchema、デコレータ API 廃止、[ADR 20260617](../../adr/20260617-public-api-domain-duplication.md) / [06-mikroorm.md](./06-mikroorm.md)）。
 
 ## 1. モジュール構成とクリーンアーキテクチャの層
 
@@ -20,7 +20,7 @@
 | `@Injectable()` のアプリケーションサービス | Use Cases（Interactor） | Gateway・Input/Output Boundary を宣言、トランザクション境界 |
 | エンティティ・値オブジェクト | Entities | NestJS/MikroORM/Cloudflare を import しない |
 | リポジトリ・外部アダプタ実装（R2/Images/SES/Rekognition/KV/DO） | Interface Adapters（Gateway 実装） | Use Case 層の Gateway を実装し DI で束ねる |
-| NestJS・Hono・Apollo Server・MikroORM・各 SDK | Frameworks & Drivers | 設定・結線が中心。内側へ漏らさない |
+| NestJS・Apollo Server・MikroORM・各 SDK | Frameworks & Drivers | 設定・結線が中心。内側へ漏らさない |
 
 ## 2. 依存性注入（DI）
 
@@ -88,9 +88,10 @@ flowchart LR
 - アプリ層は **`@nestjs/throttler`**、本番エッジは Cloudflare WAF の二層構成（[api/02-public-rest-api.md](../api/02-public-rest-api.md) §8）。しきい値・多層図・カウンタ配置の正本は `BR-COMMON-010`・[infra/01-network-architecture.md](../infra/01-network-architecture.md) §3・[db/01-data-model.md](../db/01-data-model.md) §7。
 - 公開 API のキー単位カウンタは **Durable Objects** で厳密にカウントする（`ThrottlerStorage` を DO バックエンドで実装、[ADR](../../adr/20260604-public-api-rate-limit-durable-objects.md)）。認証系・通報系は KV の近似カウント。本ガイドは値を再掲しない。
 
-## 7. Cloudflare Workers ランタイム（Hono アダプタ）
+## 7. Cloudflare Workers ランタイム（Express-on-Workers）
 
-- NestJS は **Hono** アダプタで Workers ランタイム上に動かす（`nodejs_compat`、[CLAUDE.md](../../../CLAUDE.md)・[infra/00-overview.md](../infra/00-overview.md) §2）。
+- NestJS は **`@nestjs/platform-express`（既定アダプタ）のまま**、Cloudflare 公式の Express-on-Workers サポート（`cloudflare:node` の `httpServerHandler`）で Workers ランタイム上に動かす（`nodejs_compat`、`compatibility_date` 2025-09-23 以降、[CLAUDE.md](../../../CLAUDE.md)・[infra/00-overview.md](../infra/00-overview.md) §2）。Hono 等のブリッジ層は使わない（採用経緯・不採用理由は [ADR 20260709-nestjs-workers-express-adapter](../../adr/20260709-nestjs-workers-express-adapter.md)）。
+- ローカル開発用の `main.ts`（Express、`nest start`）と Workers 本番用の `worker.ts`（`httpServerHandler`）を分離し、`AppModule` 以下のアプリケーションコードは完全に共有する。esbuild（wrangler のバンドラ）が `emitDecoratorMetadata` に対応していないため、`worker.ts` は素の `src/*.ts` ではなく `pnpm build`（`nest build`）が生成した `dist/*.js` を動的 `import()` で参照する（`apps/api/src/worker.ts`・`apps/public-api/src/worker.ts` 参照）。
 - Workers は**ステートレス・短命**である。リクエストをまたぐグローバル可変状態に依存しない。**DataLoader はリクエストスコープ**で生成する（[api/01-graphql-internal.md](../api/01-graphql-internal.md) §5）。
 - ランタイム差異（Node 固有 API の可用性等）の吸収は Interface Adapters / Frameworks & Drivers の責務とし、Entities / Use Cases に持ち込まない（[01-architecture.md](./01-architecture.md) §2.2）。
 

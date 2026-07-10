@@ -38,6 +38,14 @@
   - 起動: 環境変数検証・`main.ts`・ローカル開発用シード。
   - テスト: Jest 単体・統合 107 件（TDD）。ドメイン/ユースケースのカバレッジ 98%。
 - AI-DLC の inception/construction 成果物を `aidlc-docs/` に追加。
+- **Cloudflare Workers への実デプロイ基盤（Terraform・CI/CD・OpenNext・Durable Objects）を実装**。
+  - **`apps/infra`（Terraform）**: D1・KV（用途別3系統）・R2（アイコン原本・client/admin の ISR/Data Cache）を管理。環境分離は Terraform workspace（`dev`/`production`）。state バックエンドは R2（S3 互換）。
+  - **`apps/api`・`apps/public-api` の Workers 実行**: NestJS を `@nestjs/platform-express` のまま、Cloudflare 公式 Express-on-Workers サポート（`cloudflare:node` の `httpServerHandler`）で動かす。当初計画していた Hono アダプタは、実装時の実機検証を経て不採用とした（[ADR 20260709](./docs/adr/20260709-nestjs-workers-express-adapter.md)）。
+  - **MikroORM マイグレーション基盤**: `apps/api` にマイグレーション生成・wrangler 形式への書き出し（`migration:export-wrangler`）・D1 への適用（`migration:apply-remote`）を追加。`wrangler d1 migrations apply --remote` の既知の不具合（`CREATE TRIGGER` を含む SQL で失敗）を回避する自前スクリプトを使用（[db/02-migrations.md](./docs/GUIDES/db/02-migrations.md) §1）。
+  - **公開 API のキー単位レート制限**: Durable Objects（SQLite ストレージバックエンド）で厳密カウントを実装（[ADR 20260604](./docs/adr/20260604-public-api-rate-limit-durable-objects.md)）。
+  - **`apps/client`・`apps/admin` の OpenNext 化**: `@opennextjs/cloudflare` で Cloudflare Workers へデプロイ（[ADR 20260604](./docs/adr/20260604-nextjs-workers-opennext.md)）。
+  - **CI/CD（GitHub Actions）**: `ci.yml`（lint/型/テスト/機密情報スキャン/依存監査）、`deploy-dev.yml`（main push で D1 マイグレーション・Terraform apply・4 Worker のデプロイを自動実行）、`deploy-prod.yml`（`git tag` push、Environment の Required reviewers による人間の承認ゲート）。
+  - **パスワードハッシュ化を PBKDF2-HMAC-SHA256 へ**: 当初 Argon2id（hash-wasm）を採用していたが、hash-wasm が実行時に `WebAssembly.compile()` する実装のため Cloudflare Workers の実行時コード生成禁止制約に抵触し、ハッシュ検証が常に失敗する不具合が実機デプロイで判明した。Web Crypto API（`crypto.subtle`）ネイティブの PBKDF2 へ切り替えた。さらに Workers の `crypto.subtle` は PBKDF2 のイテレーション数上限が 100,000 であり OWASP 推奨値（600,000）に届かないため、DB とは独立した秘密鍵（`PASSWORD_PEPPER`、Wrangler Secrets）による HMAC 事前処理で補っている（`BR-COMMON-003`）。
 
 ### Changed
 
@@ -47,5 +55,4 @@
 
 ### Notes
 
-- 後続ユニット: アカウント認証フロー・API キー発行/失効 UI・Trust&Safety・管理者コンソール・コンテンツ配信・NSFW 判定・画像/メール・本番 Hono/Workers アダプタ・レート制限カウンタの Durable Objects 実装。
-- ローカル開発ランタイムは `@nestjs/platform-express`、レート制限はメモリ ThrottlerStorage。本番（Cloudflare Workers / Hono・DO カウンタ）は後続ユニットで対応する。
+- prod 環境（Terraform `production` ワークスペース）は初回 `terraform apply` が未実行。`deploy-prod.yml`（`git tag` push）の実行を待つ状態（人間のみが実行、[infra/02-deployment.md](./docs/GUIDES/infra/02-deployment.md) §4.3）。

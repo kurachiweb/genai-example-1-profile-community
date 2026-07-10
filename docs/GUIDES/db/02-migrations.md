@@ -7,8 +7,9 @@ MikroORM Migrator を主軸とし、生成された SQL を wrangler 経由で C
 ## 1. 方針
 
 - **マイグレーションの正本は MikroORM Migrator**。`apps/api` が完全なエンティティ集合(16 種)を保持するため、`apps/api` を起点にマイグレーションを生成する([ADR 20260617](../../adr/20260617-public-api-domain-duplication.md)。`apps/public-api` は同一テーブルへの部分的な読み書き用エンティティを別途持つが、自らはスキーマを生成しない)。
-- 生成された SQL を **wrangler（`wrangler d1 migrations`）で D1 に適用**する二段構えとする。ローカル SQLite と D1 で同じ SQL を流し、環境差を最小化する。
-- ローカル（SQLite）は MikroORM が直接適用、dev/prod（D1）は CI/リリースパイプラインから wrangler で適用する。
+- 生成された SQL を **D1 に適用**する二段構えとする。ローカル SQLite と D1 で同じ SQL を流し、環境差を最小化する。
+- ローカル（SQLite）は MikroORM が直接適用、dev/prod（D1）は CI/リリースパイプラインから適用する。
+  - **`wrangler d1 migrations apply --remote` は使わない**: `CREATE TRIGGER`（`BEGIN...END` を含む複数文のトリガー本体、§5.1 参照）を含む SQL に対して `"incomplete input: SQLITE_ERROR [code: 7500]"` で失敗する既知の不具合があるため（D1 のクエリ API が SQL 文字列を素朴に `;` で分割し、トリガー本体内の `;` で文が途中で切れる）。代わりに `wrangler d1 execute --file=<path>` でファイル全体を一括アップロードする自前スクリプト（`apps/api/scripts/apply-remote-migrations.ts`、`pnpm migration:apply-remote <database> <env>`）を使う。`wrangler d1 migrations apply`/`list` と同じ追跡テーブル（`d1_migrations`）に自前で記録するため、通常の wrangler コマンドからも「適用済み」として認識される互換性を保つ。
 - `apps/db` は MikroORM 設定を持たず(ローカル用の DB コンテナのプレースホルダ)、`migration:*` スクリプトは `apps/api` への委譲(`pnpm --filter @app/api migration:*`)とする。
 
 ```mermaid
@@ -16,8 +17,8 @@ flowchart LR
     ENT["エンティティ定義<br/>(apps/api)"] -->|"migration:create"| MIG["MikroORM マイグレーション<br/>(apps/api/migrations/*.ts)"]
     MIG -->|local| SQLITE["ローカル SQLite<br/>migration:up"]
     MIG -->|"migration:export-wrangler"| WMIG["apps/api/migrations-wrangler/<br/>(.sql)"]
-    WMIG -->|"d1 migrations apply --env dev"| D1DEV["D1 (dev)"]
-    WMIG -->|"d1 migrations apply --env prod<br/>(人間のみ)"| D1PROD["D1 (prod)"]
+    WMIG -->|"migration:apply-remote ... dev"| D1DEV["D1 (dev)"]
+    WMIG -->|"migration:apply-remote ... production<br/>(人間のみ)"| D1PROD["D1 (production)"]
 ```
 
 ## 2. 標準フロー（開発者）
@@ -46,8 +47,8 @@ pnpm --filter @app/api migration:export-wrangler <migrations配下のファイ�
 | 環境 | 適用方法 | 実行者 |
 | --- | --- | --- |
 | local | `pnpm --filter @app/db migration:up`（SQLite） | 開発者 |
-| dev | CI で `wrangler d1 migrations apply <DB> --env dev` | GitHub Actions（main push） |
-| prod | リリースパイプラインで `wrangler d1 migrations apply <DB> --env prod` | **人間のみ**（`git tag` 起点） |
+| dev | CI（`deploy-dev.yml`）で `pnpm migration:apply-remote genai-example-1-dev dev` | GitHub Actions（main push） |
+| production | リリースパイプライン（`deploy-prod.yml`）で `pnpm migration:apply-remote genai-example-1-production production` | **人間のみ**（`git tag` 起点） |
 
 > ⚠️ **AI エージェントは prod へのマイグレーション適用・デプロイを行わない**（[CLAUDE.md](../../../CLAUDE.md)）。
 
@@ -74,7 +75,7 @@ flowchart LR
 
 ### 5.1 監査ログの追記専用（改ざん不可）
 
-`audit_logs` の UPDATE/DELETE を DB トリガーで拒否する（`BR-ADMIN-010`、[infra/03-logging-monitoring.md](../infra/03-logging-monitoring.md)）。マイグレーションで作成する。
+`audit_logs` の UPDATE/DELETE を DB トリガーで拒否する（`BR-ADMIN-010`、[infra/03-logging-monitoring.md](../infra/03-logging-monitoring.md)）。マイグレーションで作成する。この `BEGIN...END` を含む複数文のトリガー本体こそが、§1 で述べた `wrangler d1 migrations apply --remote` の不具合を実際に踏んだ具体例である。
 
 ```sql
 -- 例: audit_logs の更新・削除をブロック

@@ -99,4 +99,4 @@ pnpm --filter @app/public-api seed        # ローカル検証用サンプル＋
 
 ## 範囲外（後続ユニット）
 
-API キーの発行/失効 UI・ユースケース（画面操作・再認証が必要、`BR-API-010`）、アイコン画像アップロードと NSFW 判定、本番 Hono/Workers アダプタ、レート制限カウンタの Durable Objects 実装（[ADR 20260604](../adr/20260604-public-api-rate-limit-durable-objects.md)）、アカウント認証フロー・Trust&Safety・管理者コンソール・コンテンツ配信・メール送信。
+API キーの発行/失効 UI・ユースケース（画面操作・再認証が必要、`BR-API-010`）、アイコン画像アップロードと NSFW 判定、レート制限カウンタの Durable Objects 実装（採用済み、[ADR 20260604](../adr/20260604-public-api-rate-limit-durable-objects.md)）、アカウント認証フロー・Trust&Safety・管理者コンソール・コンテンツ配信・メール送信。

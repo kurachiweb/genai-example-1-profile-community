@@ -106,4 +106,4 @@ pnpm --filter @app/api seed       # ローカル開発用サンプル投入
 
 ## 範囲外(後続ユニット)
 
-アカウント認証フロー・公開 REST API(`apps/public-api`)・API キー・Trust&Safety・管理者コンソール・コンテンツ配信・NSFW 判定・画像/メール・本番 Hono/Workers アダプタ・レート制限の実カウンタ(KV/DO)。
+アカウント認証フロー・公開 REST API(`apps/public-api`)・API キー・Trust&Safety・管理者コンソール・コンテンツ配信・NSFW 判定・画像/メール。レート制限の実カウンタ(KV/DO)は採用済み(Durable Objects、ADR 20260604)。

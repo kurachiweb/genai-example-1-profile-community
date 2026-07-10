@@ -34,7 +34,7 @@ NestJS を**クリーンアーキテクチャ**で構成する（[CLAUDE.md](../
 | Entities | User/Profile/SnsLink/ApiKey/Report 等のエンタープライズルール。実効公開判定（`BR-COMMON-007`）・状態遷移（`COMMON-2`）等の純粋ロジック。NestJS/MikroORM/Cloudflare に非依存 |
 | Use Cases | アプリケーションのワークフロー（Interactor）。トランザクション境界・認可/ゲートの呼び出し。**Gateway と Input/Output Boundary は本層で宣言**する |
 | Interface Adapters | GraphQL リゾルバ・REST コントローラ（Controller）、レスポンス整形（Presenter）、**MikroORM リポジトリ＝Gateway 実装**、外部サービスアダプタ（R2/Images/SES/Rekognition/KV/DO の Gateway 実装） |
-| Frameworks & Drivers | NestJS・Hono・Apollo Server・MikroORM・Cloudflare（D1/KV/DO/R2/Images）・SES/Rekognition SDK。設定と結線が中心 |
+| Frameworks & Drivers | NestJS（`@nestjs/platform-express`）・Apollo Server・MikroORM・Cloudflare（D1/KV/DO/R2/Images、Workers ランタイムは Express-on-Workers サポート）・SES/Rekognition SDK。設定と結線が中心 |
 | Composition root（Main） | NestJS の DI コンテナ。モジュールの `providers` で Gateway/Presenter 実装を Use Case へ束ね、依存を内側へ漏らさない |
 
 ### 2.2 本サービス固有の適用
@@ -44,7 +44,7 @@ NestJS を**クリーンアーキテクチャ**で構成する（[CLAUDE.md](../
 - **外部 I/O はすべて Gateway 経由**: D1（リポジトリ）・R2・Images・SES・Rekognition・KV・DO は Use Case 層が宣言する Gateway 越しに呼ぶ。これによりテスト時に Gateway をフェイク/決定論的スタブへ差し替える（Rekognition スタブ等、[testing/01-unit-integration.md](../testing/01-unit-integration.md) §3）。
 - **認可・実効公開ゲートの集約**: 所有権ベース／ロールベースの認可と実効公開ゲートは、NestJS のガード／Use Case 層に集約し、リゾルバ/コントローラ本体や各所へ散在させない（[api/01-graphql-internal.md](../api/01-graphql-internal.md) §6）。
 - **DataLoader はリクエストスコープ**: N+1 対策の DataLoader は内部 GraphQL 固有で、リクエストごとに生成する（[api/01-graphql-internal.md](../api/01-graphql-internal.md) §5）。
-- **Workers ランタイム差の吸収**: NestJS は **Hono** アダプタで Workers 上に動かす（[CLAUDE.md](../../../CLAUDE.md)・[infra/00-overview.md](../infra/00-overview.md) §2）。ランタイム差異は Interface Adapters / Frameworks & Drivers で吸収し、Entities / Use Cases に持ち込まない。
+- **Workers ランタイム差の吸収**: NestJS は `@nestjs/platform-express` のまま、Cloudflare 公式の Express-on-Workers サポートで Workers 上に動かす（[CLAUDE.md](../../../CLAUDE.md)・[infra/00-overview.md](../infra/00-overview.md) §2・[coding/04-nestjs.md](./04-nestjs.md) §7、[ADR 20260709](../../adr/20260709-nestjs-workers-express-adapter.md)）。ランタイム差異は Interface Adapters / Frameworks & Drivers で吸収し、Entities / Use Cases に持ち込まない。
 
 ## 3. フロントエンド：Next.js（App Router）（`client` / `admin`）
 

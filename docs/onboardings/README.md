@@ -63,7 +63,7 @@ overview/  →  features/(SSoT) + glossary  →  GUIDES/infra・GUIDES/db  →  
 | [coding/01-architecture.md](../GUIDES/coding/01-architecture.md) | アーキテクチャ設計。モノレポ・バックエンドのクリーンアーキテクチャ・フロントエンドの責務分割と状態管理・アプリ境界 |
 | [coding/02-lint-format-commit.md](../GUIDES/coding/02-lint-format-commit.md) | ESLint(Flat Config)/Prettier・Husky + lint-staged・Commitlint・Gitleaks/TruffleHog・CI 品質ゲート（Stylelint 不採用） |
 | [coding/03-docker.md](../GUIDES/coding/03-docker.md) | Docker 構成。ローカル開発専用・`node@trixie`・Dockerfile/`docker-compose.yaml`・ポート・Mailpit・秘匿 |
-| [coding/04-nestjs.md](../GUIDES/coding/04-nestjs.md) | NestJS 実装規約（`api`/`public-api`）。モジュール/DI・ガード/パイプ/インターセプタ/フィルタ・Throttler・Hono |
+| [coding/04-nestjs.md](../GUIDES/coding/04-nestjs.md) | NestJS 実装規約（`api`/`public-api`）。モジュール/DI・ガード/パイプ/インターセプタ/フィルタ・Throttler・Workers ランタイム |
 | [coding/05-tailwind.md](../GUIDES/coding/05-tailwind.md) | Tailwind CSS 規約（`client`/`admin`）。デザイントークン・抽象化・レスポンシブ・モーション・shadcn/ui |
 | [coding/06-mikroorm.md](../GUIDES/coding/06-mikroorm.md) | MikroORM 実装規約。エンティティ/命名戦略・EntityManager(fork)・トランザクション・N+1/カーソル・マイグレーション |
 
