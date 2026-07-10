@@ -1,5 +1,6 @@
-// メール通知テンプレート(BR-CONTENT-003)。ローカルは簡易 HTML を Mailpit へ送る。
-// 本番は MJML(@faire/mjml-react)＋ Amazon SES へ差し替える(MailSender の実装差し替え)。
+// メール通知テンプレート(BR-CONTENT-003)。本番/dev(Amazon SES)・ローカル(Mailpit)共通で
+// この素の HTML テンプレートを使う(MailSender 側で送信経路のみ差し替わる、ses-mail-sender.ts)。
+// MJML(@faire/mjml-react)化は未着手(将来の見た目改善用、送信経路の差し替えとは独立)。
 import { ValidationError } from './errors';
 
 export interface EmailTemplate {

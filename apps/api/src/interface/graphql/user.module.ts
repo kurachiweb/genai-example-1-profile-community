@@ -20,12 +20,17 @@ import { SystemClock } from '../../infrastructure/clock';
 import { UlidGenerator } from '../../infrastructure/id-generator';
 import { ValkeyEmailVerificationTokenStore } from '../../infrastructure/email-verification-token.store';
 import { NodemailerMailSender } from '../../infrastructure/mail-sender';
+import { SesMailSender } from '../../infrastructure/ses-mail-sender';
 import { Pbkdf2PasswordHasher } from '../../infrastructure/password-hasher';
 import { MikroUserRepository } from '../../infrastructure/persistence/user.repository';
 import { MikroUserApiKeyRepository } from '../../infrastructure/persistence/api-key-user.repository';
 import { createValkeyClient, ValkeyClient } from '../../infrastructure/valkey-client';
 import { createKVValkeyClient } from '../../infrastructure/kv-valkey-client';
-import { getAppKV, getSessionClientKV } from '../../infrastructure/workers-runtime';
+import {
+	getAppKV,
+	getSessionClientKV,
+	isWorkersRuntime
+} from '../../infrastructure/workers-runtime';
 import {
 	USER_SESSION_STORE,
 	UserSessionStore,
@@ -88,11 +93,13 @@ const USER_TOKEN_VALKEY_CLIENT = Symbol('UserTokenValkeyClient');
 			inject: [USER_TOKEN_VALKEY_CLIENT],
 			useFactory: (client: ValkeyClient) => new ValkeyEmailVerificationTokenStore(client)
 		},
-		// メール送信(ローカルは Mailpit、本番は SES へ差し替え。admin.module.ts と同型の独立プロバイダ)。
+		// メール送信(ローカル/dev(main.ts)は Mailpit、本番/dev(Workers)は SES。
+		// admin.module.ts と同型の独立プロバイダ)。
 		{
 			provide: MAIL_CONFIG,
 			useFactory: () => ({
-				host: process.env.MAIL_SMTP_HOST || 'localhost',
+				// ローカルは docker compose のサービス名(compose.yaml)。
+				host: process.env.MAIL_SMTP_HOST || 'mailpit',
 				// `??` は空文字列を救わず Number('') === 0 になるため `||` で未設定/空の両方をデフォルトへ落とす。
 				port: Number(process.env.MAIL_SMTP_PORT || 1025),
 				from: process.env.MAIL_FROM || 'GenAI Profile Community <no-reply@example.com>'
@@ -101,8 +108,17 @@ const USER_TOKEN_VALKEY_CLIENT = Symbol('UserTokenValkeyClient');
 		{
 			provide: MAIL_SENDER,
 			inject: [MAIL_CONFIG],
-			useFactory: (config: { host: string; port: number; from: string }) =>
-				new NodemailerMailSender(config)
+			// isWorkersRuntime() は D1 バインディング登録有無で判定する(mikro-orm.config.ts と同じ signal、
+			// workers-runtime.ts)。Workers は生 SMTP ソケットを扱えないため、本番/dev は SES(fetch 経由)を使う。
+			useFactory: (config: { host: string; port: number; from: string }): MailSender =>
+				isWorkersRuntime()
+					? new SesMailSender({
+							from: config.from,
+							region: process.env.AWS_DEFAULT_REGION ?? '',
+							accessKeyId: process.env.AWS_SES_ACCESS_KEY_ID ?? '',
+							secretAccessKey: process.env.AWS_SES_SECRET_ACCESS_KEY ?? ''
+						})
+					: new NodemailerMailSender(config)
 		},
 		// ユースケース。
 		{

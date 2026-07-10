@@ -134,6 +134,23 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+      # メール送信(Amazon SES、ses-mail-sender.ts)。PASSWORD_PEPPER と同型で、
+      # deploy 直前に GitHub Environment Secrets の値を Wrangler Secrets へ流し込む。
+      - name: メール送信(SES)関連シークレット設定(dev)
+        working-directory: apps/api
+        run: |
+          echo "$MAIL_FROM_VALUE" | pnpm exec wrangler secret put MAIL_FROM --env dev
+          echo "$AWS_DEFAULT_REGION_VALUE" | pnpm exec wrangler secret put AWS_DEFAULT_REGION --env dev
+          echo "$AWS_SES_ACCESS_KEY_ID_VALUE" | pnpm exec wrangler secret put AWS_SES_ACCESS_KEY_ID --env dev
+          echo "$AWS_SES_SECRET_ACCESS_KEY_VALUE" | pnpm exec wrangler secret put AWS_SES_SECRET_ACCESS_KEY --env dev
+        env:
+          MAIL_FROM_VALUE: ${{ secrets.MAIL_FROM }}
+          AWS_DEFAULT_REGION_VALUE: ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_SES_ACCESS_KEY_ID_VALUE: ${{ secrets.AWS_SES_ACCESS_KEY_ID }}
+          AWS_SES_SECRET_ACCESS_KEY_VALUE: ${{ secrets.AWS_SES_SECRET_ACCESS_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: wrangler deploy
         run: pnpm --filter @app/api deploy:worker
         env:

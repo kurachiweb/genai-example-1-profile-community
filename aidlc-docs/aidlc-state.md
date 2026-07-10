@@ -91,6 +91,16 @@
 - 詳細は [audit.md](./audit.md) の「初期リクエスト（ヘルプ記事の公開閲覧）」を参照。
 - **状態**: 実装・テスト（TDD）・docs 更新まで完了。ブランチ `feature/help-article-public-pages`。main へのマージは利用者確認待ち。
 
+## 追補（本番化差し替え）: メール送信基盤を Amazon SES へ差し替え
+
+- **契機**: 本番デプロイ先（Cloudflare Workers dev環境 `genai-example-1-api-dev`）でのみ新規登録が `queryA ENOTFOUND localhost` で失敗する不具合報告。
+- **原因**: dev Worker に `MAIL_SMTP_HOST` 等が未設定のため `NodemailerMailSender` がフォールバック値 `'localhost'` へ SMTP 接続を試みて失敗。加えて、本項目冒頭で「後続」と記載していた SES 差し替え自体が未実装だった。
+- **対応範囲**: 新規ユニットは起票せず、本項目（SES 部分）の追補として扱う（brownfield・既存 SSoT を流用、minimal 深度）。MJML 化は範囲外。
+  - api: `SesMailSender`（`@aws-sdk/client-ses` + `FetchHttpHandler`、Workers 互換）を追加。`getD1Database()` による既存の Workers 判定パターンを再利用し、Workers 実行時は SES・ローカルは従来通り Mailpit に切り替える（`user.module.ts`・`admin.module.ts` 対称更新）。
+  - CI: `deploy-dev.yml` の `deploy-api` に `PASSWORD_PEPPER` と同型の `wrangler secret put` ステップを追加（`MAIL_FROM`/`AWS_DEFAULT_REGION`/`AWS_SES_ACCESS_KEY_ID`/`AWS_SES_SECRET_ACCESS_KEY`）。
+- 詳細は [audit.md](./audit.md) の「追補（本番化差し替え）: メール送信基盤を Amazon SES へ差し替え」を参照。
+- **状態**: 実装・テスト（TDD）・実 AWS SES への疎通確認・docs/CHANGELOG 更新まで完了。`wrangler deploy --dry-run` で esbuild バンドルも検証済み（alias 回避策は不要だった）。ブランチ未分割（作業用ブランチ運用の指示なし）。main へのマージは利用者確認待ち。
+
 ## 実行モード
 
 - 利用者の明示指示（「作業用ブランチで複数コミットに分割し自動コミット、完了後 main へマージ」）に基づき、**承認ゲートで都度停止せず自律実行**する。監査証跡は [audit.md](./audit.md) に記録する。

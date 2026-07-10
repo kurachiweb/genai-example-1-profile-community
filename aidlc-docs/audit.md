@@ -200,3 +200,38 @@ client 側は `next dev` の実機起動を試みたが、ホスト環境固有�
 **Context**: Construction / Build and Test 完了 → マージ可否を利用者に確認予定
 
 ---
+
+## 追補（本番化差し替え）: メール送信基盤を Amazon SES へ差し替え
+**Timestamp**: 2026-07-09T23:00:00Z
+**User Input**: "apps/clientディレクトリのNext.jsアプリケーションの新規登録画面(/register)でアカウントを作成するボタンを押すと、GraphQLリクエストでapps/apiディレクトリのNestJSアプリケーションに繋がり、DBにユーザー情報を登録します。ここまではできるのですが、登録API処理内でDBにユーザーデータを登録後の何らかの処理により、以下のエラーが新規登録画面のstate.errorとして表示されてしまいます。queryA ENOTFOUND localhost 本来は「確認メールを送信しました」画面（/register/sent）に遷移するはずなので、エラーの原因を調べて根本的に修正してください。SESの設定不足でメールを送信できないのかもしれないため、その点も含めて解決方法を教えて。"
+**AI Response**: `UserService.register()` → `sendVerificationEmail()` → `NodemailerMailSender.send()`(SMTP)の経路で例外が握りつぶされず伝播している箇所と特定。ローカル Docker（`.env` の `MAIL_SMTP_HOST=mailpit`）では再現せず、直接 GraphQL 経由で再現テストしても成功したため、まずグローバル例外の生メッセージ漏えい（`DomainErrorFilter` が `DomainError` のみを対象とし、想定外例外を一般化していない）を副次的な問題として特定し、`UnexpectedErrorFilter` を TDD で試作した（後に利用者の指示により方針転換のため差し戻し）。
+**User Input**: "重大なことを書き忘れました。デプロイ先のCloudflare Workersでのみ発生し、ローカルでは発生しません。なので.envファイルのCLOUDFLARE_ACCOUNT_IDとCLOUDFLARE_API_TOKENの値でCloudflareにアクセスしてWorkers上でのエラーの原因を特定してください。"
+**AI Response**: Cloudflare API（`GET /accounts/{id}/workers/scripts/genai-example-1-api-dev/settings`・`/secrets`）で実際の dev Worker 設定を取得し確定的な根本原因を特定：dev Worker には `MAIL_SMTP_HOST`/`MAIL_SMTP_PORT`/`MAIL_FROM` は一切設定されておらず（bindings は APP_KV/DATABASE_URL/DB/NODE_ENV/PASSWORD_PEPPER/SESSION_ADMIN_KV/SESSION_CLIENT_KV のみ）、`user.module.ts` のフォールバック `process.env.MAIL_SMTP_HOST || 'localhost'` により実在しない `'localhost'` へ SMTP 接続を試み失敗していた。さらに、コード上「本番は Amazon SES へ差し替える」という設計意図（コメント・`docs/GUIDES/infra/00-overview.md`）が実装されておらず、`@aws-sdk/client-ses` 等は未インストールであることを確認。本番/dev には代替となる SMTP サーバー自体が存在しないため、ホスト名を直すだけでは根本解決にならないと判断し、対応方針を利用者に確認した。
+**AI Response**: AskUserQuestion で対応方針を確認。
+**User Input**: 対応方針="Amazon SESへ本実装を差し替える(推奨)"
+**AI Response**: AWS SES 実装に必要な設定情報を AskUserQuestion で確認。
+**User Input**: "SES送信元として使うAWSリージョンはどこですか?"="eu-west-1" / "AWS認証情報の渡し方"="MAIL_FROM、AWS_DEFAULT_REGION、AWS_SES_ACCESS_KEY_ID(AKIAから始まるID)、AWS_SES_SECRET_ACCESS_KEYという4つの環境変数を.envとGitHub Environmentsに設定したので、GitHub Action処理中にEnvironments側の環境変数値を取得してCloudflare Workersのapiアプリに適用して。" / "SESの送信元メールアドレス"="環境変数MAIL_FROMの値です。"
+**AI Response**: `.env`（`MAIL_FROM=shortbook-support@shortbook.life`・`AWS_DEFAULT_REGION=eu-west-1`・`AWS_SES_ACCESS_KEY_ID`・`AWS_SES_SECRET_ACCESS_KEY`）と GitHub Environment `genai-example-1-dev` の Secrets（`gh secret list --env genai-example-1-dev` で4件とも登録済みと確認）を確認。既存の `PASSWORD_PEPPER`（`deploy-dev.yml` の `deploy-api` ジョブで `wrangler secret put` を deploy 直前に自動実行）と同型のパターンで、この4値も dev デプロイ時に Wrangler Secrets として自動設定する方針とする。
+**Context**: Workspace Detection（Cloudflare API による実地調査）/ Requirements Analysis（既存 SSoT: `docs/GUIDES/infra/00-overview.md` §3「本番外部サービス」・§6「シークレット管理」を参照、新規要件定義は不要）/ 利用者承認
+
+### 実装方針（Workflow Planning, minimal 深度・追補扱い）
+- 新規ユニットは起票せず、`aidlc-state.md` に既に「後続」と明記されていた本番化差し替え項目（KV/SES+MJML/Workers 互換 Argon2id 等のうち SES 部分）の追補として扱う（brownfield・既存 SSoT を流用）。
+- MJML 化は本タスクの範囲外（今回のバグ修正に不要なスコープ拡大のため見送り、既存の `domain/email-templates.ts` の素の HTML テンプレートをそのまま利用）。
+- api: `apps/api/src/infrastructure/ses-mail-sender.ts` に `MailSender` 実装を追加。`@aws-sdk/client-ses` を Workers 互換の `FetchHttpHandler`（`@smithy/fetch-http-handler`）で構成する。
+- ランタイム切り替え: 既存の `getD1Database()` による Workers 判定パターン（`mikro-orm.config.ts` と同型）を再利用し、Workers 実行時は `SesMailSender`、ローカル（`main.ts`）は既存の `NodemailerMailSender`（Mailpit）のままとする。`user.module.ts`・`admin.module.ts` 両方の `MAIL_SENDER` プロバイダを対称に更新する。
+- CI: `.github/workflows/deploy-dev.yml` の `deploy-api` ジョブに、`PASSWORD_PEPPER` と同型の `wrangler secret put` ステップを4本追加（`MAIL_FROM`・`AWS_DEFAULT_REGION`・`AWS_SES_ACCESS_KEY_ID`・`AWS_SES_SECRET_ACCESS_KEY`）。
+- TDD（RED→GREEN）で `SesMailSender` の単体テストを追加。
+- docs: `docs/GUIDES/infra/02-deployment.md` §6（「SES 認証情報等は引き続き人間の作業者が手動設定する」の記述を更新）、`apps/api/src/infrastructure/mail-sender.ts` のコメント更新。
+- Wrangler バンドル（esbuild）で `@aws-sdk/client-ses` が問題なく解決できるかを `wrangler deploy --dry-run` 等で事前検証し、必要なら `wrangler.jsonc` の `alias` に回避策を追加する（既存の NestJS/Apollo 向け回避策と同型）。
+
+### 完了報告
+**Timestamp**: 2026-07-09T23:40:00Z
+**AI Response**: TDD(RED→GREEN)で実装。`SesMailSender`(2 テスト、`ses-mail-sender.spec.ts`、SESClient をフェイク化して検証)。`workers-runtime.ts` に `isWorkersRuntime()` を追加し、`user.module.ts`・`admin.module.ts` の `MAIL_SENDER` プロバイダを対称に更新(Workers 実行時は SES、ローカルは Mailpit)。api 全体 343 テスト GREEN(新規 `SesMailSender` の 2 テストを含む、43 スイート)、変更ファイルは eslint クリーン、`tsc --noEmit`(通常 + `tsconfig.worker.json` の両方)通過。
+`wrangler deploy --env dev --dry-run --outdir=...` で実際に esbuild バンドルを検証し、`@aws-sdk/client-ses`/`@smithy/fetch-http-handler` とも `wrangler.jsonc` の `alias` 回避策なしで問題なく解決できることを確認した(Total Upload 12938.02 KiB / gzip 2149.54 KiB)。
+さらに、`.env` の実際の AWS 認証情報を使い、`SesMailSender` と同一の `SendEmailCommand` 構成で実際に Amazon SES へテストメール(自己送信)を送信し、`MessageId` が返る成功を実機で確認した(モックだけでなく実際の疎通を検証、`verify` 方針)。
+`deploy-dev.yml` の `deploy-api` ジョブに、`PASSWORD_PEPPER` と同型の `wrangler secret put` ステップを追加(`MAIL_FROM`/`AWS_DEFAULT_REGION`/`AWS_SES_ACCESS_KEY_ID`/`AWS_SES_SECRET_ACCESS_KEY`、GitHub Environment `genai-example-1-dev` の Secrets から)。`docs/GUIDES/infra/02-deployment.md` §6 と `CHANGELOG.md`(Unreleased/Fixed)を更新。
+先行して着手していた `UnexpectedErrorFilter`(想定外例外の一般化)は、利用者の「Cloudflare Workers でのみ発生」という追加情報を受けて根本原因の見立てが変わったため、利用者の操作により差し戻された(ファイルは存在しない)。今回のスコープには含めていない。
+main へのマージは利用者に確認のうえ実施する。
+**Context**: Construction / Build and Test 完了 → マージ可否を利用者に確認予定
+
+---

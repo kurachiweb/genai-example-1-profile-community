@@ -51,7 +51,11 @@ import { ValkeyWebauthnChallengeStore } from '../../../infrastructure/webauthn-c
 import { SimpleWebauthnVerifier } from '../../../infrastructure/webauthn-verifier';
 import { createValkeyClient, ValkeyClient } from '../../../infrastructure/valkey-client';
 import { createKVValkeyClient } from '../../../infrastructure/kv-valkey-client';
-import { getAppKV, getSessionAdminKV } from '../../../infrastructure/workers-runtime';
+import {
+	getAppKV,
+	getSessionAdminKV,
+	isWorkersRuntime
+} from '../../../infrastructure/workers-runtime';
 import { MikroAdminAccountRepository } from '../../../infrastructure/persistence/admin-account.repository';
 import { MikroAdminUserRepository } from '../../../infrastructure/persistence/admin-user.repository';
 import { MikroAdminWebauthnCredentialRepository } from '../../../infrastructure/persistence/admin-webauthn-credential.repository';
@@ -86,6 +90,7 @@ import { HelpArticleService } from '../../../application/admin/help-article.serv
 import { InquiryService } from '../../../application/admin/inquiry.service';
 import { PolicyService } from '../../../application/admin/policy.service';
 import { NodemailerMailSender } from '../../../infrastructure/mail-sender';
+import { SesMailSender } from '../../../infrastructure/ses-mail-sender';
 import {
 	MikroAnnouncementRepository,
 	MikroEmailNotificationRepository,
@@ -333,7 +338,8 @@ const ADMIN_WEBAUTHN_VALKEY_CLIENT = Symbol('AdminWebauthnValkeyClient');
 		{
 			provide: MAIL_CONFIG,
 			useFactory: () => ({
-				host: process.env.MAIL_SMTP_HOST ?? 'localhost',
+				// ローカルは docker compose のサービス名(compose.yaml)。
+				host: process.env.MAIL_SMTP_HOST ?? 'mailpit',
 				port: Number(process.env.MAIL_SMTP_PORT ?? 1025),
 				from: process.env.MAIL_FROM ?? 'GenAI Profile Community <no-reply@example.com>'
 			})
@@ -341,8 +347,17 @@ const ADMIN_WEBAUTHN_VALKEY_CLIENT = Symbol('AdminWebauthnValkeyClient');
 		{
 			provide: MAIL_SENDER,
 			inject: [MAIL_CONFIG],
-			useFactory: (config: { host: string; port: number; from: string }) =>
-				new NodemailerMailSender(config)
+			// isWorkersRuntime() は D1 バインディング登録有無で判定する(mikro-orm.config.ts と同じ signal、
+			// workers-runtime.ts)。Workers は生 SMTP ソケットを扱えないため、本番/dev は SES(fetch 経由)を使う。
+			useFactory: (config: { host: string; port: number; from: string }): MailSender =>
+				isWorkersRuntime()
+					? new SesMailSender({
+							from: config.from,
+							region: process.env.AWS_DEFAULT_REGION ?? '',
+							accessKeyId: process.env.AWS_SES_ACCESS_KEY_ID ?? '',
+							secretAccessKey: process.env.AWS_SES_SECRET_ACCESS_KEY ?? ''
+						})
+					: new NodemailerMailSender(config)
 		},
 		{
 			provide: AnnouncementService,

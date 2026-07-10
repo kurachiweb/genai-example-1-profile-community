@@ -113,7 +113,8 @@ flowchart LR
 - ランタイムシークレット（SES 認証情報・Sentry DSN・内部署名鍵・`PASSWORD_PEPPER`（パスワードハッシュ化のペッパー、`BR-COMMON-003`）など）は **Wrangler Secrets**（`wrangler secret put`）で各 Worker に設定する。
   - `PASSWORD_PEPPER`（dev）: `deploy-dev.yml` の `deploy-api` ジョブで `wrangler deploy` の**直前**に自動設定する（`loadEnv()` が起動時に必須検証するため、未設定のまま deploy すると Worker が起動時例外でクラッシュする）。値は GitHub Actions Secrets の `PASSWORD_PEPPER`（固定値）をそのまま流し込むだけで、**CI 実行のたびに値を生成し直さない**（値が変わると既存の全パスワードハッシュが検証不能になり、全ユーザーがログイン不能になる）。初回の値の生成・GitHub Actions Secrets への登録は人間の作業者が行う（`openssl rand -base64 32` 等、32文字以上）。
   - `PASSWORD_PEPPER`（production）: 本書執筆時点では prod 用デプロイワークフローが未実装のため、当面は人間の作業者が `wrangler secret put PASSWORD_PEPPER --env production` を手動実行する。prod パイプラインを構築する際に dev と同様の自動設定ステップへの統合を検討する。
-  - それ以外のランタイムシークレット（SES 認証情報等）は引き続き人間の作業者が手動設定する。
+  - `MAIL_FROM`/`AWS_DEFAULT_REGION`/`AWS_SES_ACCESS_KEY_ID`/`AWS_SES_SECRET_ACCESS_KEY`（dev、メール送信 `SesMailSender`、`apps/api/src/infrastructure/ses-mail-sender.ts`）: `PASSWORD_PEPPER` と同型で、`deploy-dev.yml` の `deploy-api` ジョブで `wrangler deploy` の直前に GitHub Actions Secrets の値をそのまま流し込む。未設定のまま deploy すると、Workers 実行時（`isWorkersRuntime()` が true の分岐）に SES 呼び出しが認証エラーで失敗する。値の初回登録（AWS IAM の SES 送信用アクセスキー発行・GitHub Actions Secrets への登録）は人間の作業者が行う。
+  - それ以外のランタイムシークレット（Sentry DSN 等）は引き続き人間の作業者が手動設定する。
 - CI 用シークレットは **GitHub Actions Secrets** で管理する。
 - いずれもリポジトリ・ログ・エラー出力に**含めない**（`BR-COMMON-014`、TruffleHog/Gitleaks で多重防御）。
 - 露出が疑われるシークレットは即時ローテーションする（[ecc-common/security.md](../../../.claude/rules/ecc-common/security.md)）。

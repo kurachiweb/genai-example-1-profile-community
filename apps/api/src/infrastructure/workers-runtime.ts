@@ -17,6 +17,15 @@ export function getD1Database(): D1Database | undefined {
 	return d1Database;
 }
 
+/**
+ * Cloudflare Workers ランタイムで動作しているかを判定する(D1 バインディングの登録有無で判定)。
+ * mikro-orm.config.ts の D1/SQLite 切り替えと同じ signal を、mail-sender の SES/Nodemailer
+ * 切り替えでも再利用する(user.module.ts・admin.module.ts)。
+ */
+export function isWorkersRuntime(): boolean {
+	return d1Database !== undefined;
+}
+
 export interface WorkersKVNamespaces {
 	readonly sessionClient: KVNamespace;
 	readonly sessionAdmin: KVNamespace;

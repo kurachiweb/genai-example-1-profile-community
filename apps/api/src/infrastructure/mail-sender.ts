@@ -1,5 +1,6 @@
-// MailSender(Gateway)の実装。ローカル/dev は SMTP(Mailpit)へ送る。
-// 本番は Amazon SES(@aws-sdk/client-ses)へ差し替える(MailSender 実装の差し替え)。
+// MailSender(Gateway)の実装。ローカル/dev(main.ts)は SMTP(Mailpit)へ送る。
+// 本番/dev(Cloudflare Workers)は SesMailSender(ses-mail-sender.ts)へ差し替わる
+// (user.module.ts・admin.module.ts の isWorkersRuntime() 分岐)。
 // Mailpit の SMTP はサービス間ポート(1025)で、api コンテナから host 'mailpit' に到達する(compose.yaml)。
 import nodemailer, { type Transporter } from 'nodemailer';
 import { Injectable } from '@nestjs/common';
