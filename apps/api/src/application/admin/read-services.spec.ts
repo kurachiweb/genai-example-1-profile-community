@@ -1,5 +1,6 @@
 import { AdminRole } from '../../domain/admin-role';
 import { AuditActorType, AuditEventType, AuditResult } from '../../domain/audit-event';
+import { Visibility } from '../../domain/effective-public';
 import { ForbiddenError, NotFoundError } from '../../domain/errors';
 import { UserStatus } from '../../domain/user-status';
 import { AuditLogService } from './audit-log.service';
@@ -21,7 +22,7 @@ function users(): UserSummary[] {
 			email: 'a@example.com',
 			handle: 'a',
 			status: UserStatus.ACTIVE,
-			visibility: 'public',
+			visibility: Visibility.PUBLIC,
 			displayName: 'A',
 			createdAt: new Date('2026-01-01T00:00:00Z'),
 			reportCount: 0,
@@ -32,7 +33,7 @@ function users(): UserSummary[] {
 			email: 'b@example.com',
 			handle: 'b',
 			status: UserStatus.FROZEN,
-			visibility: 'public',
+			visibility: Visibility.PUBLIC,
 			displayName: 'B',
 			createdAt: new Date('2026-01-02T00:00:00Z'),
 			reportCount: 3,
@@ -70,7 +71,7 @@ describe('UserAdminService', () => {
 			email: `m${index}@example.com`,
 			handle: `m${index}`,
 			status: UserStatus.ACTIVE,
-			visibility: 'public',
+			visibility: Visibility.PUBLIC,
 			displayName: `M${index}`,
 			createdAt: new Date('2026-01-01T00:00:00Z'),
 			reportCount: 0,

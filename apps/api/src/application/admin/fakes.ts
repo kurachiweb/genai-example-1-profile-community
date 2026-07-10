@@ -2,6 +2,7 @@
 // 本番ロジックではないためカバレッジ対象外(jest.config.ts 参照)。
 import { AdminRole } from '../../domain/admin-role';
 import { AuditLogRecord } from '../../domain/audit-event';
+import { Visibility } from '../../domain/effective-public';
 import { ReportStatus, SuspensionStatus, UnfreezeRequestStatus } from '../../domain/moderation';
 import { UserStatus } from '../../domain/user-status';
 import { Clock, IdGenerator } from '../gateways';
@@ -192,7 +193,8 @@ export class InMemoryAdminUserRepository implements AdminUserRepository {
 		return this.users.length;
 	}
 	async countEffectivePublic(): Promise<number> {
-		return this.users.filter((u) => u.status === 'ACTIVE' && u.visibility === 'public').length;
+		return this.users.filter((u) => u.status === 'ACTIVE' && u.visibility === Visibility.PUBLIC)
+			.length;
 	}
 }
 

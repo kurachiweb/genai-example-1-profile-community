@@ -140,7 +140,7 @@ describe('公開 REST API', () => {
 			const res = await request(app.getHttpServer()).get(`${BASE}/me/profile`).set(auth(READ_KEY));
 			expect(res.status).toBe(200);
 			expect(res.body).toMatchObject({ success: true, error: null });
-			expect(res.body.data).toMatchObject({ handle: 'minato', visibility: 'private' });
+			expect(res.body.data).toMatchObject({ handle: 'minato', visibility: Visibility.PRIVATE });
 		});
 
 		test('他者の公開プロフィールを取得し非公開属性を含まない(AC-API-006)', async () => {
@@ -198,6 +198,16 @@ describe('公開 REST API', () => {
 			expect(res.body.data.snsLinks).toHaveLength(1);
 		});
 
+		test('PATCH は小文字表記の visibility(public/private) も受理し大文字へ正規化する(後方互換)', async () => {
+			await seed(orm, 'a', 'minato', { rawKey: FULL_KEY, visibility: Visibility.PUBLIC });
+			const res = await request(app.getHttpServer())
+				.patch(`${BASE}/me/profile`)
+				.set(auth(FULL_KEY))
+				.send({ visibility: 'private' });
+			expect(res.status).toBe(200);
+			expect(res.body.data.visibility).toBe(Visibility.PRIVATE);
+		});
+
 		test('PUT で 501 文字の自己紹介は 422 + details(AC-API-009)', async () => {
 			await seed(orm, 'a', 'minato', { rawKey: FULL_KEY });
 			const res = await request(app.getHttpServer())
@@ -221,7 +231,7 @@ describe('公開 REST API', () => {
 				.set(auth(FULL_KEY));
 			expect(res.status).toBe(200);
 			expect(res.body.data.occupation).toBeNull();
-			expect(res.body.data.visibility).toBe('private');
+			expect(res.body.data.visibility).toBe(Visibility.PRIVATE);
 			// アカウントは存続し、再取得できる(ログイン継続相当)。
 			const after = await request(app.getHttpServer())
 				.get(`${BASE}/me/profile`)

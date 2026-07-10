@@ -15,7 +15,7 @@
 
 | 対象 | 代表ケース | 正本 |
 | --- | --- | --- |
-| 実効公開ゲート | `public` × 所有者状態（ACTIVE/UNVERIFIED/FROZEN/WITHDRAWN）の真偽 | `BR-COMMON-007` |
+| 実効公開ゲート | `PUBLIC` × 所有者状態（ACTIVE/UNVERIFIED/FROZEN/WITHDRAWN）の真偽 | `BR-COMMON-007` |
 | 入力検証・正規化 | NFC 正規化・不可視文字除去・書記素単位の文字数・トリム | `BR-COMMON-008`/`009` |
 | 状態遷移 | User 状態の許可遷移・禁止遷移 | `COMMON-2`（[00-common-rules.md](../../service/features/00-common-rules.md)） |
 | エラー写像 | ドメイン例外 → `extensions.code` / HTTP ステータスの対称写像 | `BR-API-011`（[api/00-overview.md](../api/00-overview.md) §2.4） |

@@ -34,7 +34,7 @@ export class MikroProfileRepository implements ProfileRepository {
 	async listEffectivePublic(filter: ProfileListFilter): Promise<ProfileRecord[]> {
 		const em = this.em.fork();
 		const conditions: FilterQuery<ProfileEntity>[] = [
-			// 実効公開: visibility=public かつ owner.status=ACTIVE(リレーション条件で JOIN される)。
+			// 実効公開: visibility=PUBLIC かつ owner.status=ACTIVE(リレーション条件で JOIN される)。
 			{ visibility: Visibility.PUBLIC },
 			{ user: { status: UserStatus.ACTIVE } }
 		];

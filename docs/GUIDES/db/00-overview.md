@@ -54,7 +54,7 @@ flowchart LR
 ### 2.3 状態は列挙で表現
 
 - User の状態（`UNVERIFIED`/`ACTIVE`/`FROZEN`/`WITHDRAWN`）など、状態は文字列の列挙カラムで保持し、`S-USER-*`（features/）と一致させる。
-- 「実効公開」は保存値ではなく**導出**する: `effectivePublic = (visibility = 'public') AND (owner.status = 'ACTIVE')`（`BR-COMMON-007`）。検索・一覧の高速化は短 TTL キャッシュ＋適切なインデックスで対応する。
+- 「実効公開」は保存値ではなく**導出**する: `effectivePublic = (visibility = 'PUBLIC') AND (owner.status = 'ACTIVE')`（`BR-COMMON-007`）。検索・一覧の高速化は短 TTL キャッシュ＋適切なインデックスで対応する。
 
 ### 2.4 検証は境界で、DB は最終防衛線
 

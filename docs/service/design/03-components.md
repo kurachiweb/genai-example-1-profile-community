@@ -51,7 +51,7 @@
 
 ```mermaid
 flowchart TD
-    A["/@handle へアクセス"] --> B{"実効公開か<br/>visibility=public かつ owner=ACTIVE"}
+    A["/@handle へアクセス"] --> B{"実効公開か<br/>visibility=PUBLIC かつ owner=ACTIVE"}
     B -- はい --> P["プロフィールを描画<br/>アイコン→名前→職業→リンク"]
     B -- いいえ --> C{"閲覧者は所有者本人か<br/>ログイン一致"}
     C -- いいえ --> N["404 相当<br/>存在・状態を秘匿"]

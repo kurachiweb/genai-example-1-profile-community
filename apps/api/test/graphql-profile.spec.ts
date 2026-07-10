@@ -106,7 +106,7 @@ describe('Query profile(handle)', () => {
 		expect(res.body.data.profile).toEqual({
 			handle: 'minato',
 			displayName: 'みなと 里中',
-			visibility: 'public'
+			visibility: Visibility.PUBLIC
 		});
 	});
 
@@ -143,7 +143,7 @@ describe('Query myProfile(セッション)', () => {
 			{ query: `query { myProfile { handle visibility } }` },
 			{ 'x-user-session': sessionId }
 		);
-		expect(res.body.data.myProfile).toEqual({ handle: 'minato', visibility: 'private' });
+		expect(res.body.data.myProfile).toEqual({ handle: 'minato', visibility: Visibility.PRIVATE });
 	});
 
 	test('未ログインは UNAUTHORIZED', async () => {

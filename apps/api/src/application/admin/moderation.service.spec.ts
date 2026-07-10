@@ -1,4 +1,5 @@
 import { AdminRole } from '../../domain/admin-role';
+import { Visibility } from '../../domain/effective-public';
 import { ForbiddenError, ValidationError } from '../../domain/errors';
 import { ReportStatus, UnfreezeRequestStatus } from '../../domain/moderation';
 import { UserStatus } from '../../domain/user-status';
@@ -31,7 +32,7 @@ function user(overrides: Partial<UserSummary> = {}): UserSummary {
 		email: 'u@example.com',
 		handle: 'u',
 		status: UserStatus.ACTIVE,
-		visibility: 'public',
+		visibility: Visibility.PUBLIC,
 		displayName: 'User One',
 		createdAt: new Date('2026-01-01T00:00:00Z'),
 		reportCount: 1,

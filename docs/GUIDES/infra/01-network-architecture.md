@@ -84,7 +84,7 @@ flowchart TB
 
 ### 2.1 公開プロフィールページの閲覧（ログイン不要・実効公開ゲート）
 
-`effectivePublic(profile) = (visibility == public) AND (owner.status == ACTIVE)`（`BR-COMMON-007`）をサーバー側で必ず評価する。非公開・未確認・凍結・退会・不存在は一律 `404` 相当（`BR-SHARE-006`）。
+`effectivePublic(profile) = (visibility == PUBLIC) AND (owner.status == ACTIVE)`（`BR-COMMON-007`）をサーバー側で必ず評価する。非公開・未確認・凍結・退会・不存在は一律 `404` 相当（`BR-SHARE-006`）。
 
 ```mermaid
 sequenceDiagram

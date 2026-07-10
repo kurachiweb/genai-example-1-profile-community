@@ -66,7 +66,7 @@
 - API キーの所有者は、自身のプロフィールに対し **Create / Read / Update / Delete** を行える。書き込み（Create/Update/Delete）には **`full` スコープが必須**（`read` キーでは `403`、`BR-API-001b`）。
 - Profile は 1:1 でアカウント作成時に空生成される（[02-profile.md](./02-profile.md)）。そのため公開 API の意味は次のとおり:
   - **Create/Update**: `PUT /me/profile`（全体置換）または `PATCH /me/profile`（部分更新）で内容を設定・更新する。
-  - **Delete**: `DELETE /me/profile` は**プロフィール内容を消去し visibility を `private` にする**。アカウント自体は削除しない。
+  - **Delete**: `DELETE /me/profile` は**プロフィール内容を消去し visibility を `PRIVATE` にする**。アカウント自体は削除しない。
 - 退会（アカウント削除）は公開 API では提供しない（`BR-API-010`）。
 
 ### BR-API-005 他者公開プロフィールの Read
@@ -223,7 +223,7 @@
 - **関連ストーリー**: US-0503
 - **Given**: 公開中のプロフィールを持つユーザー
 - **When**: `DELETE /me/profile` を呼ぶ
-- **Then**: プロフィール内容が消去され visibility が `private` になるが、**アカウントは存続**し、ログインは引き続き可能
+- **Then**: プロフィール内容が消去され visibility が `PRIVATE` になるが、**アカウントは存続**し、ログインは引き続き可能
 
 #### AC-API-011 他者リソースの書き込み拒否（異常系・セキュリティ）
 

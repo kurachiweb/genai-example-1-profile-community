@@ -74,7 +74,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    REQ["公開面アクセス<br/>(未ログイン/公開API/一覧検索)"] --> V{"visibility == public ?"}
+    REQ["公開面アクセス<br/>(未ログイン/公開API/一覧検索)"] --> V{"visibility == PUBLIC ?"}
     V -- No --> HIDE["秘匿: 404 相当"]
     V -- Yes --> S{"owner.status == ACTIVE ?"}
     S -- No（UNVERIFIED/FROZEN/WITHDRAWN） --> HIDE

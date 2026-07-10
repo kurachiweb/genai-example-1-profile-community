@@ -86,25 +86,25 @@ stateDiagram-v2
 
 ### BR-COMMON-006 公開既定値
 
-- 新規作成された Profile の公開フラグ（visibility）の既定値は **`public`（公開）** とする。
+- 新規作成された Profile の公開フラグ（visibility）の既定値は **`PUBLIC`（公開）** とする。
   - 根拠: コンセプト「作るのが速い・渡すのが速い」に沿い、作成直後から共有可能にする。
 
 ### BR-COMMON-007 実効公開の前提条件（公開ゲート）
 
-- visibility が `public` であっても、**実際に一般公開（未ログイン閲覧者・公開 API・一覧/検索への露出）されるのは、所有ユーザーが `S-USER-ACTIVE`（メール確認済み）かつ凍結・退会でない場合に限る**。
+- visibility が `PUBLIC` であっても、**実際に一般公開（未ログイン閲覧者・公開 API・一覧/検索への露出）されるのは、所有ユーザーが `S-USER-ACTIVE`（メール確認済み）かつ凍結・退会でない場合に限る**。
 - 「実効公開（effective public）」の判定式を全機能で統一する。
 
 ```mermaid
 flowchart TD
-    A[プロフィール] --> B{visibility は public か}
+    A[プロフィール] --> B{visibility は PUBLIC か}
     B -- いいえ --> X[実効非公開・404 相当]
     B -- はい --> C{owner.status は ACTIVE か}
     C -- いいえ --> X
     C -- はい --> Y[実効公開]
 ```
 
-> 判定式: `effectivePublic(profile) = (profile.visibility == public) AND (owner.status == ACTIVE)`
-> `owner.status` が `UNVERIFIED` / `FROZEN` / `WITHDRAWN` のときは、`visibility` が `public` でもすべて実効非公開（`404` 相当）となる。
+> 判定式: `effectivePublic(profile) = (profile.visibility == PUBLIC) AND (owner.status == ACTIVE)`
+> `owner.status` が `UNVERIFIED` / `FROZEN` / `WITHDRAWN` のときは、`visibility` が `PUBLIC` でもすべて実効非公開（`404` 相当）となる。
 
 - `UNVERIFIED` ユーザーの公開ページ・一覧/検索・公開 API では、未確認である旨を所有者本人には提示しつつ、第三者には非公開（`404` 相当）として扱う。
   - 根拠: スパム・なりすまし対策。メール到達性の確認前に第三者へ露出させない。

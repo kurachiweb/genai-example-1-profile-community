@@ -7,7 +7,7 @@
 
 ## 1. エンティティ定義
 
-Profile は User に 1:1 で紐づき、アカウント作成時に空の状態で生成される（公開フラグの既定は `public`、`BR-COMMON-006`）。
+Profile は User に 1:1 で紐づき、アカウント作成時に空の状態で生成される（公開フラグの既定は `PUBLIC`、`BR-COMMON-006`）。
 
 | 属性 | 型 | 必須 | 制約（正本: 本書の各 BR） |
 | --- | --- | --- | --- |
@@ -20,7 +20,7 @@ Profile は User に 1:1 で紐づき、アカウント作成時に空の状態�
 | snsLinks | SnsLink[] | 任意 | `BR-PROF-007`（0〜10 件） |
 | handle / visibility | — | — | [03-profile-sharing.md](./03-profile-sharing.md) |
 
-> **必須項目と公開の関係**: 公開フラグは既定で `public` だが、`firstName` と `lastName` が未入力のプロフィールは公開ページに「名前未設定」として表示されうる。最小限の体裁を保つため、公開導線では必須項目の充足を促す（[03-profile-sharing.md](./03-profile-sharing.md) `BR-SHARE-005`）。
+> **必須項目と公開の関係**: 公開フラグは既定で `PUBLIC` だが、`firstName` と `lastName` が未入力のプロフィールは公開ページに「名前未設定」として表示されうる。最小限の体裁を保つため、公開導線では必須項目の充足を促す（[03-profile-sharing.md](./03-profile-sharing.md) `BR-SHARE-005`）。
 
 ## 2. ビジネスルール
 

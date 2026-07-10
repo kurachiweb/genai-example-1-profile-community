@@ -92,10 +92,10 @@
 | 予約語 | ルーティング衝突や公式詐称を防ぐため、ハンドルに使えない語（`admin`／`api`／`login`／`help` 等）。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
 | 予約保持 | ハンドル変更・退会で手放した旧ハンドルを、なりすまし防止のため一定期間（30 日）他者に取得させず確保すること。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
 | 旧ハンドルリダイレクト（301 転送） | ハンドル変更後 30 日間、旧ハンドルの固有 URL から新ハンドルへ恒久（301）転送する仕組み。30 日経過後は旧ハンドルで `404`。退会で手放した旧ハンドルや転送先が実効公開でない場合は転送しない。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
-| 公開設定（visibility） | プロフィールを公開するかの設定。`public`（公開、既定）／`private`（非公開）の 2 値。利用者がいつでも切り替えられる。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
-| 公開既定値 | 新規 Profile の visibility の初期値。コンセプトに沿い `public`（公開）とする。 | [00-common-rules.md](./features/00-common-rules.md) |
-| 公開ゲート | 「公開設定が public でも、実際に第三者へ公開してよいか」を判定する関門。所有者がメール確認済み（ACTIVE）かどうかで通過可否が決まる。 | [00-common-rules.md](./features/00-common-rules.md) |
-| 実効公開（effectivePublic） | 実際に一般公開される条件を表すサービス共通の判定。「visibility が public **かつ** 所有者が ACTIVE」のときだけ真。一覧・検索・公開 API・公開ページのすべてで統一して用いる。 | [00-common-rules.md](./features/00-common-rules.md) |
+| 公開設定（visibility） | プロフィールを公開するかの設定。`PUBLIC`（公開、既定）／`PRIVATE`（非公開）の 2 値。利用者がいつでも切り替えられる。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
+| 公開既定値 | 新規 Profile の visibility の初期値。コンセプトに沿い `PUBLIC`（公開）とする。 | [00-common-rules.md](./features/00-common-rules.md) |
+| 公開ゲート | 「公開設定が PUBLIC でも、実際に第三者へ公開してよいか」を判定する関門。所有者がメール確認済み（ACTIVE）かどうかで通過可否が決まる。 | [00-common-rules.md](./features/00-common-rules.md) |
+| 実効公開（effectivePublic） | 実際に一般公開される条件を表すサービス共通の判定。「visibility が PUBLIC **かつ** 所有者が ACTIVE」のときだけ真。一覧・検索・公開 API・公開ページのすべてで統一して用いる。 | [00-common-rules.md](./features/00-common-rules.md) |
 | 公開ページ | ログイン不要で閲覧できるプロフィールの表示画面。「アイコン→名前→職業→リンク」の視線の流れで提示する。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
 | `404` 相当（秘匿） | 非公開・未確認・凍結・退会・存在しないハンドルへのアクセスに対し、存在や状態を漏らさないため一律「見つかりません」を返す扱い。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |
 | OGP（Open Graph Protocol） | SNS 等に URL を貼ったときに表示されるプレビュー（タイトル・説明・画像）を制御するメタ情報。共有時の第一印象を整える。非公開ページでは個人情報を含めない。 | [03-profile-sharing.md](./features/03-profile-sharing.md) |

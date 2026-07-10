@@ -31,7 +31,7 @@ export interface ProfileRepository {
 	findByUserId(userId: string): Promise<ProfileRecord | null>;
 	findByHandle(handle: string): Promise<ProfileRecord | null>;
 	/**
-	 * 実効公開(owner ACTIVE かつ visibility public)のプロフィールのみを (updated_at desc, id desc) で取得する。
+	 * 実効公開(owner ACTIVE かつ visibility PUBLIC)のプロフィールのみを (updated_at desc, id desc) で取得する。
 	 * 除外行は SQL の段階で確実に落とす(取得後フィルタの漏れを作らない、mikroorm §5)。
 	 */
 	listEffectivePublic(filter: ProfileListFilter): Promise<ProfileRecord[]>;

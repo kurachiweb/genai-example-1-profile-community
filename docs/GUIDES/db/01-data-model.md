@@ -58,7 +58,7 @@ erDiagram
         string id PK "ULID"
         string user_id FK "一意(1:1)"
         string handle "一意・3-30・小文字"
-        string visibility "public/private(既定 public)"
+        string visibility "PUBLIC/PRIVATE(既定 PUBLIC)"
         string icon_image_id "Cloudflare Images ID(nullable)"
         string first_name "必須・<=50書記素"
         string last_name "必須・<=50"
@@ -306,7 +306,7 @@ erDiagram
 | `id` | TEXT(ULID) | PK | |
 | `user_id` | TEXT | NN, UNIQUE, FK→users | 1:1（`BR-COMMON-006`） |
 | `handle` | TEXT | NN, UNIQUE | `^[a-z0-9](?:-?[a-z0-9])*$` 3〜30（`BR-SHARE-001`） |
-| `visibility` | TEXT(enum) | NN, CHECK, 既定 `public` | `public`/`private`（`BR-SHARE-005`） |
+| `visibility` | TEXT(enum) | NN, CHECK, 既定 `PUBLIC` | `PUBLIC`/`PRIVATE`（`BR-SHARE-005`） |
 | `icon_image_id` | TEXT | nullable | Cloudflare Images の画像 ID。未設定は既定アイコン（`BR-PROF-001`） |
 | `first_name` | TEXT | NN | 必須・最大 50 書記素（アプリ層検証） |
 | `last_name` | TEXT | NN | 必須・最大 50 書記素 |

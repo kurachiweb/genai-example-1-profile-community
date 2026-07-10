@@ -1,0 +1,12 @@
+update `profiles` set `visibility` = upper(`visibility`) where `visibility` <> upper(`visibility`);
+pragma foreign_keys = off;
+create table `profiles__temp_alter` (`id` text not null primary key, `user_id` text not null, `handle` text not null, `visibility` text not null default 'PUBLIC', `icon_image_id` text null, `first_name` text not null default '', `last_name` text not null default '', `name_display_order` text not null default 'givenNameFirst', `occupation` text null, `search_name` text null, `bio` text null, `created_at` datetime not null, `updated_at` datetime not null, constraint `profiles_user_id_foreign` foreign key (`user_id`) references `users` (`id`) on update cascade on delete cascade);
+insert into `profiles__temp_alter` select `id`, `user_id`, `handle`, `visibility`, `icon_image_id`, `first_name`, `last_name`, `name_display_order`, `occupation`, `search_name`, `bio`, `created_at`, `updated_at` from `profiles`;
+drop table `profiles`;
+alter table `profiles__temp_alter` rename to `profiles`;
+create unique index `uq_profiles_user_id` on `profiles` (`user_id`);
+create unique index `uq_profiles_handle` on `profiles` (`handle`);
+create index `idx_profiles_visibility_updated` on `profiles` (`visibility`, `updated_at`);
+create index `idx_profiles_occupation` on `profiles` (`occupation`);
+create index `idx_profiles_search_name` on `profiles` (`search_name`);
+pragma foreign_keys = on;

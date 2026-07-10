@@ -42,7 +42,7 @@ export class ProfileView {
 	@ApiProperty({ description: 'アイコン画像 ID(Cloudflare Images、未設定は既定)', nullable: true })
 	iconImageId!: string | null;
 
-	@ApiProperty({ description: '公開設定(public/private、BR-SHARE-005)' })
+	@ApiProperty({ description: '公開設定(PUBLIC/PRIVATE、BR-SHARE-005)' })
 	visibility!: string;
 
 	@ApiProperty({ type: () => [SnsLinkView], description: 'SNS/Web リンク(0〜10 件)' })

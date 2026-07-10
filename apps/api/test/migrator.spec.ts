@@ -92,9 +92,39 @@ describe('MikroORM Migrator(migrations/*.ts)', () => {
 		expect(String(deleteError)).toMatch(/append-only/);
 	});
 
+	test('up() は既存の visibility の大文字・小文字混在を PUBLIC/PRIVATE へ正規化する(BR-SHARE-005)', async () => {
+		// 初回マイグレーションまでで止め、旧アプリが書き込んだ想定の小文字値を直接 INSERT する。
+		await orm.migrator.up({ to: 'Migration20260708044931' });
+		const connection = orm.em.getConnection();
+		await connection.execute(
+			"insert into users (id, email, email_normalized, password_hash, status, created_at, updated_at) values ('u1', 'a@example.com', 'a@example.com', 'hash', 'ACTIVE', datetime('now'), datetime('now'))"
+		);
+		await connection.execute(
+			"insert into users (id, email, email_normalized, password_hash, status, created_at, updated_at) values ('u2', 'b@example.com', 'b@example.com', 'hash', 'ACTIVE', datetime('now'), datetime('now'))"
+		);
+		await connection.execute(
+			"insert into profiles (id, user_id, handle, visibility, created_at, updated_at) values ('p1', 'u1', 'lowercase-handle', 'public', datetime('now'), datetime('now'))"
+		);
+		await connection.execute(
+			"insert into profiles (id, user_id, handle, visibility, created_at, updated_at) values ('p2', 'u2', 'already-upper-handle', 'PRIVATE', datetime('now'), datetime('now'))"
+		);
+
+		// 残りのマイグレーション(visibility 正規化)を適用する。
+		await orm.migrator.up();
+
+		const rows = await connection.execute<Array<{ handle: string; visibility: string }>>(
+			'select handle, visibility from profiles order by handle'
+		);
+		expect(rows).toEqual([
+			{ handle: 'already-upper-handle', visibility: 'PRIVATE' },
+			{ handle: 'lowercase-handle', visibility: 'PUBLIC' }
+		]);
+	});
+
 	test('down() で全テーブルが削除される', async () => {
 		await orm.migrator.up();
-		await orm.migrator.down();
+		// down() は既定で直近 1 件のみ巻き戻すため、`to: 0` で全マイグレーションを巻き戻す。
+		await orm.migrator.down({ to: 0 });
 
 		const connection = orm.em.getConnection();
 		const rows = await connection.execute<Array<{ name: string }>>(

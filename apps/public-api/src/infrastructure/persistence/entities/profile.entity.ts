@@ -10,7 +10,7 @@ export class ProfileEntity {
 	// 1:1(BR-COMMON-006)。所有ユーザー削除時はカスケード。
 	user!: UserEntity;
 	handle!: string;
-	// public/private(BR-SHARE-005)。既定 public(BR-COMMON-006)。
+	// PUBLIC/PRIVATE(BR-SHARE-005)。既定 PUBLIC(BR-COMMON-006)。
 	visibility!: Opt<Visibility>;
 	iconImageId!: string | null;
 	firstName!: Opt<string>;

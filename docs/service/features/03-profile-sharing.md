@@ -50,8 +50,8 @@
 
 ### BR-SHARE-005 公開・非公開の切り替え
 
-- visibility は `public` / `private` の 2 値。既定は `public`（`BR-COMMON-006`）。利用者はいつでも切り替えられる。
-- **実効公開**は `effectivePublic()`（`BR-COMMON-007`）に従う。すなわち `private`、または所有者が `UNVERIFIED`/`FROZEN`/`WITHDRAWN` の場合、第三者には公開されない。
+- visibility は `PUBLIC` / `PRIVATE` の 2 値。既定は `PUBLIC`（`BR-COMMON-006`）。利用者はいつでも切り替えられる。
+- **実効公開**は `effectivePublic()`（`BR-COMMON-007`）に従う。すなわち `PRIVATE`、または所有者が `UNVERIFIED`/`FROZEN`/`WITHDRAWN` の場合、第三者には公開されない。
 - 公開導線では、氏名など最小限の必須項目（`firstName`/`lastName`）の充足を促す。未充足でも公開は妨げないが、注意を表示する。
 - 公開・非公開の切り替えは監査ログに記録する。
 
@@ -135,22 +135,22 @@
 #### AC-SHARE-007 公開ページの一般閲覧（正常系）
 
 - **関連ストーリー**: US-0301 / US-0401
-- **Given**: メール確認済み（`ACTIVE`）で `public` の利用者
+- **Given**: メール確認済み（`ACTIVE`）で `PUBLIC` の利用者
 - **When**: 未ログインの閲覧者が `/@{handle}` を開く
 - **Then**: ログイン不要で、アイコン・表示名・職業・自己紹介・SNS リンクが表示される
 
 #### AC-SHARE-008 未確認ユーザーは第三者に非公開（重要・整合）
 
 - **関連ストーリー**: US-0302 / US-0101
-- **Given**: visibility が `public` だが所有者が `UNVERIFIED`
+- **Given**: visibility が `PUBLIC` だが所有者が `UNVERIFIED`
 - **When**: 未ログインの第三者が `/@{handle}` を開く
 - **Then**: `404` 相当が返り、個人情報は表示されない。本人がログインして開くと「メール未確認のため未公開」と案内される
 
 #### AC-SHARE-009 非公開への切り替え（正常系）
 
 - **関連ストーリー**: US-0302
-- **Given**: 公開中（`ACTIVE`・`public`）の利用者
-- **When**: visibility を `private` に切り替える
+- **Given**: 公開中（`ACTIVE`・`PUBLIC`）の利用者
+- **When**: visibility を `PRIVATE` に切り替える
 - **Then**: 以後、第三者の `/@{handle}` アクセスは `404` 相当となり、一覧・検索・公開 API からも除外され、切り替えが監査ログに記録される
 
 #### AC-SHARE-010 凍結ユーザーの公開停止（整合）
@@ -209,7 +209,7 @@
 #### AC-SHARE-017 転送先が実効公開でない旧ハンドル（異常系・整合）
 
 - **関連ストーリー**: US-0301 / US-0302
-- **Given**: ハンドル変更から 30 日以内だが、変更したユーザーが `private`・凍結・退会のいずれかで実効公開でない
+- **Given**: ハンドル変更から 30 日以内だが、変更したユーザーが `PRIVATE`・凍結・退会のいずれかで実効公開でない
 - **When**: 第三者が旧 URL `/@old-handle` を開く
 - **Then**: 転送せず `404` 相当が返り、状態が秘匿される
 

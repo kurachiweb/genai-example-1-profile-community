@@ -48,7 +48,7 @@ flowchart TD
 
 | 問い合わせ | 初動の当たり | 参照 |
 | --- | --- | --- |
-| 「公開したはずのページが見られない」 | 実効公開ゲートを確認（未確認/凍結/visibility=private/退会で `404`） | `BR-COMMON-007`、[security/01](../security/01-authn-authz.md) §3.3 |
+| 「公開したはずのページが見られない」 | 実効公開ゲートを確認（未確認/凍結/visibility=PRIVATE/退会で `404`） | `BR-COMMON-007`、[security/01](../security/01-authn-authz.md) §3.3 |
 | 「メール（確認/リセット）が届かない」 | SES 送信状況・迷惑メール・再送導線・列挙防止仕様の確認 | RB-5（[02-runbooks.md](./02-runbooks.md)）、`BR-ACCT-003`/`006` |
 | 「アイコンが保存できない」 | NSFW 拒否か Rekognition 障害か・形式/サイズ違反かを切り分け | RB-3、`BR-SAFE-001` |
 | 「公開 API が 429 になる」 | キー単位レート制限・`RateLimit-*` ヘッダ・しきい値設定の確認 | RB-4、`BR-API-008` |

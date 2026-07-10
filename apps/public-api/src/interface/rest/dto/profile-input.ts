@@ -2,8 +2,14 @@
 // ここでは構造(型・必須・配列)を class-validator で検証する。文字数・https・件数・予約語などの
 // 業務ルールはユースケース層が画面と同一ルールで再検証する(BR-API-006、値の正本は features/)。
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsArray, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Visibility } from '../../../domain/effective-public';
+
+/** 大文字化前の表記(小文字 public/private)を送る既存クライアントとの互換のため、検証前に大文字化する。 */
+function toUppercaseIfString({ value }: { value: unknown }): unknown {
+	return typeof value === 'string' ? value.toUpperCase() : value;
+}
 
 export class SnsLinkInputDto {
 	@ApiProperty({ description: 'SNS 種別(x/github/linkedin/.../website、BR-PROF-007)' })
@@ -45,9 +51,12 @@ export class PutProfileDto {
 	@IsString()
 	bio?: string | null;
 
-	@ApiPropertyOptional({ description: '公開設定(public/private、BR-SHARE-005)' })
+	@ApiPropertyOptional({
+		description: '公開設定(PUBLIC/PRIVATE、BR-SHARE-005。小文字表記も許容し大文字へ正規化する)'
+	})
 	@IsOptional()
-	@IsIn(['public', 'private'])
+	@Transform(toUppercaseIfString)
+	@IsIn([Visibility.PUBLIC, Visibility.PRIVATE])
 	visibility?: string;
 
 	@ApiPropertyOptional({ type: () => [SnsLinkInputDto], description: 'SNS リンク(0〜10 件)' })
@@ -85,9 +94,12 @@ export class PatchProfileDto {
 	@IsString()
 	bio?: string | null;
 
-	@ApiPropertyOptional({ description: '公開設定(public/private、BR-SHARE-005)' })
+	@ApiPropertyOptional({
+		description: '公開設定(PUBLIC/PRIVATE、BR-SHARE-005。小文字表記も許容し大文字へ正規化する)'
+	})
 	@IsOptional()
-	@IsIn(['public', 'private'])
+	@Transform(toUppercaseIfString)
+	@IsIn([Visibility.PUBLIC, Visibility.PRIVATE])
 	visibility?: string;
 
 	@ApiPropertyOptional({
