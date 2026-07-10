@@ -30,14 +30,14 @@
 			]
 		},
 		"prod": {
-			"name": "genai-example-1-client-prod",
+			"name": "genai-example-1-client",
 			"vars": {
 				"NODE_ENV": "production",
-				"API_GRAPHQL_URL": "https://genai-example-1-api-prod.shortbook.workers.dev/graphql",
+				"API_GRAPHQL_URL": "https://genai-example-1-api.shortbook.workers.dev/graphql",
 				"NEXT_TELEMETRY_DISABLED": "1"
 			},
 			"services": [
-				{ "binding": "WORKER_SELF_REFERENCE", "service": "genai-example-1-client-prod" }
+				{ "binding": "WORKER_SELF_REFERENCE", "service": "genai-example-1-client" }
 			],
 			"r2_buckets": [
 				{
