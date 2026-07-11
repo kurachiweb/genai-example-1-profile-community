@@ -58,7 +58,7 @@ export function ProfileForm({ profile }: Props) {
 						name="handle"
 						defaultValue={profile.handle ?? ''}
 						placeholder="your-handle"
-						pattern="^[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
+						pattern="^[a-z0-9]([a-z0-9\-]*[a-z0-9])?$"
 						maxLength={32}
 					/>
 					<p className="text-(length:--text-caption) text-text-subtle">
