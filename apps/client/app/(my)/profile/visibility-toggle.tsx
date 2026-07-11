@@ -5,6 +5,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@lib';
 import { setProfileVisibilityAction } from '@/lib/actions';
 import type { ProfileVisibility } from '@/lib/api/types';
+import { ResendVerificationButton } from '../settings/resend-verification-button';
 
 interface Props {
 	readonly currentVisibility: ProfileVisibility;
@@ -16,8 +17,10 @@ export function VisibilityToggle({ currentVisibility, isEmailVerified }: Props) 
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | null>(null);
 
+	const isPublic = visibility === 'PUBLIC';
+
 	function toggle() {
-		const next: ProfileVisibility = visibility === 'PUBLIC' ? 'PRIVATE' : 'PUBLIC';
+		const next: ProfileVisibility = isPublic ? 'PRIVATE' : 'PUBLIC';
 		if (next === 'PUBLIC' && !isEmailVerified) {
 			setError('メールアドレスを確認してからプロフィールを公開してください。');
 			return;
@@ -45,23 +48,31 @@ export function VisibilityToggle({ currentVisibility, isEmailVerified }: Props) 
 			) : null}
 			<div className="flex items-center justify-between gap-4">
 				<div className="flex items-center gap-2">
-					{visibility === 'PUBLIC' ? (
+					{isPublic && isEmailVerified ? (
 						<Eye className="size-5 text-accent" aria-hidden="true" />
 					) : (
 						<EyeOff className="size-5 text-text-subtle" aria-hidden="true" />
 					)}
 					<div>
-						<p className="font-medium text-text">{visibility === 'PUBLIC' ? '公開中' : '非公開'}</p>
+						<p className="font-medium text-text">
+							{isPublic && isEmailVerified ? '公開中' : '非公開'}
+						</p>
 						<p className="text-(length:--text-caption) text-text-muted">
-							{visibility === 'PUBLIC'
-								? '誰でもプロフィールを閲覧できます。'
-								: 'プロフィールは一般には公開されていません。'}
+							{!isEmailVerified
+								? 'プロフィールの公開にはメールアドレスの確認が必要です。'
+								: isPublic
+									? '誰でもプロフィールを閲覧できます。'
+									: 'プロフィールは一般には公開されていません。'}
 						</p>
 					</div>
 				</div>
-				<Button variant="outline" size="sm" onClick={toggle} disabled={isPending}>
-					{isPending ? '更新中…' : visibility === 'PUBLIC' ? '非公開にする' : '公開する'}
-				</Button>
+				{!isEmailVerified ? (
+					<ResendVerificationButton />
+				) : (
+					<Button variant="outline" size="sm" onClick={toggle} disabled={isPending}>
+						{isPending ? '更新中…' : visibility === 'PUBLIC' ? '非公開にする' : '公開する'}
+					</Button>
+				)}
 			</div>
 		</div>
 	);
