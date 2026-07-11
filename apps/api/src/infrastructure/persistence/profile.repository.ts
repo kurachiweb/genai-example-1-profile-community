@@ -19,15 +19,23 @@ import { toProfileRecord } from './mappers';
 export class MikroProfileRepository implements ProfileRepository {
 	constructor(private readonly em: EntityManager) {}
 
-	async findByUserId(userId: string): Promise<ProfileRecord | null> {
+	async findByUserId(userId: string, isIncludeDeleted = false): Promise<ProfileRecord | null> {
 		const em = this.em.fork();
-		const entity = await em.findOne(ProfileEntity, { user: userId });
+		const entity = await em.findOne(ProfileEntity, {
+			user: {
+				id: userId,
+				...(isIncludeDeleted ? {} : { status: { $ne: UserStatus.WITHDRAWN } })
+			}
+		});
 		return entity ? toProfileRecord(entity) : null;
 	}
 
-	async findByHandle(handle: string): Promise<ProfileRecord | null> {
+	async findByHandle(handle: string, isIncludeDeleted = false): Promise<ProfileRecord | null> {
 		const em = this.em.fork();
-		const entity = await em.findOne(ProfileEntity, { handle });
+		const entity = await em.findOne(ProfileEntity, {
+			handle,
+			...(isIncludeDeleted ? {} : { user: { status: { $ne: UserStatus.WITHDRAWN } } })
+		});
 		return entity ? toProfileRecord(entity) : null;
 	}
 

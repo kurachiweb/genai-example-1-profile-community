@@ -29,12 +29,17 @@ export interface UserUpdateInput {
 }
 
 export interface UserRepository {
-	findById(id: string): Promise<UserRecord | null>;
-	findByEmailNormalized(emailNormalized: string): Promise<UserRecord | null>;
+	/** isIncludeDeleted が true の場合のみ論理削除(WITHDRAWN)済みユーザーも含める(既定 false)。 */
+	findById(id: string, isIncludeDeleted?: boolean): Promise<UserRecord | null>;
+	/** isIncludeDeleted が true の場合のみ論理削除(WITHDRAWN)済みユーザーも含める(既定 false)。 */
+	findByEmailNormalized(
+		emailNormalized: string,
+		isIncludeDeleted?: boolean
+	): Promise<UserRecord | null>;
 	/** ユーザー＋プロフィールをトランザクションで作成する(登録時専用)。 */
 	createWithProfile(user: UserCreateInput, profile: ProfileCreateInput): Promise<void>;
-	/** パスワードハッシュを取得する(認証用・ユーザーレコードに含めない)。 */
-	getPasswordHash(userId: string): Promise<string | null>;
+	/** パスワードハッシュを取得する(認証用・ユーザーレコードに含めない)。isIncludeDeleted は既定 false。 */
+	getPasswordHash(userId: string, isIncludeDeleted?: boolean): Promise<string | null>;
 	/** フィールドを部分更新する(パスワード変更・メール変更・状態変更等)。 */
 	update(userId: string, changes: UserUpdateInput): Promise<void>;
 }
@@ -62,8 +67,8 @@ export interface ProfileListOffsetResult {
 }
 
 export interface ProfileRepository {
-	findByUserId(userId: string): Promise<ProfileRecord | null>;
-	findByHandle(handle: string): Promise<ProfileRecord | null>;
+	findByUserId(userId: string, isIncludeDeleted?: boolean): Promise<ProfileRecord | null>;
+	findByHandle(handle: string, isIncludeDeleted?: boolean): Promise<ProfileRecord | null>;
 	/**
 	 * 実効公開(owner ACTIVE かつ visibility PUBLIC)のプロフィールのみを (updated_at desc, id desc) で取得する。
 	 * 除外行は SQL の段階で確実に落とす(取得後フィルタの漏れを作らない、mikroorm §5)。

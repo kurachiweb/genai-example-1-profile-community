@@ -8,6 +8,7 @@ import {
 	UserUpdateInput
 } from '../../application/gateways';
 import { UserRecord } from '../../application/models';
+import { UserStatus } from '../../domain/user-status';
 import { ProfileEntity } from './entities/profile.entity';
 import { UserEntity } from './entities/user.entity';
 import { toUserRecord } from './mappers';
@@ -16,21 +17,37 @@ import { toUserRecord } from './mappers';
 export class MikroUserRepository implements UserRepository {
 	constructor(private readonly em: EntityManager) {}
 
-	async findById(id: string): Promise<UserRecord | null> {
+	async findById(id: string, isIncludeDeleted = false): Promise<UserRecord | null> {
 		const em = this.em.fork();
-		const entity = await em.findOne(UserEntity, { id });
+		const entity = await em.findOne(UserEntity, {
+			id,
+			...(isIncludeDeleted ? {} : { status: { $ne: UserStatus.WITHDRAWN } })
+		});
 		return entity ? toUserRecord(entity) : null;
 	}
 
-	async findByEmailNormalized(emailNormalized: string): Promise<UserRecord | null> {
+	async findByEmailNormalized(
+		emailNormalized: string,
+		isIncludeDeleted = false
+	): Promise<UserRecord | null> {
 		const em = this.em.fork();
-		const entity = await em.findOne(UserEntity, { emailNormalized });
+		const entity = await em.findOne(UserEntity, {
+			emailNormalized,
+			...(isIncludeDeleted ? {} : { status: { $ne: UserStatus.WITHDRAWN } })
+		});
 		return entity ? toUserRecord(entity) : null;
 	}
 
-	async getPasswordHash(userId: string): Promise<string | null> {
+	async getPasswordHash(userId: string, isIncludeDeleted = false): Promise<string | null> {
 		const em = this.em.fork();
-		const entity = await em.findOne(UserEntity, { id: userId }, { fields: ['passwordHash'] });
+		const entity = await em.findOne(
+			UserEntity,
+			{
+				id: userId,
+				...(isIncludeDeleted ? {} : { status: { $ne: UserStatus.WITHDRAWN } })
+			},
+			{ fields: ['passwordHash'] }
+		);
 		return entity?.passwordHash ?? null;
 	}
 
