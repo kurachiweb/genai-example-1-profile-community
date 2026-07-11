@@ -1,6 +1,7 @@
 // SNS リンク一覧。各プラットフォームのアイコン付きリンクを表示する。
 import { ExternalLink, Globe } from 'lucide-react';
 import type { SnsLink } from '@/lib/api/types';
+import { snsLinkPlatformLabel } from '@/lib/i18n/labels';
 
 function PlatformIcon({ platform }: { platform: string }) {
 	const className = 'size-4 shrink-0';
@@ -12,20 +13,6 @@ function PlatformIcon({ platform }: { platform: string }) {
 		default:
 			return <ExternalLink className={className} aria-hidden="true" />;
 	}
-}
-
-function platformLabel(platform: string): string {
-	const labels: Record<string, string> = {
-		X: 'X',
-		INSTAGRAM: 'Instagram',
-		FACEBOOK: 'Facebook',
-		LINKEDIN: 'LinkedIn',
-		GITHUB: 'GitHub',
-		YOUTUBE: 'YouTube',
-		TIKTOK: 'TikTok',
-		WEBSITE: 'Web サイト'
-	};
-	return labels[platform] ?? platform;
 }
 
 // 外部 URL のスキームを安全に検証する(XSS 防止)。
@@ -62,7 +49,7 @@ export function SnsLinks({ links }: Props) {
 							className="flex items-center gap-1.5 rounded-full border border-border bg-surface-raised px-3 py-1 text-(length:--text-caption) text-text-muted transition-colors hover:border-accent/40 hover:text-text"
 						>
 							<PlatformIcon platform={link.platform} />
-							{platformLabel(link.platform)}
+							{snsLinkPlatformLabel(link.platform)}
 						</a>
 					</li>
 				);

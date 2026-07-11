@@ -2,10 +2,10 @@ import { reportReasonLabel, snsLinkPlatformLabel } from './labels';
 
 describe('snsLinkPlatformLabel', () => {
 	it('既知のプラットフォームを日本語ラベルに変換する', () => {
-		expect(snsLinkPlatformLabel('X')).toBe('X (旧 Twitter)');
-		expect(snsLinkPlatformLabel('GITHUB')).toBe('GitHub');
-		expect(snsLinkPlatformLabel('INSTAGRAM')).toBe('Instagram');
-		expect(snsLinkPlatformLabel('WEBSITE')).toBe('Web サイト');
+		expect(snsLinkPlatformLabel('x')).toBe('X (旧 Twitter)');
+		expect(snsLinkPlatformLabel('github')).toBe('GitHub');
+		expect(snsLinkPlatformLabel('instagram')).toBe('Instagram');
+		expect(snsLinkPlatformLabel('website')).toBe('Web サイト');
 	});
 
 	it('未知のプラットフォームはそのまま返す', () => {

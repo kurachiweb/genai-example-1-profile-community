@@ -3,14 +3,14 @@ import type { SnsLinkPlatform } from '../api/types';
 
 export function snsLinkPlatformLabel(platform: SnsLinkPlatform): string {
 	const labels: Record<SnsLinkPlatform, string> = {
-		X: 'X (旧 Twitter)',
-		INSTAGRAM: 'Instagram',
-		FACEBOOK: 'Facebook',
-		LINKEDIN: 'LinkedIn',
-		GITHUB: 'GitHub',
-		YOUTUBE: 'YouTube',
-		TIKTOK: 'TikTok',
-		WEBSITE: 'Web サイト'
+		x: 'X (旧 Twitter)',
+		instagram: 'Instagram',
+		facebook: 'Facebook',
+		linkedin: 'LinkedIn',
+		github: 'GitHub',
+		youtube: 'YouTube',
+		tiktok: 'TikTok',
+		website: 'Web サイト'
 	};
 	return labels[platform] ?? platform;
 }

@@ -5,7 +5,7 @@ import type { SnsLink } from '@/lib/api/types';
 
 const makeSnsLink = (overrides: Partial<SnsLink> = {}): SnsLink => ({
 	id: 'link-1',
-	platform: 'GITHUB',
+	platform: 'github',
 	url: 'https://github.com/example',
 	displayOrder: 0,
 	...overrides
@@ -19,12 +19,12 @@ describe('SnsLinks', () => {
 
 	it('リンクを表示順でレンダリングする', () => {
 		const links: SnsLink[] = [
-			makeSnsLink({ id: '1', platform: 'GITHUB', displayOrder: 1 }),
-			makeSnsLink({ id: '2', platform: 'WEBSITE', url: 'https://example.com', displayOrder: 0 })
+			makeSnsLink({ id: '1', platform: 'github', displayOrder: 1 }),
+			makeSnsLink({ id: '2', platform: 'website', url: 'https://example.com', displayOrder: 0 })
 		];
 		render(<SnsLinks links={links} />);
 		const items = screen.getAllByRole('listitem');
-		// displayOrder: 0 (WEBSITE) が先に来る
+		// displayOrder: 0 (website) が先に来る
 		expect(items[0]).toHaveTextContent('Web サイト');
 		expect(items[1]).toHaveTextContent('GitHub');
 	});
@@ -49,7 +49,7 @@ describe('SnsLinks', () => {
 					makeSnsLink(),
 					makeSnsLink({
 						id: '2',
-						platform: 'INSTAGRAM',
+						platform: 'instagram',
 						url: 'https://instagram.com/example',
 						displayOrder: 1
 					})

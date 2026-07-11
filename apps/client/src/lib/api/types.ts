@@ -4,14 +4,14 @@ export type ProfileVisibility = 'PUBLIC' | 'PRIVATE';
 export type ApiKeyScope = 'read' | 'full';
 export type ApiKeyStatus = 'active' | 'revoked';
 export type SnsLinkPlatform =
-	| 'X'
-	| 'INSTAGRAM'
-	| 'FACEBOOK'
-	| 'LINKEDIN'
-	| 'GITHUB'
-	| 'YOUTUBE'
-	| 'TIKTOK'
-	| 'WEBSITE';
+	| 'x'
+	| 'github'
+	| 'linkedin'
+	| 'instagram'
+	| 'youtube'
+	| 'facebook'
+	| 'tiktok'
+	| 'website';
 
 export interface Me {
 	readonly userId: string;

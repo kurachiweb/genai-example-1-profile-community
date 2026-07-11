@@ -8,14 +8,14 @@ import type { SnsLink, SnsLinkPlatform } from '@/lib/api/types';
 import { snsLinkPlatformLabel } from '@/lib/i18n/labels';
 
 const PLATFORMS: SnsLinkPlatform[] = [
-	'X',
-	'INSTAGRAM',
-	'FACEBOOK',
-	'LINKEDIN',
-	'GITHUB',
-	'YOUTUBE',
-	'TIKTOK',
-	'WEBSITE'
+	'x',
+	'github',
+	'linkedin',
+	'instagram',
+	'youtube',
+	'facebook',
+	'tiktok',
+	'website'
 ];
 
 interface LinkEntry {
