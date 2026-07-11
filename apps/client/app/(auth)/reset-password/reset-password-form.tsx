@@ -9,7 +9,7 @@ export function ResetPasswordForm() {
 	const [sent, setSent] = useState(false);
 	const [isPending, startTransition] = useTransition();
 
-	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+	function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		const form = event.currentTarget;
 		const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();

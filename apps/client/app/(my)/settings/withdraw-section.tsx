@@ -10,7 +10,7 @@ export function WithdrawSection() {
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | null>(null);
 
-	function handleWithdraw(event: React.FormEvent<HTMLFormElement>) {
+	function handleWithdraw(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		const password = (
 			event.currentTarget.elements.namedItem('withdrawPassword') as HTMLInputElement

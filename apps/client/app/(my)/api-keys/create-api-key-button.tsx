@@ -13,7 +13,7 @@ export function CreateApiKeyButton() {
 	const [isPending, startTransition] = useTransition();
 	const router = useRouter();
 
-	function handleCreate(event: React.FormEvent<HTMLFormElement>) {
+	function handleCreate(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		const form = event.currentTarget;
 		const label = (form.elements.namedItem('label') as HTMLInputElement).value.trim();

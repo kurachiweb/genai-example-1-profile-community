@@ -14,7 +14,7 @@ export function ResetPasswordConfirmForm({ token }: Props) {
 	const [isPending, startTransition] = useTransition();
 	const router = useRouter();
 
-	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+	function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		const form = event.currentTarget;
 		const newPassword = (form.elements.namedItem('newPassword') as HTMLInputElement).value;

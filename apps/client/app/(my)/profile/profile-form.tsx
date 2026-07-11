@@ -13,7 +13,7 @@ export function ProfileForm({ profile }: Props) {
 	const [isPending, startTransition] = useTransition();
 	const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
-	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+	function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		const form = event.currentTarget;
 		const getValue = (name: string) =>

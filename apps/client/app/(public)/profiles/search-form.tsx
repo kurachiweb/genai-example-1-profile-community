@@ -11,7 +11,7 @@ interface Props {
 export function SearchForm({ defaultValue = '' }: Props) {
 	const router = useRouter();
 
-	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+	function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		const form = event.currentTarget;
 		const q = (form.elements.namedItem('q') as HTMLInputElement).value.trim();

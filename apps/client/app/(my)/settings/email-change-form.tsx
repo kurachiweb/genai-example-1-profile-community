@@ -8,7 +8,7 @@ export function EmailChangeForm() {
 	const [isPending, startTransition] = useTransition();
 	const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
-	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+	function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		const form = event.currentTarget;
 		const newEmail = (form.elements.namedItem('newEmail') as HTMLInputElement).value.trim();
