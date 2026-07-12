@@ -288,7 +288,7 @@ erDiagram
 | --- | --- | --- | --- |
 | `id` | TEXT(ULID) | PK | 内部主キー・不変・非公開 |
 | `email` | TEXT | NN | 表示用の原文（最大 254） |
-| `email_normalized` | TEXT | NN, UNIQUE | 小文字化・トリム済み。一意判定はこちら（`BR-ACCT-001`） |
+| `email_normalized` | TEXT | NN, UNIQUE(`status <> 'WITHDRAWN'` の行のみ) | 小文字化・トリム済み。一意判定はこちら（`BR-ACCT-001`） |
 | `password_hash` | TEXT | NN | PBKDF2（`BR-COMMON-003`） |
 | `status` | TEXT(enum) | NN, CHECK | `UNVERIFIED`/`ACTIVE`/`FROZEN`/`WITHDRAWN`（`COMMON-2`） |
 | `email_verified_at` | datetime | nullable | 確認完了時刻（`BR-ACCT-003`） |
@@ -298,6 +298,7 @@ erDiagram
 | `updated_at` | datetime | NN | |
 
 > 退会時は `status='WITHDRAWN'` とし、`email`/`email_normalized` 等の本人特定可能データを匿名化値に置換する（`BR-ACCT-009`）。
+> ただし匿名化は将来の定期バッチで行う想定であり、退会直後は `email_normalized` に旧アドレスが残る。同一メールでの再登録を妨げないよう、`uq_users_email_normalized` は `WITHDRAWN` 以外の行のみを対象とする部分ユニークインデックスとする（§6）。
 
 ### 5.2 `profiles`（[02](../../service/features/02-profile.md) / [03](../../service/features/03-profile-sharing.md)）
 
@@ -590,7 +591,7 @@ WebAuthn（パスキー）資格情報。**利用者と管理者はストアを�
 
 | インデックス | 対象 | 目的 |
 | --- | --- | --- |
-| `uq_users_email_normalized` | `users(email_normalized)` UNIQUE | メール一意・ログイン引き当て |
+| `uq_users_email_normalized` | `users(email_normalized)` UNIQUE（`WHERE status <> 'WITHDRAWN'`） | メール一意・ログイン引き当て。退会済み行を除外し同一メールでの再登録を許容 |
 | `uq_profiles_user_id` | `profiles(user_id)` UNIQUE | 1:1 保証 |
 | `uq_profiles_handle` | `profiles(handle)` UNIQUE | ハンドル一意・`/@{handle}` 解決 |
 | `idx_profiles_visibility_updated` | `profiles(visibility, updated_at)` | 一覧（実効公開・新着順）＋カーソルページング |

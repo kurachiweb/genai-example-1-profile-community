@@ -25,7 +25,7 @@ export const userSchema = new EntitySchema<UserEntity>({
 	properties: {
 		id: { type: 'string', primary: true },
 		email: { type: 'string' },
-		emailNormalized: { type: 'string', unique: 'uq_users_email_normalized' },
+		emailNormalized: { type: 'string' },
 		passwordHash: { type: 'string' },
 		status: { type: 'string' },
 		emailVerifiedAt: { type: 'datetime', nullable: true },
@@ -33,5 +33,15 @@ export const userSchema = new EntitySchema<UserEntity>({
 		announcementEmailOptIn: { type: 'boolean', default: true },
 		createdAt: { type: 'datetime', onCreate: () => new Date() },
 		updatedAt: { type: 'datetime', onCreate: () => new Date(), onUpdate: () => new Date() }
-	}
+	},
+	// 退会(WITHDRAWN)後は匿名化がバッチ実行まで遅延するため(user.service.ts withdraw)、
+	// email_normalized 単純ユニークだと同一メールでの再登録時に UNIQUE 制約違反になる。
+	// WITHDRAWN 行を対象外にした部分ユニークインデックスで、再登録・複数回の退会を許容する。
+	uniques: [
+		{
+			name: 'uq_users_email_normalized',
+			properties: ['emailNormalized'],
+			where: "status <> 'WITHDRAWN'"
+		}
+	]
 });

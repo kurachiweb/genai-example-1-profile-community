@@ -96,6 +96,7 @@ END;
 
 - `users.email_normalized`・`profiles.handle`・`help_articles.slug`・`policies(type, version)` にユニーク制約を張る（[01-data-model.md](./01-data-model.md) §6）。
 - email の大文字小文字非依存は、アプリ層で小文字化した `email_normalized` への一意制約で担保する（`BR-ACCT-001`）。
+- `uq_users_email_normalized` は `WHERE status <> 'WITHDRAWN'` の部分ユニークインデックスとする。退会時の匿名化は将来の定期バッチで行うため、退会直後は `email_normalized` に旧アドレスが残る。単純な一意制約のままだと同一メールでの再登録が `UNIQUE constraint failed` で失敗するため、退会済み行を対象外にする（[01-data-model.md](./01-data-model.md) §5.1/§6）。
 
 ### 5.3 外部キー
 

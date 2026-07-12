@@ -223,6 +223,19 @@ describe('MikroUserRepository', () => {
 
 			expect(await repo.findById('user-dup2')).toBeNull();
 		});
+
+		// 退会(WITHDRAWN)は匿名化がバッチ実行まで遅延するため、emailNormalized が退会済み行と
+		// 重複していても再登録を許容する必要がある(部分ユニークインデックス、BR-ACCT-009)。
+		test('emailNormalized が退会済みユーザーと重複していても再登録できる', async () => {
+			await seed('a', 'a-handle', { status: UserStatus.WITHDRAWN });
+			const repo = new MikroUserRepository(orm.em);
+			await repo.createWithProfile(
+				userInput({ id: 'user-rejoin', emailNormalized: 'a@example.com' }),
+				profileInput({ id: 'profile-rejoin', userId: 'user-rejoin', handle: 'rejoin-handle' })
+			);
+
+			expect((await repo.findById('user-rejoin'))?.status).toBe(UserStatus.UNVERIFIED);
+		});
 	});
 });
 
