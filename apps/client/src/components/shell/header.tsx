@@ -14,10 +14,13 @@ export async function Header() {
 			<div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
 				<Link
 					href="/"
-					className="flex items-center gap-2 text-(length:--text-meta) font-semibold text-text hover:opacity-80"
+					className="flex items-center gap-1.5 text-(length:--text-meta) leading-tight font-semibold text-text hover:opacity-80"
 				>
-					<span aria-hidden="true" className="size-2.5 rounded-full bg-accent" />
-					GenAI Profile Community
+					<img src="/icon.png" width="32" height="32" decoding="async" className="rounded" />
+					<span>
+						GenAI <br />
+						Profile Community
+					</span>
 				</Link>
 
 				<nav aria-label="サイトナビゲーション" className="flex items-center gap-1">
