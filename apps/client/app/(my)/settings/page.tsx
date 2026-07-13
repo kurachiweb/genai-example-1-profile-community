@@ -60,7 +60,7 @@ export default async function SettingsPage() {
 				>
 					パスワードの変更
 				</h2>
-				<PasswordChangeForm />
+				<PasswordChangeForm email={me.email} />
 			</section>
 
 			{/* 退会 */}

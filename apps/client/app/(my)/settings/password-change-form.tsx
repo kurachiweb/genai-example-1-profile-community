@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { Button, Input, Label } from '@lib';
 import { changePasswordAction } from '@/lib/actions';
 
-export function PasswordChangeForm() {
+export function PasswordChangeForm({ email }: { email: string }) {
 	const [isPending, startTransition] = useTransition();
 	const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -63,6 +63,17 @@ export function PasswordChangeForm() {
 					required
 				/>
 			</div>
+
+			<input
+				type="email"
+				name="username"
+				autoComplete="username"
+				value={email}
+				readOnly
+				className="sr-only"
+				tabIndex={-1}
+				aria-hidden="true"
+			/>
 
 			<div className="flex flex-col gap-1.5">
 				<Label htmlFor="newPassword" required>
