@@ -16,7 +16,14 @@ export async function Header() {
 					href="/"
 					className="flex items-center gap-1.5 text-(length:--text-meta) leading-tight font-semibold text-text hover:opacity-80"
 				>
-					<img src="/icon.png" width="32" height="32" decoding="async" className="rounded" />
+					<img
+						src="/icon.png"
+						width="32"
+						height="32"
+						alt="Service logo"
+						decoding="async"
+						className="rounded"
+					/>
 					<span>
 						GenAI <br />
 						Profile Community
