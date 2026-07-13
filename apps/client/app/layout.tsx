@@ -9,8 +9,14 @@ export const metadata: Metadata = {
 		template: '%s | GenAI Profile Community',
 		default: 'GenAI Profile Community'
 	},
-	description: 'AIが切り拓くプロフィール共有コミュニティ。あなたのプロフィールを世界へ。',
-	metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:48032')
+	description: 'Claudeをフル活用して作られたプロフィール共有コミュニティです。',
+	metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:48032'),
+	// サンプルアプリケーションのため、検索エンジンにインデックスされないようにする。
+	// 各ページの metadata は robots を個別指定しない限りこの値を継承する。
+	robots: {
+		index: false,
+		follow: false
+	}
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
