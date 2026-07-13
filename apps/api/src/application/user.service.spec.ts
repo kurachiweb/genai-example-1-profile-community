@@ -72,7 +72,9 @@ class FakeUserRepository implements UserRepository {
 			...u,
 			...(changes.status !== undefined && { status: changes.status }),
 			...(changes.emailVerifiedAt !== undefined && { emailVerifiedAt: changes.emailVerifiedAt }),
-			...(changes.passwordHash !== undefined && { passwordHash: changes.passwordHash })
+			...(changes.passwordHash !== undefined && { passwordHash: changes.passwordHash }),
+			...(changes.email !== undefined && { email: changes.email }),
+			...(changes.emailNormalized !== undefined && { emailNormalized: changes.emailNormalized })
 		});
 	}
 }
@@ -142,6 +144,13 @@ function extractVerifyToken(html: string): string {
 function extractResetToken(html: string): string {
 	const match = /reset-password\/confirm\?token=([^"&<\s]+)/.exec(html);
 	if (!match) throw new Error('リセットリンクがメール本文に見つからない');
+	return match[1];
+}
+
+/** メール本文に埋め込まれたメールアドレス変更確認トークンを取り出す。 */
+function extractEmailChangeToken(html: string): string {
+	const match = /settings\/confirm-email-change\?token=([^"&<\s]+)/.exec(html);
+	if (!match) throw new Error('変更確認リンクがメール本文に見つからない');
 	return match[1];
 }
 
@@ -487,6 +496,71 @@ describe('UserService.requestEmailChange', () => {
 			h.service.requestEmailChange(userId, 'other@example.com', 'password1234')
 		).resolves.toBeUndefined();
 		expect(h.mail.sent).toHaveLength(2); // 双方の登録時確認メールのみ(変更確認は送らない)
+	});
+});
+
+describe('UserService.verifyEmailChange', () => {
+	async function seedActiveUser(h: Harness): Promise<string> {
+		await h.service.register('user@example.com', 'password1234');
+		const user = await h.users.findByEmailNormalized('user@example.com');
+		await h.users.update(user!.id, { status: UserStatus.ACTIVE, emailVerifiedAt: new Date() });
+		return user!.id;
+	}
+
+	it('有効なトークンでメールアドレスが新アドレスへ切り替わり ACTIVE になる(BR-ACCT-007、AC-ACCT-013)', async () => {
+		const h = makeHarness();
+		const userId = await seedActiveUser(h);
+
+		await h.service.requestEmailChange(userId, 'new@example.com', 'password1234');
+		const token = extractEmailChangeToken(h.mail.sent[1].html);
+		await h.service.verifyEmailChange(token);
+
+		const updated = await h.users.findById(userId);
+		expect(updated?.email).toBe('new@example.com');
+		expect(updated?.status).toBe(UserStatus.ACTIVE);
+		expect(updated?.emailVerifiedAt).not.toBeNull();
+
+		const byNewEmail = await h.users.findByEmailNormalized('new@example.com');
+		expect(byNewEmail?.id).toBe(userId);
+	});
+
+	it('確認完了で旧メールアドレスへのみ変更通知が送られる(乗っ取り対策、BR-ACCT-007)', async () => {
+		const h = makeHarness();
+		const userId = await seedActiveUser(h);
+
+		await h.service.requestEmailChange(userId, 'new@example.com', 'password1234');
+		const token = extractEmailChangeToken(h.mail.sent[1].html);
+		await h.service.verifyEmailChange(token);
+
+		// 登録時確認メール + 変更確認メール + 旧アドレスへの変更通知メール
+		expect(h.mail.sent).toHaveLength(3);
+		const notice = h.mail.sent[2];
+		expect(notice.to).toBe('user@example.com');
+	});
+
+	it('確認完了までは旧メールアドレスが有効なまま保たれる', async () => {
+		const h = makeHarness();
+		const userId = await seedActiveUser(h);
+
+		await h.service.requestEmailChange(userId, 'new@example.com', 'password1234');
+
+		const stillOld = await h.users.findById(userId);
+		expect(stillOld?.email).toBe('user@example.com');
+	});
+
+	it('無効なトークンは ValidationError', async () => {
+		const h = makeHarness();
+		await expect(h.service.verifyEmailChange('invalidtoken')).rejects.toBeInstanceOf(
+			ValidationError
+		);
+	});
+
+	it('登録確認用トークン(type=verify)は消費できない(トークン種別の混同防止)', async () => {
+		const h = makeHarness();
+		const userId = await seedActiveUser(h);
+		const verifyToken = await h.tokenStore.create(userId, 'verify');
+
+		await expect(h.service.verifyEmailChange(verifyToken)).rejects.toBeInstanceOf(ValidationError);
 	});
 });
 

@@ -222,6 +222,12 @@ export class UserResolver {
 		return true;
 	}
 
+	@Mutation(() => Boolean, { name: 'verifyEmailChange' })
+	async verifyEmailChange(@Args('token', { type: () => String }) token: string): Promise<boolean> {
+		await this.userService.verifyEmailChange(token);
+		return true;
+	}
+
 	@Mutation(() => Boolean, { name: 'resendVerificationEmail' })
 	async resendVerificationEmail(@Context() ctx: GraphQLContext): Promise<boolean> {
 		const viewer = await this.viewerProvider.resolve(ctx.req);

@@ -66,3 +66,12 @@ export function renderEmailChangeConfirmationEmailHtml(confirmUrl: string): stri
 	].join('');
 	return renderAccountEmailShell('メールアドレス変更の確認をお願いします', body);
 }
+
+/** メールアドレス変更完了の通知(BR-ACCT-007、乗っ取り対策として旧アドレスへ本人に把握させる)。 */
+export function renderEmailChangedNotificationEmailHtml(newEmail: string): string {
+	const safeEmail = escapeHtml(newEmail);
+	const body =
+		`<p style="color:#333;line-height:1.7">メールアドレスが <strong>${safeEmail}</strong> に変更されました。` +
+		'心当たりがない場合は、第三者による不正利用の可能性があるため、直ちにパスワード再設定を行い、サポートまでお問い合わせください。</p>';
+	return renderAccountEmailShell('メールアドレスが変更されました', body);
+}

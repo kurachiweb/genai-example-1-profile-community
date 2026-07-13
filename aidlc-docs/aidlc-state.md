@@ -101,6 +101,16 @@
 - 詳細は [audit.md](./audit.md) の「追補（本番化差し替え）: メール送信基盤を Amazon SES へ差し替え」を参照。
 - **状態**: main へマージ・push・CI GREEN・dev デプロイ済み。ただし実機デプロイ後、`@aws-sdk/client-ses` が Workers ランタイムで `TypeError: emitWarningIfUnsupportedVersion$1 is not a function`(Node 専用ランタイム検知コードの esbuild バンドル不整合)により起動不能と判明したため、Rekognition と同型の `aws4fetch`(SESv2 REST API 直接呼び出し)へ差し替えて解消（[ADR 20260710-ses-mail-aws4fetch](../docs/adr/20260710-ses-mail-aws4fetch.md)）。修正後、実 AWS SES への疎通・`wrangler deploy --dry-run` バンドル検証とも完了。この差し替え分の main マージ・push は利用者確認待ち。
 
+## 追補（既存フロー未完成箇所）: メールアドレス変更確認画面・確認APIの実装
+
+- **契機**: アカウント設定画面(`/settings`)でメールアドレス変更を申請すると確認メールは届くが、本文中の確認リンク(`/settings/confirm-email-change`)にアクセスすると 404 になる不具合報告。
+- **原因**: BR-ACCT-007（メールアドレス変更）は `UserService.requestEmailChange`（確認メール送信まで）のみ実装され、確認完了側の `UserService.verifyEmailChange`・GraphQL ミューテーション・client 側の確認ページが未実装のまま欠落していた（`verifyEmail`(登録確認)と対になる実装が抜けていた）。
+- **対応範囲**: 新規ユニットは起票せず、既存の `requestEmailChange`/BR-ACCT-007 実装の追補として扱う（brownfield・既存 SSoT を流用、minimal 深度）。
+  - api: `UserService.verifyEmailChange`（`change_email` トークンを消費し `email`/`emailNormalized` を新アドレスへ確定・`status=ACTIVE`・`emailVerifiedAt=now`、乗っ取り対策として旧アドレスへ変更通知メール送信(新アドレスは確認メールで本人確認済みのため送らない)、BR-ACCT-007/AC-ACCT-013）、GraphQL `verifyEmailChange` ミューテーションを追加。
+  - client: `/settings/confirm-email-change`（`(auth)` route group 配下。`(my)` はセッション Cookie 必須のため、未ログイン状態でも確認できるよう分離）を追加。
+- 詳細は [audit.md](./audit.md) の「追補（既存フロー未完成箇所）: メールアドレス変更確認画面・確認APIの実装」を参照。
+- **状態**: 実装・TDD・Docker 実機確認（register→verifyEmail→login→requestEmailChange→Mailpit→confirm-email-change の一連のフロー）まで完了。main へのマージは利用者確認待ち。
+
 ## 実行モード
 
 - 利用者の明示指示（「作業用ブランチで複数コミットに分割し自動コミット、完了後 main へマージ」）に基づき、**承認ゲートで都度停止せず自律実行**する。監査証跡は [audit.md](./audit.md) に記録する。

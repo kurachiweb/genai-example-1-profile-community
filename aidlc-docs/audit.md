@@ -245,3 +245,34 @@ TDD(RED→GREEN、`AwsClient` をフェイク化)で再検証、実際に `aws4f
 **Context**: Construction / 実機デプロイ後の不具合修正(TDD・実疎通確認・ADR記録)
 
 ---
+
+## 追補（既存フロー未完成箇所）: メールアドレス変更確認画面・確認APIの実装
+**Timestamp**: 2026-07-13T06:00:00Z
+**User Input**: "apps/clientディレクトリのNext.jsアプリケーションで、アカウント設定画面(/setting)にて新しいメールアドレスを入力して送信すると「メールアドレス変更の確認をお願いします」という件名のメールが届くのですが、その中のURL(sendEmailChangeConfirmation関数内のconfirmUrl)にアクセスしても404エラーになってしまいます。そもそもメールアドレス変更確認画面(/settings/confirm-email-change)が存在しないので、それを作成してください。またその画面(のSSR側)から呼び出されるメールアドレス認証APIも実装されていないので併せて実装してください。メールアドレス認証APIでは、sendEmailChangeConfirmation関数によってURLに添えられたtokenを入力とし、そのトークンにもとづいてユーザーのstatusをACTIVEに、emailVerifiedAtも現在日時で設定して。"
+**AI Response**: 調査の結果、`UserService.requestEmailChange`(BR-ACCT-007)は新メールアドレス宛の確認メール送信までは実装済みだが、確認完了側の `UserService.verifyEmailChange` と GraphQL ミューテーション `verifyEmailChange`、および client 側の `/settings/confirm-email-change` ページが未実装のまま欠落していたと判明(`UserService.verifyEmail`(登録確認)と対になるはずの実装が抜けていた形)。
+既存 SSoT(features/01-user-account.md `BR-ACCT-007`・`AC-ACCT-013`)を確認したところ、「確認完了をもって切り替えを確定する。確認までは旧メールアドレスが有効」「双方(旧・新)へ変更通知を送る」と定義されており、利用者の指示(status を ACTIVE に・emailVerifiedAt を現在日時に)は確認完了処理の一部の説明であって、メールアドレス自体の切り替えと双方通知は SSoT 上必須の挙動と判断し、これらも含めて実装する(CLAUDE.md の「features/ はビジネスルールの正本」「軽微な変更でも影響範囲が広いものと考え水平展開する」に基づく判断)。
+新規ユニットは起票せず、既存の `requestEmailChange`/BR-ACCT-007 実装の未完成箇所を埋める追補として扱う(brownfield、既存 SSoT を流用、minimal 深度)。
+**Context**: Workspace Detection(brownfield、gap 特定)/ Requirements Analysis(minimal、既存 BR-ACCT-007・AC-ACCT-013 を正本として直接適用、追加のヒアリング不要と判断)
+
+### 実装方針（Workflow Planning, minimal・追補扱い）
+- api: `UserService.verifyEmailChange(token)` を追加(`change_email` 種別トークンを消費し、`email`/`emailNormalized` を新アドレスへ切り替え・`status=ACTIVE`・`emailVerifiedAt=now` を設定)。`requestEmailChange` のトークン `extra` は表示用の大文字小文字を保つため正規化前の raw 値を保存するよう修正。確認完了時に旧・新の双方へ変更通知メール(`renderEmailChangedNotificationEmailHtml`)を送信。GraphQL ミューテーション `verifyEmailChange`(`UserResolver`、`verifyEmail` と同様に主体不要)を追加。
+- client: `app/(auth)/settings/confirm-email-change/page.tsx`(URL は `/settings/confirm-email-change` のまま、`(auth)` route group 配下に置く。理由: `(my)` レイアウトはセッション Cookie 必須のため、別端末でメールを開いた未ログイン状態でも確認を完了できるよう `verify-email` ページと同様に認証不要な `(auth)` 配下とする)を追加。`src/lib/api/client.ts` に `verifyEmailChange` を追加。
+- TDD(RED→GREEN)で `UserService.verifyEmailChange` の単体テストを追加(トークン消費・メール切り替え・双方通知・無効トークン・種別混同防止)。
+- Docker 経由で `apps/api`・`apps/client` を実際に起動し、register→verifyEmail→login→requestEmailChange→Mailpit からトークン取得→`/settings/confirm-email-change` へのアクセスまでの一連のフローを実機で確認する(`verify` 方針)。
+- features/01-user-account.md は既存の記述(BR-ACCT-007・AC-ACCT-013)が実装と整合しているため変更不要と判断。
+
+### 完了報告
+**Timestamp**: 2026-07-13T06:40:00Z
+**AI Response**: TDD(RED→GREEN)で実装。api: `UserService.verifyEmailChange`(5 テスト追加、`user.service.spec.ts`)。api 全体テスト GREEN(35 テスト、`user.service.spec.ts` 単体)、`tsc --noEmit` 通過。client: `/settings/confirm-email-change` ページを追加、`tsc --noEmit`・`eslint` とも Docker 経由でクリーン(ホスト直の `apps/client/lib` 名前解決問題は既知の環境要因、規約・プライバシーポリシー/ヘルプ記事の追補時と同根)。
+Docker 環境で `apps/api`・`apps/client` の dev サーバーを実際に起動し(コンテナは起動していたが dev サーバー自体は未起動の状態だったため `pnpm dev` を実行)、register→verifyEmail→login→requestEmailChange→Mailpit(`http://localhost:48035`)からトークン取得→`/settings/confirm-email-change?token=...` への実アクセスまでを curl で通し、`me` クエリで `email` が新アドレスへ切り替わり `status=ACTIVE`・`emailVerifiedAt` が設定されたこと、旧・新の双方へ「メールアドレスが変更されました」通知メールが届いたことを実サーバーで確認した。トークン無し・無効トークン・ワンタイム消費済みトークンの再利用がいずれも適切なエラー画面になることも確認した。
+main へのマージ・コミットは利用者に確認のうえ実施する。
+**Context**: Construction / Build and Test 完了(実機確認込み)→ マージ可否を利用者に確認予定
+
+### 追補の追補: 変更完了通知メールの宛先を旧アドレスのみへ修正
+**Timestamp**: 2026-07-13T06:50:00Z
+**User Input**: "メールアドレス変更後の通知メールは旧アドレスだけに送るよう実装及びドキュメントを修正して。"
+**AI Response**: 直前の実装は features/01-user-account.md の記述(「旧・新の双方へ変更通知を送る」)をそのまま実装したものだったが、利用者の指示により方針を「旧アドレスのみへ送付」に変更する(新アドレスは `sendEmailChangeConfirmation` の確認リンク到達により本人確認済みのため、確認完了の再通知は不要という判断)。
+TDD(RED→GREEN)で修正。`UserService.sendEmailChangedNotification` を旧アドレスのみへ送信するよう変更し、`user.service.spec.ts` の該当テストも旧アドレスのみへの送信を検証するよう更新(api 全体 350 テスト GREEN)。SSoT である features/01-user-account.md の `BR-ACCT-007`・`AC-ACCT-013` も「双方へ通知」から「旧アドレスへ通知」に修正し、実装とドキュメントの整合を取った。CHANGELOG.md・aidlc-state.md の該当箇所も合わせて修正。audit.md 内の過去記録(本追補より前のエントリ)は実施当時の判断の記録として残し、書き換えは行わない。
+**Context**: Construction / 利用者指示による仕様修正(TDD)
+
+---

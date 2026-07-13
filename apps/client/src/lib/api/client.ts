@@ -103,6 +103,14 @@ export async function requestEmailChange(newEmail: string, password: string): Pr
 	);
 }
 
+export async function verifyEmailChange(token: string): Promise<void> {
+	await graphqlRequest(
+		`mutation($token:String!){ verifyEmailChange(token:$token) }`,
+		{ token },
+		{ sessionId: null }
+	);
+}
+
 export async function withdrawAccount(password: string): Promise<void> {
 	await graphqlRequest(`mutation($password:String!){ withdraw(password:$password) }`, { password });
 }

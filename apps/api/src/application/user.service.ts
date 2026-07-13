@@ -17,6 +17,7 @@ import { MailSender } from './admin/content-gateways';
 import {
 	renderAlreadyRegisteredEmailHtml,
 	renderEmailChangeConfirmationEmailHtml,
+	renderEmailChangedNotificationEmailHtml,
 	renderPasswordChangedEmailHtml,
 	renderPasswordResetEmailHtml,
 	renderVerificationEmailHtml
@@ -293,7 +294,8 @@ export class UserService {
 			// 存在有無を漏らさないため一律完了を返す(BR-ACCT-001)。
 			return;
 		}
-		const token = await this.deps.tokenStore.create(userId, 'change_email', emailNorm);
+		// extra には表示用の大文字小文字を保つため raw を保存する(確定時に email へ復元、BR-ACCT-007)。
+		const token = await this.deps.tokenStore.create(userId, 'change_email', newEmail.trim());
 		await this.sendEmailChangeConfirmation(newEmail, token);
 	}
 
@@ -304,6 +306,46 @@ export class UserService {
 			to: newEmail,
 			subject: '【GenAI Profile Community】メールアドレス変更の確認をお願いします',
 			html: renderEmailChangeConfirmationEmailHtml(confirmUrl)
+		});
+	}
+
+	/**
+	 * メールアドレス変更を確認し、確定する(BR-ACCT-007、AC-ACCT-013)。
+	 * 確認完了をもって切り替えを確定し、旧アドレスへ変更通知を送る。
+	 */
+	async verifyEmailChange(token: string): Promise<void> {
+		const result = await this.deps.tokenStore.consume(token, 'change_email');
+		if (!result || !result.extra) {
+			throw new ValidationError('確認リンクが無効か期限切れです。');
+		}
+		const user = await this.deps.users.findById(result.userId);
+		if (!user) {
+			throw new ValidationError('確認リンクが無効か期限切れです。');
+		}
+
+		const newEmail = result.extra;
+		const oldEmail = user.email;
+
+		await this.deps.users.update(result.userId, {
+			status: UserStatus.ACTIVE,
+			emailVerifiedAt: this.deps.clock.now(),
+			email: newEmail,
+			emailNormalized: normalizeEmail(newEmail)
+		});
+
+		await this.sendEmailChangedNotification(oldEmail, newEmail);
+	}
+
+	/**
+	 * メールアドレス変更完了を旧アドレスへ通知する(verifyEmailChange 専用、BR-ACCT-007)。
+	 * 新アドレスは確認メール(sendEmailChangeConfirmation)で既に本人確認済みのため、
+	 * 乗っ取り対策として通知が必要なのは旧アドレスのみ(新アドレス宛の再通知はしない)。
+	 */
+	private async sendEmailChangedNotification(oldEmail: string, newEmail: string): Promise<void> {
+		await this.deps.mail.send({
+			to: oldEmail,
+			subject: '【GenAI Profile Community】メールアドレスが変更されました',
+			html: renderEmailChangedNotificationEmailHtml(newEmail)
 		});
 	}
 
